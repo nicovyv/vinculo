@@ -8,5 +8,6 @@
         public string Telefono { get; set; }
         public Domicilio Domicilio { get; set; }
         public string Email { get; set; }
+        public List<Donacion> Donaciones { get; set; }
     }
 }

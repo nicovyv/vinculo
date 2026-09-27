@@ -1,7 +1,16 @@
+using Microsoft.EntityFrameworkCore;
+using Vinculo.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+
+// incluir DbContext
+builder.Services.AddDbContext<VinculoDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("VinculoDbContext")));
+
 
 var app = builder.Build();
 
