@@ -15,8 +15,7 @@ namespace Vinculo.Data
         public DbSet<Institucion> Instituciones { get; set; }
         public DbSet<Solicitud> Solicitudes { get; set; }
         public DbSet<Donacion> Donaciones { get; set; }
-
-
+        public DbSet<Domicilio> Domicilios { get; set; }
 
 
     }

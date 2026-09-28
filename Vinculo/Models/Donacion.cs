@@ -7,6 +7,7 @@ namespace Vinculo.Models
     {
         public int Id { get; set; }
         [Required]
+        public int EmpresaId { get; set; }
         public Empresa Empresa { get; set; }
         [Required]
         [DataType(DataType.Date)]
