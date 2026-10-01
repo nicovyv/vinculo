@@ -52,6 +52,61 @@ namespace Vinculo.Data
                     await userManager.AddToRoleAsync(newAdmin, TipoUsuario.Administrador.ToString());
                 }
             }
+
+
+            // 3. Crear Usuario Empresa de Prueba
+            string empresaEmail = "empresa@vinculo.com";
+            var empresaUser = await userManager.FindByEmailAsync(empresaEmail);
+
+            if (empresaUser == null)
+            {
+                var newEmpresa = new Usuario
+                {
+                    UserName = empresaEmail,
+                    Email = empresaEmail,
+                    TipoUsuario = TipoUsuario.Empresa,
+                    Activo = true,
+                    FechaAlta = DateTime.Now,
+                    EmailConfirmed = false // confirmación por mail
+                };
+
+                // Asignamos una contraseña por defecto
+                var result = await userManager.CreateAsync(newEmpresa, "Empresa123");
+
+                if (result.Succeeded)
+                {
+                    // Lo vinculamos al rol Empresa
+                    await userManager.AddToRoleAsync(newEmpresa, TipoUsuario.Empresa.ToString());
+                }
+            }
+
+            // 4. Crear Usuario Institución de Prueba
+            string institucionEmail = "institucion@vinculo.com";
+            var institucionUser = await userManager.FindByEmailAsync(institucionEmail);
+
+            if (institucionUser == null)
+            {
+                var newInstitucion = new Usuario
+                {
+                    UserName = institucionEmail,
+                    Email = institucionEmail,
+                    TipoUsuario = TipoUsuario.Institucion,
+                    Activo = true,
+                    FechaAlta = DateTime.Now,
+                    EmailConfirmed = false // confirmación por mail
+                };
+
+                // Asignamos una contraseña por defecto
+                var result = await userManager.CreateAsync(newInstitucion, "Institucion123");
+
+                if (result.Succeeded)
+                {
+                    // Lo vinculamos al rol Institución
+                    await userManager.AddToRoleAsync(newInstitucion, TipoUsuario.Institucion.ToString());
+                }
+            }
+
+
         }
     }
 }

@@ -14,7 +14,6 @@ namespace Vinculo.Models
         public TipoEquipamiento TipoEquipamiento { get; set; }
         [Required]
         public int Cantidad { get; set; }
-        [Required]
 
     }
 }
