@@ -15,5 +15,6 @@ namespace Vinculo.Models
         public DateTime Fecha { get; set; }
         [Required]
         public EstadoSolicitud Estado { get; set; }
+        public  List<DetalleSolicitud> Equipamientos { get; set; } = new List<DetalleSolicitud>();
     }
 }

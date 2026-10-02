@@ -1,0 +1,107 @@
+﻿```cshtml
+@model Vinculo.Models.ViewModels.PerfilInstitucionViewModel
+
+@{
+    ViewData["Title"] = "Mi Perfil";
+}
+
+<div class="container mt-4">
+    <h2>Mi Perfil</h2>
+    <hr />
+    <div class="row">
+        <div class="col-md-8">
+            <form asp-action="MiPerfil" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">
+                        Datos de la Institución
+                    </div>
+
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <label asp-for="Nombre" class="control-label"></label>
+                            <input asp-for="Nombre" class="form-control" />
+                            <span asp-validation-for="Nombre" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Cuit" class="control-label"></label>
+                            <input asp-for="Cuit" class="form-control" />
+                            <span asp-validation-for="Cuit" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 form-group mb-3">
+                                <label asp-for="Telefono" class="control-label"></label>
+                                <input asp-for="Telefono" class="form-control" />
+                                <span asp-validation-for="Telefono" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 form-group mb-3">
+                                <label asp-for="Email" class="control-label"></label>
+                                <input asp-for="Email" class="form-control" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-3">
+                    <div class="card-header bg-secondary text-white">
+                        Domicilio Físico
+                    </div>
+
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8 form-group mb-3">
+                                <label asp-for="Calle" class="control-label"></label>
+                                <input asp-for="Calle" class="form-control" />
+                                <span asp-validation-for="Calle" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-4 form-group mb-3">
+                                <label asp-for="Numero" class="control-label"></label>
+                                <input asp-for="Numero" class="form-control" />
+                                <span asp-validation-for="Numero" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-5 form-group mb-3">
+                                <label asp-for="Localidad" class="control-label"></label>
+                                <input asp-for="Localidad" class="form-control" />
+                                <span asp-validation-for="Localidad" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-4 form-group mb-3">
+                                <label asp-for="Provincia" class="control-label"></label>
+                                <input asp-for="Provincia" class="form-control" />
+                                <span asp-validation-for="Provincia" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-3 form-group mb-3">
+                                <label asp-for="CodigoPostal" class="control-label"></label>
+                                <input asp-for="CodigoPostal" class="form-control" />
+                                <span asp-validation-for="CodigoPostal" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group text-end mt-3">
+                    <button type="submit" class="btn btn-success px-4">
+                        Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+```
