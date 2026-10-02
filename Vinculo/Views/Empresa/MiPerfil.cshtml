@@ -1,4 +1,4 @@
-﻿@model Vinculo.Models.ViewModels.PerfilEmpresaViewModel
+@* @model Vinculo.Models.ViewModels.PerfilEmpresaViewModel
 
 @{
     ViewData["Title"] = "Mi Perfil";
@@ -87,4 +87,662 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-}
+} *@
+
+
+
+
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Dashboard Empresa Donante - Vínculo por Eisbaer</title>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
+    <!-- Bootstrap 5.3 CSS -->
+    <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" rel="stylesheet" />
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <style>
+            :root {
+              --bs-primary: #0f2a47;
+              --bs-primary-rgb: 15, 42, 71;
+              --vinculo-teal: #0e9aa7;
+              --vinculo-teal-dark: #09757f;
+              --vinculo-teal-bg: #eaf8fa;
+              --vinculo-surface: #f8f9ff;
+              --vinculo-surface-card: #ffffff;
+              --vinculo-navy-soft: #e9eff7;
+              --vinculo-border: #e3e8f0;
+            }
+            body {
+              font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+              background-color: var(--vinculo-surface);
+              color: #0b1c30;
+              min-height: 100vh;
+            }
+            .bg-corporate-primary {
+              background-color: #0f2a47 !important;
+            }
+            .text-corporate-primary {
+              color: #0f2a47 !important;
+            }
+            .btn-teal {
+              background-color: var(--vinculo-teal);
+              border-color: var(--vinculo-teal);
+              color: #ffffff;
+            }
+            .btn-teal:hover, .btn-teal:focus {
+              background-color: var(--vinculo-teal-dark);
+              border-color: var(--vinculo-teal-dark);
+              color: #ffffff;
+            }
+            .btn-outline-teal {
+              color: var(--vinculo-teal);
+              border-color: var(--vinculo-teal);
+            }
+            .btn-outline-teal:hover {
+              background-color: var(--vinculo-teal);
+              color: #ffffff;
+            }
+            .text-teal {
+              color: var(--vinculo-teal) !important;
+            }
+            .bg-teal-subtle-custom {
+              background-color: #eaf8fa !important;
+              color: #086b75 !important;
+            }
+            .sidebar {
+              width: 260px;
+              min-height: calc(100vh - 64px);
+            }
+            .nav-sidebar-link {
+              color: #495057;
+              font-weight: 500;
+              font-size: 0.9rem;
+              border-radius: 0.5rem;
+              padding: 0.6rem 0.85rem;
+              transition: all 0.15s ease-in-out;
+              text-decoration: none;
+              display: flex;
+              align-items: center;
+              gap: 0.65rem;
+            }
+            .nav-sidebar-link:hover {
+              background-color: #f1f4fa;
+              color: #0f2a47;
+            }
+            .nav-sidebar-link.active {
+              background-color: #dce7f5;
+              color: #0f2a47;
+              font-weight: 600;
+            }
+            .kpi-icon-box {
+              width: 46px;
+              height: 46px;
+              border-radius: 12px;
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 1.35rem;
+            }
+            .map-preview-box {
+              background: radial-gradient(circle at 50% 50%, #d4e7f5 0%, #c1d9ec 100%);
+              border: 1px dashed #99bad5;
+              height: 140px;
+              position: relative;
+            }
+            .breadcrumb-item + .breadcrumb-item::before {
+              content: "›";
+              font-size: 1.1rem;
+              line-height: 1;
+              vertical-align: -1px;
+            }
+    </style>
+</head>
+<body class="d-flex flex-column min-h-screen">
+    <!-- Header / Navbar Principal -->
+    <header class="navbar navbar-expand-lg bg-white border-bottom border-light-subtle shadow-sm sticky-top py-2 px-3 px-lg-4" style="height: 64px;">
+        <div class="container-fluid px-0 d-flex align-items-center justify-content-between">
+            <!-- Logo y Badges de Marca -->
+            <div class="d-flex align-items-center gap-3">
+                <a class="navbar-brand d-flex align-items-center gap-2 m-0" href="#">
+                    <img alt="Eisbaer Logo" class="img-fluid" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0WB7iOtogyORIIfu37hVUTR9rgkUyNnIYBCr9AUGC0qpVwEJDhn6sJK140_0gGIR33Gc-Nb_wjDCxwE97yq60q2N4EhI8075uuZ3Cci_H2vLU8aUlb7ns99WBh2nlSBGyOwdQ90goVNKrOTVH1bb95aMEfjJ8sggy1itfBiNCBWPvv9jTiNvd0AZiVysocWfn-VHidbAjaUa7hXxkdCPTwYCOtcnuGdcwGzYS0eNGqNjPiaYkVK42_dUBeDbdH5oO208" style="height: 34px; width: auto; object-fit: contain;" />
+                    <div class="d-flex align-items-baseline gap-1">
+                        <span class="fs-4 fw-bold text-corporate-primary lh-1 tracking-tight">Vínculo</span>
+                        <span class="text-secondary small d-none d-sm-inline">por Eisbaer</span>
+                    </div>
+                </a>
+                <div class="vr d-none d-md-block opacity-25 my-1" style="height: 22px;"></div>
+                <span class="badge rounded-pill bg-teal-subtle-custom d-none d-md-inline-flex align-items-center gap-1.5 px-3 py-1 fw-medium font-monospace small">
+                    <span class="spinner-grow spinner-grow-sm text-info" role="status" style="width: 7px; height: 7px;"></span>
+                    Red Vínculo Conectada
+                </span>
+            </div>
+            <!-- Perfil Corporativo / Acciones Rápidas -->
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-none d-lg-block text-end lh-sm">
+                    <div class="fw-semibold text-dark small">Telecom Argentina S.A.</div>
+                    <small class="text-muted font-monospace" style="font-size: 0.78rem;">CUIT 30-63945373-8</small>
+                </div>
+                <div class="position-relative">
+                    <button aria-label="Notificaciones" class="btn btn-light btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center text-secondary border-0" type="button">
+                        <i class="bi bi-bell fs-5"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
+                            <span class="visually-hidden">Alertas no leídas</span>
+                        </span>
+                    </button>
+                </div>
+                <div class="vr opacity-25 my-1" style="height: 24px;"></div>
+                <div class="dropdown">
+                    <button aria-expanded="false" class="btn btn-light p-1 rounded-circle border-0 d-flex align-items-center" data-bs-toggle="dropdown" type="button">
+                        <span class="rounded-circle bg-corporate-primary text-white d-inline-flex align-items-center justify-content-center" style="width: 34px; height: 34px;">
+                            <i class="bi bi-person-fill fs-5"></i>
+                        </span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-light-subtle">
+                        <li class="dropdown-header">Sesión Corporativa</li>
+                        <li><a class="dropdown-item small" href="#"><i class="bi bi-shield-check me-2 text-teal"></i>Seguridad y Llaves</a></li>
+                        <li><a class="dropdown-item small" href="#"><i class="bi bi-gear me-2"></i>Ajustes de Cuenta</a></li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li><a class="dropdown-item small text-danger" href="#"><i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- Layout Principal con Sidebar y Área de Trabajo -->
+    <div class="container-fluid flex-grow-1 px-0">
+        <div class="row g-0">
+            <!-- Sidebar Lateral Izquierdo -->
+            <aside class="col-12 col-md-3 col-xl-2 bg-white border-end border-light-subtle d-flex flex-column justify-content-between p-3" style="min-height: calc(100vh - 64px);">
+                <div>
+                    <div class="text-uppercase text-secondary fw-bold px-2 mb-3" style="font-size: 0.72rem; letter-spacing: 0.05em;">
+                        Portal Empresa Donante
+                    </div>
+                    <!-- Botón de Acción Principal -->
+                    <div class="mb-3">
+                        <a class="btn btn-teal w-100 d-flex align-items-center justify-content-center gap-2 py-2 fw-medium shadow-sm" href="#">
+                            <i class="bi bi-plus-circle fs-5"></i>
+                            <span>Registrar Donación</span>
+                        </a>
+                    </div>
+                    <!-- Navegación -->
+                    <nav class="nav flex-column gap-1">
+                        <a aria-current="page" class="nav-sidebar-link active" href="#">
+                            <i class="bi bi-speedometer2 fs-5"></i>
+                            <span>Dashboard</span>
+                        </a>
+                        <a class="nav-sidebar-link" href="#">
+                            <i class="bi bi-box-seam fs-5"></i>
+                            <span>Mis Donaciones</span>
+                        </a>
+                        <a class="nav-sidebar-link" href="#">
+                            <i class="bi bi-geo-alt fs-5"></i>
+                            <span>Coincidencias Geográficas</span>
+                        </a>
+                        <a class="nav-sidebar-link justify-content-between" href="#">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-card-checklist fs-5"></i>
+                                <span>Mis Asignaciones</span>
+                            </div>
+                            <span class="badge bg-primary-subtle text-primary rounded-pill px-2">2</span>
+                        </a>
+                        <a class="nav-sidebar-link" href="#">
+                            <i class="bi bi-patch-check fs-5"></i>
+                            <span>Certificados Fiscales y RSE</span>
+                        </a>
+                        <a class="nav-sidebar-link" href="#">
+                            <i class="bi bi-building-gear fs-5"></i>
+                            <span>Configuración de Planta</span>
+                        </a>
+                    </nav>
+                </div>
+                <!-- Tarjeta de Mesa Técnica -->
+                <div class="card bg-body-tertiary border-0 rounded-3 mt-4 p-3">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <i class="bi bi-headset text-corporate-primary fs-5"></i>
+                        <span class="fw-semibold small text-corporate-primary">Mesa Técnica Eisbaer</span>
+                    </div>
+                    <p class="text-secondary small mb-2 lh-sm" style="font-size: 0.8rem;">
+                        Soporte y trazabilidad corporativa 24/7.
+                    </p>
+                    <div class="d-flex align-items-center justify-content-between pt-2 border-top border-secondary-subtle">
+                        <small class="text-secondary" style="font-size: 0.72rem;">Sesión auditada</small>
+                        <span class="badge bg-teal-subtle-custom rounded-circle p-1" style="width: 8px; height: 8px;"></span>
+                    </div>
+                </div>
+            </aside>
+            <!-- Contenido Principal -->
+            <main class="col-12 col-md-9 col-xl-10 p-3 p-lg-4 overflow-auto">
+                <div class="container-fluid px-0">
+                    <!-- Breadcrumb y Título de Página -->
+                    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+                        <div>
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb mb-1 small text-secondary">
+                                    <li class="breadcrumb-item"><a class="text-decoration-none text-secondary" href="#">Inicio</a></li>
+                                    <li aria-current="page" class="breadcrumb-item active text-dark fw-semibold">Dashboard Empresa</li>
+                                </ol>
+                            </nav>
+                            <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                                <h1 class="h3 fw-bold text-corporate-primary mb-0">Panel Corporativo de Donaciones</h1>
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-monospace py-1 px-2">
+                                    <i class="bi bi-shield-lock me-1"></i>Telecom Argentina S.A. | CUIT: 30-63945373-8
+                                </span>
+                            </div>
+                            <p class="text-secondary mb-0 small">
+                                Supervisión de parque informático en desuso, trazabilidad fiscal, logística inversa y asignación geolocalizada a entidades educativas y comunitarias de la Red Eisbaer.
+                            </p>
+                        </div>
+                        <div class="text-nowrap">
+                            <a class="btn btn-teal d-inline-flex align-items-center gap-2 px-3 py-2 fw-medium shadow-sm" href="#">
+                                <i class="bi bi-plus-circle"></i>
+                                <span>Registrar Nueva Donación</span>
+                            </a>
+                        </div>
+                    </div>
+                    <!-- Alerta de Proximidad Óptima (Motor GeoNode) -->
+                    <div class="alert alert-info alert-dismissible fade show border-0 shadow-sm p-3 mb-4 rounded-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3" role="alert" style="background-color: #ebf6fa; border-left: 5px solid var(--vinculo-teal) !important;">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-3 bg-white p-2 text-teal shadow-xs d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                                <i class="bi bi-radar fs-4"></i>
+                            </div>
+                            <div>
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    <span class="badge bg-teal-subtle-custom text-uppercase fw-bold" style="font-size: 0.68rem; letter-spacing: 0.05em;">Motor Eisbaer GeoNode</span>
+                                    <small class="text-secondary fw-semibold">• Alerta de Proximidad Óptima</small>
+                                </div>
+                                <div class="text-dark small mt-1">
+                                    Nueva coincidencia prioritaria detectada a <strong>2.4 km</strong> de la Sede Corporativa Barracas para el lote <strong class="font-monospace">#DON-2026-089</strong>: <strong>Escuela Técnica N° 12 Libertador Gral. San Martín</strong>.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 align-self-end align-self-md-center">
+                            <a class="btn btn-sm btn-corporate-primary text-white text-nowrap d-inline-flex align-items-center gap-1 shadow-xs" href="#" style="background-color: #0f2a47;">
+                                <i class="bi bi-compass"></i>
+                                <span>Ver Coincidencias Geográficas</span>
+                            </a>
+                            <button aria-label="Cerrar" class="btn-close position-static p-2" data-bs-dismiss="alert" type="button"></button>
+                        </div>
+                    </div>
+                    <!-- Fila de 4 KPI Cards -->
+                    <div class="row g-3 mb-4">
+                        <!-- KPI 1 -->
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <div class="card border-0 shadow-sm rounded-3 h-100 p-3">
+                                <div class="d-flex align-items-start justify-content-between mb-2">
+                                    <div>
+                                        <span class="text-secondary text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Donaciones Publicadas</span>
+                                        <div class="h3 fw-bold text-corporate-primary mb-0 mt-1 font-monospace">8 <span class="fs-6 text-secondary fw-normal">lotes</span></div>
+                                    </div>
+                                    <div class="kpi-icon-box bg-body-tertiary text-corporate-primary">
+                                        <i class="bi bi-box-seam"></i>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-1 text-success small pt-2 border-top border-light-subtle">
+                                    <i class="bi bi-arrow-up-right"></i>
+                                    <span class="fw-bold">+2 lotes</span>
+                                    <span class="text-secondary">ingresados este mes</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- KPI 2 -->
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <div class="card border-0 shadow-sm rounded-3 h-100 p-3">
+                                <div class="d-flex align-items-start justify-content-between mb-2">
+                                    <div>
+                                        <span class="text-secondary text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Asignaciones en Curso</span>
+                                        <div class="h3 fw-bold text-corporate-primary mb-0 mt-1 font-monospace">3 <span class="fs-6 text-secondary fw-normal">activas</span></div>
+                                    </div>
+                                    <div class="kpi-icon-box bg-info-subtle text-info">
+                                        <i class="bi bi-truck"></i>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-1 text-secondary small pt-2 border-top border-light-subtle">
+                                    <i class="bi bi-clock-history"></i>
+                                    <span class="fw-semibold text-dark">Logística programada</span>
+                                    <span class="text-muted">48-72 hs</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- KPI 3 -->
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <div class="card border-0 shadow-sm rounded-3 h-100 p-3">
+                                <div class="d-flex align-items-start justify-content-between mb-2">
+                                    <div>
+                                        <span class="text-secondary text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Entregas Concretadas</span>
+                                        <div class="h3 fw-bold text-corporate-primary mb-0 mt-1 font-monospace">18 <span class="fs-6 text-secondary fw-normal">completadas</span></div>
+                                    </div>
+                                    <div class="kpi-icon-box bg-success-subtle text-success">
+                                        <i class="bi bi-check-circle"></i>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-1 text-success small pt-2 border-top border-light-subtle">
+                                    <i class="bi bi-file-earmark-check"></i>
+                                    <span class="fw-bold">100% actas recibidas</span>
+                                    <span class="text-secondary">y visadas</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- KPI 4 -->
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <div class="card border-0 shadow-sm rounded-3 h-100 p-3">
+                                <div class="d-flex align-items-start justify-content-between mb-2">
+                                    <div>
+                                        <span class="text-secondary text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Equipamiento Cedido</span>
+                                        <div class="h3 fw-bold text-corporate-primary mb-0 mt-1 font-monospace">142 <span class="fs-6 text-secondary fw-normal">unidades</span></div>
+                                    </div>
+                                    <div class="kpi-icon-box bg-teal-subtle-custom text-teal">
+                                        <i class="bi bi-cpu"></i>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-1 text-secondary small pt-2 border-top border-light-subtle">
+                                    <i class="bi bi-globe-americas text-success"></i>
+                                    <span class="text-secondary">Ahorro CO2 est.:</span>
+                                    <strong class="text-dark font-monospace">2.8 Tn eq.</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Sección Principal de Dos Columnas -->
+                    <div class="row g-4">
+                        <!-- Columna Izquierda (Tabla y Trazabilidad) -->
+                        <div class="col-12 col-lg-8">
+                            <!-- Tarjeta: Donaciones Activas y Estado Logístico -->
+                            <div class="card border-0 shadow-sm rounded-3 mb-4">
+                                <div class="card-header bg-white border-0 pt-3 px-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
+                                    <div>
+                                        <h5 class="fw-bold text-corporate-primary mb-0">Donaciones Activas y Estado Logístico</h5>
+                                        <small class="text-secondary">Control de inventario publicado, canalización comunitaria y remitos de entrega</small>
+                                    </div>
+                                    <!-- Tabs de filtrado -->
+                                    <div class="btn-group btn-group-sm p-1 bg-body-tertiary rounded-3" role="group">
+                                        <button class="btn btn-white fw-semibold bg-white shadow-xs text-corporate-primary rounded-2" type="button">En Curso (4)</button>
+                                        <button class="btn btn-light bg-transparent text-secondary border-0" type="button">Disponibles (2)</button>
+                                        <button class="btn btn-light bg-transparent text-secondary border-0" type="button">Historial (18)</button>
+                                    </div>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle mb-0 text-nowrap">
+                                            <thead class="table-light small text-uppercase text-secondary border-top">
+                                                <tr>
+                                                    <th class="ps-3 py-2 fw-semibold" scope="col">Lote Ref.</th>
+                                                    <th class="py-2 fw-semibold" scope="col">Equipos</th>
+                                                    <th class="py-2 fw-semibold" scope="col">Fecha Pub.</th>
+                                                    <th class="py-2 fw-semibold" scope="col">Estado</th>
+                                                    <th class="py-2 fw-semibold" scope="col">Destino Asignado</th>
+                                                    <th class="pe-3 py-2 text-end fw-semibold" scope="col">Acciones</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="small">
+                                                <!-- Fila 1 -->
+                                                <tr>
+                                                    <td class="ps-3 fw-bold font-monospace text-corporate-primary">#DON-2026-089</td>
+                                                    <td>
+                                                        <div class="fw-semibold text-dark">25 Notebooks Lenovo T480</div>
+                                                        <span class="text-secondary font-monospace" style="font-size: 0.75rem;">i5 8va · 16GB · 256GB SSD</span>
+                                                    </td>
+                                                    <td class="text-secondary font-monospace">18/03/2026</td>
+                                                    <td>
+                                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                                                            <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>En Coordinación
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <div class="fw-medium text-dark">Escuela Técnica N° 12</div>
+                                                        <small class="text-secondary d-flex align-items-center gap-1 font-monospace">
+                                                            <i class="bi bi-geo-alt-fill text-teal"></i>2.4 km · Barracas
+                                                        </small>
+                                                    </td>
+                                                    <td class="pe-3 text-end">
+                                                        <div class="btn-group btn-group-sm">
+                                                            <a class="btn btn-sm btn-outline-primary fw-medium px-2 py-1" href="#">Gestionar Remito</a>
+                                                            <a class="btn btn-sm btn-light border text-secondary" href="#" title="Ver en mapa"><i class="bi bi-geo-alt"></i></a>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <!-- Fila 2 -->
+                                                <tr>
+                                                    <td class="ps-3 fw-bold font-monospace text-corporate-primary">#DON-2026-077</td>
+                                                    <td>
+                                                        <div class="fw-semibold text-dark">15 PC Dell OptiPlex 7050</div>
+                                                        <span class="text-secondary font-monospace" style="font-size: 0.75rem;">Con monitores 22" FHD</span>
+                                                    </td>
+                                                    <td class="text-secondary font-monospace">10/03/2026</td>
+                                                    <td>
+                                                        <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-2 py-1">
+                                                            <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>Asignada
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <div class="fw-medium text-dark">Centro Comunitario La Boca</div>
+                                                        <small class="text-secondary d-flex align-items-center gap-1 font-monospace">
+                                                            <i class="bi bi-truck text-secondary"></i>En tránsito (Flecha Sur)
+                                                        </small>
+                                                    </td>
+                                                    <td class="pe-3 text-end">
+                                                        <a class="btn btn-sm btn-outline-secondary fw-medium px-2 py-1" href="#">Hoja de Ruta</a>
+                                                    </td>
+                                                </tr>
+                                                <!-- Fila 3 -->
+                                                <tr>
+                                                    <td class="ps-3 fw-bold font-monospace text-corporate-primary">#DON-2026-064</td>
+                                                    <td>
+                                                        <div class="fw-semibold text-dark">8 Servidores Rack HP ProLiant DL360</div>
+                                                        <span class="text-secondary font-monospace" style="font-size: 0.75rem;">Dual Xeon · 64GB RAM</span>
+                                                    </td>
+                                                    <td class="text-secondary font-monospace">02/03/2026</td>
+                                                    <td>
+                                                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1">
+                                                            <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>Disponible
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <span class="text-muted fst-italic">Buscando nodo educativo</span>
+                                                    </td>
+                                                    <td class="pe-3 text-end">
+                                                        <a class="btn btn-sm btn-teal fw-medium px-2 py-1" href="#">Ver Coincidencias</a>
+                                                    </td>
+                                                </tr>
+                                                <!-- Fila 4 -->
+                                                <tr>
+                                                    <td class="ps-3 fw-bold font-monospace text-corporate-primary">#DON-2026-052</td>
+                                                    <td>
+                                                        <div class="fw-semibold text-dark">40 Switches Cisco Catalyst 2960</div>
+                                                        <span class="text-secondary font-monospace" style="font-size: 0.75rem;">Gigabit PoE+ 24/48 ports</span>
+                                                    </td>
+                                                    <td class="text-secondary font-monospace">22/02/2026</td>
+                                                    <td>
+                                                        <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-2 py-1">
+                                                            <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>Asignada
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <div class="fw-medium text-dark">Red Nodos UTN Regional Avellaneda</div>
+                                                        <small class="text-secondary d-flex align-items-center gap-1 font-monospace">
+                                                            <i class="bi bi-pen text-secondary"></i>Firma de acta pendiente
+                                                        </small>
+                                                    </td>
+                                                    <td class="pe-3 text-end">
+                                                        <a class="btn btn-sm btn-outline-primary fw-medium px-2 py-1" href="#">Ver Acta</a>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <!-- Footer de la tabla -->
+                                <div class="card-footer bg-white border-top border-light-subtle d-flex flex-column flex-sm-row align-items-center justify-content-between py-3 px-3 gap-2">
+                                    <small class="text-secondary">
+                                        Mostrando <strong class="text-dark font-monospace">4</strong> de <strong class="text-dark font-monospace">8</strong> lotes de activos
+                                    </small>
+                                    <a class="small fw-semibold text-teal text-decoration-none d-inline-flex align-items-center gap-1" href="#">
+                                        <span>Ver inventario completo de lotes</span>
+                                        <i class="bi bi-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <!-- Tarjeta: Trazabilidad en Cadena de Custodia -->
+                            <div class="card border-0 shadow-sm rounded-3 p-3">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <h6 class="fw-bold text-corporate-primary mb-0">Trazabilidad en Cadena de Custodia</h6>
+                                    <span class="badge bg-body-tertiary text-secondary font-monospace border">Protocolo Eisbaer Core v4.2</span>
+                                </div>
+                                <div class="row g-2 text-center">
+                                    <div class="col-6 col-md-3">
+                                        <div class="p-2 bg-body-tertiary rounded-3 h-100 d-flex flex-column align-items-center justify-content-center">
+                                            <i class="bi bi-qr-code-scan fs-4 text-teal mb-1"></i>
+                                            <div class="fw-semibold text-dark small">1. Loteado &amp; QR</div>
+                                            <small class="text-secondary lh-1 mt-1" style="font-size: 0.72rem;">Sanitización NIST 800-88</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <div class="p-2 bg-body-tertiary rounded-3 h-100 d-flex flex-column align-items-center justify-content-center">
+                                            <i class="bi bi-diagram-3 fs-4 text-teal mb-1"></i>
+                                            <div class="fw-semibold text-dark small">2. Matching Geo</div>
+                                            <small class="text-secondary lh-1 mt-1" style="font-size: 0.72rem;">Radio menor a 15 km</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <div class="p-2 bg-body-tertiary rounded-3 h-100 d-flex flex-column align-items-center justify-content-center">
+                                            <i class="bi bi-truck fs-4 text-teal mb-1"></i>
+                                            <div class="fw-semibold text-dark small">3. Despacho Seguro</div>
+                                            <small class="text-secondary lh-1 mt-1" style="font-size: 0.72rem;">Remito electrónico oficial</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <div class="p-2 bg-body-tertiary rounded-3 h-100 d-flex flex-column align-items-center justify-content-center">
+                                            <i class="bi bi-shield-check fs-4 text-teal mb-1"></i>
+                                            <div class="fw-semibold text-dark small">4. Certificado AFIP</div>
+                                            <small class="text-secondary lh-1 mt-1" style="font-size: 0.72rem;">RG 2485 y desgravación</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Columna Derecha (Impacto RSE y Centro de Despacho) -->
+                        <div class="col-12 col-lg-4">
+                            <!-- Tarjeta: Impacto Social & RSE -->
+                            <div class="card border-0 shadow-sm rounded-3 mb-4 p-3">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <h6 class="fw-bold text-corporate-primary mb-0">Impacto Social &amp; RSE</h6>
+                                    <i class="bi bi-globe2 text-teal fs-5"></i>
+                                </div>
+                                <p class="text-secondary small mb-3">
+                                    Indicadores de cumplimiento para memoria de sustentabilidad anual (ESG) 2026.
+                                </p>
+                                <!-- Tarjeta métrica alumnos -->
+                                <div class="card bg-body-tertiary border-0 rounded-3 p-3 mb-3">
+                                    <div class="d-flex align-items-baseline justify-content-between">
+                                        <span class="text-secondary text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Alumnos Beneficiados</span>
+                                        <span class="fs-4 fw-bold text-corporate-primary font-monospace">680</span>
+                                    </div>
+                                    <small class="text-secondary mt-1">En 5 instituciones técnicas y comunitarias asociadas.</small>
+                                </div>
+                                <!-- Barras de Progreso -->
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between small mb-1 fw-medium">
+                                        <span>Escuelas Técnicas Secundarias</span>
+                                        <span class="text-corporate-primary fw-bold font-monospace">65% (92 uds)</span>
+                                    </div>
+                                    <div aria-label="Escuelas Técnicas" aria-valuemax="100" aria-valuemin="0" aria-valuenow="65" class="progress mb-3" role="progressbar" style="height: 8px;">
+                                        <div class="progress-bar" style="width: 65%; background-color: var(--vinculo-teal);"></div>
+                                    </div>
+                                    <div class="d-flex justify-content-between small mb-1 fw-medium">
+                                        <span>Comedores y Espacios Comunitarios</span>
+                                        <span class="text-corporate-primary fw-bold font-monospace">25% (35 uds)</span>
+                                    </div>
+                                    <div aria-label="Comedores y Espacios" aria-valuemax="100" aria-valuemin="0" aria-valuenow="25" class="progress mb-3" role="progressbar" style="height: 8px;">
+                                        <div class="progress-bar bg-secondary" style="width: 25%;"></div>
+                                    </div>
+                                    <div class="d-flex justify-content-between small mb-1 fw-medium">
+                                        <span>Centros de Inclusión Digital</span>
+                                        <span class="text-corporate-primary fw-bold font-monospace">10% (15 uds)</span>
+                                    </div>
+                                    <div aria-label="Centros Digitales" aria-valuemax="100" aria-valuemin="0" aria-valuenow="10" class="progress mb-3" role="progressbar" style="height: 8px;">
+                                        <div class="progress-bar bg-dark-subtle" style="width: 10%;"></div>
+                                    </div>
+                                </div>
+                                <!-- Botón de Certificados -->
+                                <a class="btn btn-outline-secondary w-100 d-inline-flex align-items-center justify-content-center gap-2 py-2 fw-medium small" href="#">
+                                    <i class="bi bi-file-earmark-pdf text-danger fs-5"></i>
+                                    <span>Descargar Certificados Fiscales y Acta</span>
+                                </a>
+                            </div>
+                            <!-- Tarjeta: Centro de Despacho Asignado -->
+                            <div class="card border-0 shadow-sm rounded-3 p-3">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <h6 class="fw-bold text-corporate-primary mb-0">Centro de Despacho Asignado</h6>
+                                    <i class="bi bi-building text-secondary fs-5"></i>
+                                </div>
+                                <div class="mb-2">
+                                    <div class="fw-semibold text-corporate-primary small">Planta Barracas (Hub CABA)</div>
+                                    <div class="text-secondary small">Av. Regimiento de Patricios 1052, C1266 CABA</div>
+                                    <div class="text-muted font-monospace mt-1" style="font-size: 0.75rem;">Dársenas 3 y 4 · Control de Acceso CUIT</div>
+                                </div>
+                                <!-- Vista de Geocerca / Mapa -->
+                                <div class="map-preview-box rounded-3 p-2 d-flex flex-column justify-content-end mb-3">
+                                    <div class="bg-white bg-opacity-90 rounded p-1 d-inline-flex align-items-center gap-1 shadow-xs align-self-start font-monospace small" style="font-size: 0.72rem;">
+                                        <i class="bi bi-geo-alt-fill text-danger"></i>
+                                        <span>-34.6412° S, -58.3731° W</span>
+                                    </div>
+                                </div>
+                                <!-- Datos de logística -->
+                                <div class="bg-body-tertiary rounded-3 p-2 small mb-3">
+                                    <div class="d-flex align-items-center justify-content-between mb-1">
+                                        <span class="text-secondary">Horario de carga habilitado:</span>
+                                        <strong class="text-dark font-monospace">08:00 a 16:30 hs</strong>
+                                    </div>
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <span class="text-secondary">Transportistas Eisbaer:</span>
+                                        <span class="badge bg-teal-subtle-custom">Habilitación Activa</span>
+                                    </div>
+                                </div>
+                                <!-- Modificar Planta -->
+                                <a class="btn btn-light border w-100 text-secondary d-inline-flex align-items-center justify-content-center gap-2 small py-2" href="#">
+                                    <i class="bi bi-pencil-square"></i>
+                                    <span>Modificar Puntos de Acopio / Depósitos</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Pie de Módulo / Certificación Institucional -->
+                    <div class="mt-5 pt-4 border-top border-light-subtle d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 text-secondary small">
+                        <div class="d-flex align-items-center gap-3">
+                            <img alt="Eisbaer Logo" class="img-fluid opacity-75" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBo-17XWs1TbXjug6LezZr3BxNSZHwcUWe1RZYB1YMtBEcWqnYQ797BIfPkTtDn5VcYKEA_M8-E7sYwAvDxTqPhQ_q95KZ3D6uSWFuR2pIl0FcaYg8gF5I2ARsk6e1Wu6ShBXzhBL_LHp2HZwgblUxV9EOu0501awblbwqZw-cmPkUXbGUw0Oy8HOKOlsK5EQnczwKstL-0w_7Dfb4hrtvnf3zMPFZqW-M_Qx7XkzC53NM6ht9VWyohnUrNy4wZ_YDIZT4" style="width: 36px; height: 36px; object-fit: contain;" />
+                            <div>
+                                <div class="fw-semibold text-corporate-primary">Vínculo · Módulo de Donaciones Corporativas</div>
+                                <div style="font-size: 0.8rem;">Tecnología con Sentido Humano respaldada por Eisbaer. Certificación conforme Resolución AFIP 2485/DG Impositiva.</div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 font-monospace" style="font-size: 0.75rem;">
+                            <span class="d-inline-flex align-items-center gap-1 text-teal">
+                                <i class="bi bi-shield-lock-fill"></i> Sesión Encriptada TLS 1.3
+                            </span>
+                            <span>•</span>
+                            <span>Telecom ARG (30-63945373-8)</span>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <!-- Footer Inferior -->
+    <footer class="bg-white border-top border-light-subtle py-3 px-4 mt-auto">
+        <div class="container-fluid px-0 d-flex flex-column flex-sm-row align-items-center justify-content-between gap-2 small text-secondary">
+            <div>© 2026 Vínculo – Todos los derechos reservados. Infraestructura B2B y Certificación AFIP / RG 2681.</div>
+            <div class="d-flex align-items-center gap-2">
+                <span>Desarrollado por Eisbaer</span>
+                <img alt="Eisbaer Logo" class="img-fluid" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDqTaj6ZMKMa_CQEsM5qfu_IWyhzO0KzcilH-o4_XUBxvVePsjjPsCkQk-zuFlCsRGPhyPFXUd4O4qej2KbMpum6jrb0ifsa-d79f2nFv1FFOTnDWdcanquVW5dmGgSHF8cfhNJRvzTbJfMViJla8s0RXi3BbPy-PwJ9Uu6zKoo6ENbEo38MDhzFK08rTuI-H82TSDTuf8oCLnnZp5ZI20Dg9kiz4XU38RJmdRJjfTENjvKb3kSHYKultYR4cfjfg1kVE" style="height: 20px; width: auto; object-fit: contain;" />
+            </div>
+        </div>
+    </footer>
+    <!-- Bootstrap 5.3 Bundle JS -->
+    <script crossorigin="anonymous" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body></html>
