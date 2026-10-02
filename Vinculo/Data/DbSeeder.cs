@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Vinculo.Models;
 using Vinculo.Models.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace Vinculo.Data
 {
@@ -11,6 +12,7 @@ namespace Vinculo.Data
             // Solicitamos los gestores de Identity al contenedor de dependencias
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = serviceProvider.GetRequiredService<UserManager<Usuario>>();
+            var context = serviceProvider.GetRequiredService<VinculoDbContext>();
 
             // 1. Crear Roles basados en Enum
             string[] roles = {
@@ -78,6 +80,39 @@ namespace Vinculo.Data
                     // Lo vinculamos al rol Empresa
                     await userManager.AddToRoleAsync(newEmpresa, TipoUsuario.Empresa.ToString());
                 }
+                empresaUser = newEmpresa;
+            }
+
+            // CREAR DATOS DE LA EMPRESA
+
+            var empresa = await context.Empresas.FirstOrDefaultAsync(e => e.UsuarioId == empresaUser.Id);
+
+            if (empresa == null)
+            {
+                var domicilioEmpresa = new Domicilio
+                {
+                    Calle = "Av. Corrientes",
+                    Numero = "1234",
+                    Localidad = "Buenos Aires",
+                    Provincia = "Buenos Aires",
+                    CodigoPostal = "1043"
+                };
+
+                context.Domicilios.Add(domicilioEmpresa);
+
+                empresa = new Empresa
+                {
+                    RazonSocial = "Empresa de Prueba S.A.",
+                    Cuit = "30-12345678-9",
+                    Telefono = "11-4567-8901",
+                    Email = empresaEmail,
+                    UsuarioId = empresaUser.Id,
+                    Domicilio = domicilioEmpresa
+                };
+
+                context.Empresas.Add(empresa);
+
+                await context.SaveChangesAsync();
             }
 
             // 4. Crear Usuario Institución de Prueba
@@ -104,9 +139,44 @@ namespace Vinculo.Data
                     // Lo vinculamos al rol Institución
                     await userManager.AddToRoleAsync(newInstitucion, TipoUsuario.Institucion.ToString());
                 }
+                institucionUser = newInstitucion;
+
+                
             }
+            // CREAR DATOS DE LA INSTITUCIÓN
 
 
+            var institucion = await context.Instituciones
+                .FirstOrDefaultAsync(i =>
+                    i.UsuarioId == institucionUser.Id);
+
+            if (institucion == null)
+            {
+                var domicilioInstitucion = new Domicilio
+                {
+                    Calle = "Av. Santa Fe",
+                    Numero = "2500",
+                    Localidad = "Buenos Aires",
+                    Provincia = "Buenos Aires",
+                    CodigoPostal = "1425"
+                };
+
+                context.Domicilios.Add(domicilioInstitucion);
+
+                institucion = new Institucion
+                {
+                    Nombre = "Institución de Prueba",
+                    Cuit = "30-98765432-1",
+                    Telefono = "11-9876-5432",
+                    Email = institucionEmail,
+                    UsuarioId = institucionUser.Id,
+                    Domicilio = domicilioInstitucion
+                };
+
+                context.Instituciones.Add(institucion);
+
+                await context.SaveChangesAsync();
+            }
         }
     }
 }
