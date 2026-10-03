@@ -22,7 +22,7 @@ namespace Vinculo.Controllers
 
         // GET: Empresas/MiPerfil
         //[Authorize(Roles = "Empresa")]
-        public async Task<IActionResult> MiPerfil()
+        public async Task<IActionResult> Index()
         {
             // Obtener el ID del usuario actualmente logueado
             var user = await _userManager.GetUserAsync(User);

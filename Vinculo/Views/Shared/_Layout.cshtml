@@ -1,49 +1,130 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Vinculo</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - Vínculo</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Vinculo.styles.css" asp-append-version="true" />
+
+    <style>
+        :root {
+            --bs-primary: #0f2a47;
+            --vinculo-teal: #0e9aa7;
+            --vinculo-surface: #f8f9ff;
+            --vinculo-teal-dark: #09757f;
+            --vinculo-teal-bg: #eaf8fa;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--vinculo-surface);
+            color: #0b1c30;
+            min-height: 100vh;
+        }
+        .bg-corporate-primary { background-color: #0f2a47 !important; }
+        .text-corporate-primary { color: #0f2a47 !important; }
+        .btn-teal { background-color: var(--vinculo-teal); color: #ffffff; }
+        .sidebar { min-height: calc(100vh - 64px); }
+        .nav-sidebar-link {
+            color: #495057;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border-radius: 0.5rem;
+            padding: 0.6rem 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            text-decoration: none;
+        }
+        .nav-sidebar-link:hover, .nav-sidebar-link.active {
+            background-color: #dce7f5;
+            color: #0f2a47;
+            font-weight: 600;
+        }
+    </style>
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Vinculo</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+<body class="d-flex flex-column min-h-screen">
+
+    <!-- Header Superior -->
+    <header class="navbar bg-white border-bottom shadow-sm sticky-top px-3" style="height: 64px;">
+        <div class="container-fluid px-0 d-flex justify-content-between">
+            <a class="navbar-brand fw-bold text-corporate-primary" href="/">Vínculo</a>
+            @if (User.Identity!.IsAuthenticated)
+            {
+                <div class="d-flex align-items-center gap-3">
+                    <span class="text-secondary small">Sesión Activa</span>
+                    <button class="btn btn-light rounded-circle"><i class="bi bi-person-fill"></i></button>
                 </div>
-            </div>
-        </nav>
+            }
+        </div>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+
+    <div class="container-fluid flex-grow-1 px-0">
+        <div class="row g-0">
+            <!-- Sidebar Dinámico -->
+            <aside class="col-12 col-md-3 col-xl-2 bg-white border-end d-flex flex-column p-3 sidebar">
+                <div class="text-uppercase text-secondary fw-bold px-2 mb-3" style="font-size: 0.72rem;">Menú Principal</div>
+                
+                <nav class="nav flex-column gap-1">
+                    
+                    @* 1. OPCIONES EXCLUSIVAS PARA EMPRESAS *@
+                    @if (User.IsInRole("Empresa"))
+                    {
+                        <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" href="/Empresa/Index">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                        <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "MisDatos" ? "active" : "")" href="/Empresa/MisDatos">
+                            <i class="bi bi-building"></i> Mis Datos
+                        </a>
+                        <a class="nav-sidebar-link" href="#">
+                            <i class="bi bi-box-seam"></i> Publicar Donaciones <!-- Publicación de lotes[cite: 3] -->
+                        </a>
+                        <a class="nav-sidebar-link" href="#">
+                            <i class="bi bi-geo-alt"></i> Coincidencias y Envíos
+                        </a>
+                    }
+
+                    @* 2. OPCIONES EXCLUSIVAS PARA INSTITUCIONES *@
+                    else if (User.IsInRole("Institucion"))
+                    {
+                        <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" href="/Institucion/Index">
+                            <i class="bi bi-speedometer2"></i> Inicio Institucional
+                        </a>
+                        <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "MisDatos" ? "active" : "")" href="/Institucion/MisDatos">
+                            <i class="bi bi-house"></i> Perfil de la Escuela
+                        </a>
+                        <a class="nav-sidebar-link" href="#">
+                            <i class="bi bi-card-checklist"></i> Solicitar Insumos <!-- Carga de necesidades escolares[cite: 3] -->
+                        </a>
+                    }
+
+                    @* 3. OPCIONES EXCLUSIVAS PARA ADMINISTRADORES *@
+                    else if (User.IsInRole("Administrador"))
+                    {
+                        <a class="nav-sidebar-link" href="#">
+                            <i class="bi bi-shield-check"></i> Validar Escuelas <!-- Validación de credenciales de escuelas[cite: 3] -->
+                        </a>
+                        <a class="nav-sidebar-link" href="#">
+                            <i class="bi bi-bar-chart"></i> Tablero de Métricas <!-- Tablero de métricas e impacto[cite: 3] -->
+                        </a>
+                    }
+                    
+                </nav>
+            </aside>
+
+            <!-- Área de Trabajo Central (Aquí se inyectan las vistas particulares) -->
+            <main class="col-12 col-md-9 col-xl-10 p-3 p-lg-4 overflow-auto">
+                @RenderBody()
+            </main>
+        </div>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - Vinculo - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
