@@ -1,0 +1,1304 @@
+﻿@model Vinculo.Models.ViewModels.SolicitudViewModel
+
+@{
+ViewData["Title"] = "Nueva Solicitud";
+var institucion = ViewBag.Institucion as Vinculo.Models.Institucion;
+
+var fechaSolicitud = Model.Fecha == default
+    ? DateTime.Today
+    : Model.Fecha;
+}
+
+<div class="container-fluid px-3 px-lg-4 py-4">
+
+<!-- ========================================================= -->
+<!-- ENCABEZADO -->
+<!-- ========================================================= -->
+
+<div class="d-flex flex-column flex-md-row justify-content-between gap-2 mb-3">
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0 small">
+
+            <li class="breadcrumb-item">
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="text-decoration-none text-secondary">
+                    <i class="bi bi-house me-1"></i>
+                    Inicio
+                </a>
+            </li>
+
+            <li class="breadcrumb-item">
+                <a asp-action="Index"
+                   class="text-decoration-none text-secondary">
+                    Mis Solicitudes
+                </a>
+            </li>
+
+            <li class="breadcrumb-item active text-dark fw-semibold">
+                Nueva Solicitud
+            </li>
+
+        </ol>
+    </nav>
+
+
+    <div class="d-flex align-items-center gap-2">
+
+        <span class="badge rounded-pill badge-soft-primary px-3 py-2">
+            <i class="bi bi-file-earmark-text me-1"></i>
+            Nueva solicitud
+        </span>
+
+        <span class="badge rounded-pill badge-soft-warning px-3 py-2">
+            <i class="bi bi-hourglass-split me-1"></i>
+            Borrador
+        </span>
+
+    </div>
+
+</div>
+
+
+<!-- ========================================================= -->
+<!-- TITULO -->
+<!-- ========================================================= -->
+
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-body p-4">
+
+        <div class="row align-items-center g-3">
+
+            <div class="col-lg-8">
+
+                <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+
+                    <h1 class="h3 fw-bold text-primary mb-0">
+                        Nueva Solicitud de Donación
+                    </h1>
+
+                    <span class="badge rounded-pill bg-light text-secondary border">
+                        Ciclo Lectivo @fechaSolicitud.Year
+                    </span>
+
+                </div>
+
+                <p class="text-secondary mb-0 small">
+                    Complete los datos de la solicitud y agregue los
+                    equipamientos requeridos por la institución.
+                </p>
+
+            </div>
+
+
+            <div class="col-lg-4">
+
+                <div class="alert alert-info border-0 mb-0
+                            d-flex gap-2 align-items-start p-3
+                            bg-light text-dark">
+
+                    <div class="badge bg-info-subtle text-info
+                                p-2 rounded-3 fs-6">
+
+                        <i class="bi bi-info-circle"></i>
+
+                    </div>
+
+                    <div>
+
+                        <strong class="d-block small text-primary">
+                            Estado de la solicitud
+                        </strong>
+
+                        <span class="text-secondary small">
+                            Mientras se completa la información,
+                            la solicitud permanece como borrador.
+                            Al crearla pasará a estado Pendiente.
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ========================================================= -->
+<!-- CONTENIDO -->
+<!-- ========================================================= -->
+
+<div class="row g-4">
+
+    <!-- ===================================================== -->
+    <!-- COLUMNA PRINCIPAL -->
+    <!-- ===================================================== -->
+
+    <div class="col-lg-8">
+
+        <div class="d-flex flex-column gap-4">
+
+
+            <!-- ================================================= -->
+            <!-- DATOS INSTITUCIONALES -->
+            <!-- ================================================= -->
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-header bg-white border-bottom-0
+                            pt-4 px-4 pb-0">
+
+                    <div class="d-flex align-items-center gap-2">
+
+                        <div class="bg-light text-primary p-2 rounded-3
+                                    d-flex align-items-center
+                                    justify-content-center"
+                             style="width:40px;height:40px;">
+
+                            <i class="bi bi-bank fs-5"></i>
+
+                        </div>
+
+                        <div>
+
+                            <h2 class="h5 fw-bold text-primary mb-0">
+                                Datos Institucionales y Domicilio
+                            </h2>
+
+                            <small class="text-secondary">
+                                Información registrada de la institución
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card-body p-4">
+
+                    @if (institucion != null)
+                    {
+                        <div class="row g-3">
+
+                            <!-- Institución -->
+
+                            <div class="col-md-6">
+
+                                <label class="form-label small
+                                              text-secondary
+                                              text-uppercase
+                                              fw-semibold mb-1">
+                                    Institución
+                                </label>
+
+                                <div class="form-control bg-light
+                                            border-0 py-2
+                                            fw-semibold text-primary">
+
+                                    @institucion.Nombre
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- CUIT -->
+
+                            <div class="col-md-6">
+
+                                <label class="form-label small
+                                              text-secondary
+                                              text-uppercase
+                                              fw-semibold mb-1">
+                                    CUIT
+                                </label>
+
+                                <div class="form-control bg-light border-0 py-2">
+
+                                    @institucion.Cuit
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Teléfono -->
+
+                            <div class="col-md-6">
+
+                                <label class="form-label small
+                                              text-secondary
+                                              text-uppercase
+                                              fw-semibold mb-1">
+                                    Contacto
+                                </label>
+
+                                <div class="form-control bg-light border-0 py-2">
+
+                                    @institucion.Telefono
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Email -->
+
+                            <div class="col-md-6">
+
+                                <label class="form-label small
+                                              text-secondary
+                                              text-uppercase
+                                              fw-semibold mb-1">
+                                    Email
+                                </label>
+
+                                <div class="form-control bg-light border-0 py-2">
+
+                                    @institucion.Email
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Dirección -->
+
+                            <div class="col-12">
+
+                                <label class="form-label small
+                                              text-secondary
+                                              text-uppercase
+                                              fw-semibold mb-1">
+                                    Dirección de entrega
+                                </label>
+
+                                <div class="p-3 bg-light rounded-3 border">
+
+                                    <div class="d-flex align-items-center gap-3">
+
+                                        <i class="bi bi-geo-alt-fill
+                                                  fs-3 text-primary"></i>
+
+                                        <div>
+
+                                            <div class="fw-semibold text-primary">
+
+                                                @institucion.Domicilio.Calle
+                                                @institucion.Domicilio.Numero,
+                                                @institucion.Domicilio.Localidad
+
+                                            </div>
+
+                                            <small class="text-secondary">
+
+                                                @institucion.Domicilio.Provincia
+                                                -
+                                                CP @institucion.Domicilio.CodigoPostal
+
+                                            </small>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Fecha -->
+
+                            <div class="col-md-6">
+
+                                <label class="form-label small
+                                              text-secondary
+                                              text-uppercase
+                                              fw-semibold mb-1">
+                                    Fecha de solicitud
+                                </label>
+
+                                <input type="date"
+                                       class="form-control bg-light"
+                                       value="@fechaSolicitud.ToString("yyyy-MM-dd")"
+                                       readonly />
+
+                            </div>
+
+
+                            <!-- Estado -->
+
+                            <div class="col-md-6">
+
+                                <label class="form-label small
+                                              text-secondary
+                                              text-uppercase
+                                              fw-semibold mb-1">
+                                    Estado
+                                </label>
+
+                                <div class="form-control bg-light border-0">
+
+                                    <span class="badge rounded-pill
+                                                 badge-soft-warning">
+
+                                        <i class="bi bi-hourglass-split me-1"></i>
+
+                                        Pendiente al crear
+
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning mb-0">
+                            No se pudo cargar la información de la institución.
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+
+            <!-- ================================================= -->
+            <!-- EQUIPAMIENTO -->
+            <!-- ================================================= -->
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-header bg-white border-bottom-0
+                            pt-4 px-4 pb-0">
+
+                    <div class="d-flex align-items-center gap-2">
+
+                        <div class="bg-light text-primary p-2 rounded-3
+                                    d-flex align-items-center
+                                    justify-content-center"
+                             style="width:40px;height:40px;">
+
+                            <i class="bi bi-laptop fs-5"></i>
+
+                        </div>
+
+                        <div>
+
+                            <h2 class="h5 fw-bold text-primary mb-0">
+                                Ítems de Equipamiento Requeridos
+                            </h2>
+
+                            <small class="text-secondary">
+                                Agregue los recursos tecnológicos necesarios.
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card-body p-4">
+
+
+                    <!-- ========================================= -->
+                    <!-- AGREGAR EQUIPAMIENTO -->
+                    <!-- ========================================= -->
+
+                    <div class="card bg-light border-0 p-3 mb-4 rounded-3">
+
+                        <div class="d-flex align-items-center gap-2
+                                    mb-3 text-primary fw-bold
+                                    small text-uppercase">
+
+                            <i class="bi bi-plus-circle text-info"></i>
+
+                            Añadir equipamiento
+
+                        </div>
+
+
+                        <div class="row g-2 align-items-end">
+
+
+                            <!-- Tipo -->
+
+                            <div class="col-md-5">
+
+                                <label class="form-label small
+                                              text-secondary fw-semibold">
+
+                                    Tipo de equipamiento
+
+                                </label>
+
+                                <select id="tipoEquipamiento"
+                                        class="form-select">
+
+                                    <option value="">
+                                        Seleccione categoría...
+                                    </option>
+
+                                    @foreach (var tipo in
+                                        Enum.GetValues<Vinculo.Models.Enums.TipoEquipamiento>())
+                                    {
+                                        <option value="@tipo">
+                                            @tipo
+                                        </option>
+                                    }
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- Cantidad -->
+
+                            <div class="col-md-3">
+
+                                <label class="form-label small
+                                              text-secondary fw-semibold">
+
+                                    Cantidad
+
+                                </label>
+
+                                <input id="cantidadEquipamiento"
+                                       type="number"
+                                       class="form-control"
+                                       min="1"
+                                       value="1" />
+
+                            </div>
+
+
+                            <!-- Botón -->
+
+                            <div class="col-md-4">
+
+                                <button type="button"
+                                        id="btnAgregarEquipamiento"
+                                        class="btn btn-primary w-100
+                                               d-flex align-items-center
+                                               justify-content-center gap-2">
+
+                                    <i class="bi bi-plus-lg"></i>
+
+                                    Agregar
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ========================================= -->
+                    <!-- TABLA -->
+                    <!-- ========================================= -->
+
+                    <div class="table-responsive rounded-3 border">
+
+                        <table class="table table-hover
+                                      align-middle mb-0">
+
+                            <thead class="table-light">
+
+                                <tr class="small text-secondary
+                                           text-uppercase">
+
+                                    <th class="ps-3 py-3">
+                                        Equipamiento
+                                    </th>
+
+                                    <th class="text-center py-3">
+                                        Cantidad
+                                    </th>
+
+                                    <th class="text-end pe-3 py-3">
+                                        Acción
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody id="equipamientosBody">
+
+                                <tr>
+
+                                    <td colspan="3"
+                                        class="text-center
+                                               text-secondary py-5">
+
+                                        <i class="bi bi-inbox fs-2
+                                                  d-block mb-2"></i>
+
+                                        Todavía no agregó ningún
+                                        equipamiento.
+
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+
+                    <!-- ========================================= -->
+                    <!-- TOTALES -->
+                    <!-- ========================================= -->
+
+                    <div class="d-flex justify-content-between
+                                align-items-center mt-3">
+
+                        <span class="small text-secondary">
+
+                            <span id="totalTipos">0</span>
+                            tipo(s) de equipamiento
+
+                        </span>
+
+                        <strong class="text-primary">
+
+                            Total:
+                            <span id="totalUnidades">0</span>
+                            unidades
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================================================= -->
+            <!-- OBSERVACIONES -->
+            <!-- ================================================= -->
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-header bg-white border-bottom-0
+                            pt-4 px-4 pb-0">
+
+                    <div class="d-flex align-items-center gap-2">
+
+                        <div class="bg-light text-primary p-2 rounded-3
+                                    d-flex align-items-center
+                                    justify-content-center"
+                             style="width:40px;height:40px;">
+
+                            <i class="bi bi-chat-left-text fs-5"></i>
+
+                        </div>
+
+                        <div>
+
+                            <h2 class="h5 fw-bold text-primary mb-0">
+                                Observaciones
+                            </h2>
+
+                            <small class="text-secondary">
+                                Información adicional de la solicitud
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card-body p-4">
+
+                    <textarea class="form-control"
+                              rows="4"
+                              disabled
+                              placeholder="Ingrese observaciones, destino de los equipos o información adicional..."></textarea>
+
+                    <small class="text-secondary mt-2 d-block">
+                        Pendiente de adaptar el campo Observaciones
+                        en la base de datos.
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- COLUMNA DERECHA -->
+    <!-- ===================================================== -->
+
+    <div class="col-lg-4">
+
+        <div class="d-flex flex-column gap-4">
+
+
+            <!-- ================================================= -->
+            <!-- RESUMEN -->
+            <!-- ================================================= -->
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-header bg-white border-bottom-0
+                            pt-4 px-4 pb-0">
+
+                    <div class="d-flex align-items-center gap-2">
+
+                        <div class="bg-light text-primary p-2 rounded-3">
+
+                            <i class="bi bi-journal-text fs-5"></i>
+
+                        </div>
+
+                        <div>
+
+                            <h3 class="h6 fw-bold text-primary mb-0">
+                                Resumen de la Solicitud
+                            </h3>
+
+                            <small class="text-secondary">
+                                Estado actual
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card-body p-4">
+
+
+                    <div class="p-3 bg-light rounded-3 mb-3">
+
+
+                        <div class="d-flex justify-content-between mb-2">
+
+                            <span class="text-secondary small">
+                                Institución
+                            </span>
+
+                            <strong class="text-primary small">
+
+                                @(institucion?.Nombre ?? "")
+
+                            </strong>
+
+                        </div>
+
+
+                        <div class="d-flex justify-content-between mb-2">
+
+                            <span class="text-secondary small">
+                                Fecha
+                            </span>
+
+                            <strong class="text-dark small">
+
+                                @fechaSolicitud.ToString("dd/MM/yyyy")
+
+                            </strong>
+
+                        </div>
+
+
+                        <div class="d-flex justify-content-between">
+
+                            <span class="text-secondary small">
+                                Estado
+                            </span>
+
+                            <span class="badge rounded-pill
+                                         badge-soft-warning">
+
+                                Borrador
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- TOTALES -->
+
+                    <div class="row g-2 mb-3">
+
+                        <div class="col-6">
+
+                            <div class="p-3 bg-light rounded-3 text-center">
+
+                                <small class="text-secondary d-block">
+                                    Tipos
+                                </small>
+
+                                <span id="resumenTipos"
+                                      class="h4 fw-bold text-primary mb-0">
+
+                                    0
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-6">
+
+                            <div class="p-3 bg-light rounded-3 text-center">
+
+                                <small class="text-secondary d-block">
+                                    Unidades
+                                </small>
+
+                                <span id="resumenUnidades"
+                                      class="h4 fw-bold text-primary mb-0">
+
+                                    0
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- AVISO -->
+
+                    <div class="alert alert-warning border-0 p-3
+                                mb-4 rounded-3 small">
+
+                        <div class="d-flex gap-2">
+
+                            <i class="bi bi-exclamation-triangle-fill
+                                      fs-5 text-warning"></i>
+
+                            <div>
+
+                                <strong>
+                                    ¿Por qué está en Borrador?
+                                </strong>
+
+                                <div class="mt-1">
+                                    La solicitud está siendo creada
+                                    y todavía puede modificarse.
+                                </div>
+
+                                <div class="mt-2">
+
+                                    Al crearla, pasará a
+
+                                    <span class="badge bg-warning text-dark">
+                                        Pendiente
+                                    </span>
+
+                                    para iniciar el proceso de evaluación.
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- FORMULARIO FINAL -->
+                    <!-- ================================================= -->
+
+                    <form asp-action="Create"
+                          method="post"
+                          id="createSolicitudForm">
+
+                        @Html.AntiForgeryToken()
+
+
+                        <!-- Fecha -->
+
+                        <input type="hidden"
+                               name="Fecha"
+                               value="@fechaSolicitud.ToString("yyyy-MM-dd")" />
+
+
+                        <!-- Acá JavaScript va a generar:
+                             Detalles[0].TipoEquipamiento
+                             Detalles[0].Cantidad
+                             Detalles[1].TipoEquipamiento
+                             Detalles[1].Cantidad
+                             etc. -->
+
+                        <div id="detallesHidden"></div>
+
+
+                        <div class="d-grid gap-2">
+
+
+                            <button type="submit"
+                                    id="btnCrearSolicitud"
+                                    class="btn btn-teal py-2
+                                           fw-semibold
+                                           d-flex align-items-center
+                                           justify-content-center gap-2">
+
+                                <i class="bi bi-check-circle-fill"></i>
+
+                                Crear Solicitud
+
+                            </button>
+
+
+                            <a asp-action="Index"
+                               class="btn btn-outline-secondary py-2">
+
+                                Cancelar
+
+                            </a>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================================================= -->
+            <!-- GEOLOCALIZACIÓN -->
+            <!-- ================================================= -->
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-body p-3">
+
+                    <div class="d-flex justify-content-between
+                                align-items-center mb-2">
+
+                        <div class="d-flex align-items-center gap-2
+                                    text-primary fw-bold small">
+
+                            <i class="bi bi-geo-alt text-info"></i>
+
+                            Geolocalización
+
+                        </div>
+
+                        <span class="badge bg-light text-secondary border">
+                            Pendiente
+                        </span>
+
+                    </div>
+
+
+                    <div class="p-3 bg-light rounded-3">
+
+                        <small class="text-secondary">
+
+                            La latitud y longitud podrán calcularse
+                            automáticamente a partir del domicilio
+                            mediante una API de geolocalización.
+
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================================================= -->
+            <!-- TRAZABILIDAD -->
+            <!-- ================================================= -->
+
+            <div class="card border-0 shadow-sm bg-light">
+
+                <div class="card-body p-3
+                            d-flex align-items-center
+                            justify-content-between">
+
+                    <div class="d-flex align-items-center gap-2">
+
+                        <i class="bi bi-shield-lock-fill
+                                  fs-4 text-primary"></i>
+
+                        <div>
+
+                            <strong class="d-block small text-primary">
+                                Trazabilidad Vínculo
+                            </strong>
+
+                            <small class="text-secondary">
+                                Información de la solicitud registrada.
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                    <i class="bi bi-lock text-secondary fs-5"></i>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
+<!-- ============================================================= -->
+
+<!-- JAVASCRIPT -->
+
+<!-- ============================================================= -->
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const tipoSelect = document.getElementById("tipoEquipamiento");
+        const cantidadInput = document.getElementById("cantidadEquipamiento");
+        const agregarButton = document.getElementById("btnAgregarEquipamiento");
+
+        const tbody = document.getElementById("equipamientosBody");
+        const detallesHidden = document.getElementById("detallesHidden");
+        const form = document.getElementById("createSolicitudForm");
+
+        const totalTipos = document.getElementById("totalTipos");
+        const totalUnidades = document.getElementById("totalUnidades");
+
+        const resumenTipos = document.getElementById("resumenTipos");
+        const resumenUnidades = document.getElementById("resumenUnidades");
+
+        let detalles = [];
+
+
+        // =========================================================
+        // ACTUALIZAR TABLA
+        // =========================================================
+
+        function actualizarVista() {
+
+            tbody.innerHTML = "";
+
+
+            if (detalles.length === 0) {
+
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="3"
+                            class="text-center text-secondary py-5">
+
+                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+
+                            Todavía no agregó ningún equipamiento.
+
+                        </td>
+                    </tr>
+                `;
+
+            } else {
+
+                detalles.forEach(function (detalle, indice) {
+
+                    const fila = document.createElement("tr");
+
+                    fila.innerHTML = `
+                        <td class="ps-3 py-3">
+
+                            <div class="d-flex align-items-center gap-2">
+
+                                <div class="bg-light text-primary rounded p-2 d-flex align-items-center justify-content-center"
+                                     style="width:34px;height:34px;">
+
+                                    <i class="bi bi-laptop"></i>
+
+                                </div>
+
+                                <span class="fw-semibold text-primary">
+                                    ${detalle.tipo}
+                                </span>
+
+                            </div>
+
+                        </td>
+
+
+                        <td class="text-center py-3">
+
+                            <span class="badge bg-light text-dark border px-3 py-2">
+
+                                ${detalle.cantidad} u.
+
+                            </span>
+
+                        </td>
+
+
+                        <td class="text-end pe-3 py-3">
+
+                            <button type="button"
+                                    class="btn btn-outline-danger btn-sm btn-eliminar"
+                                    data-indice="${indice}">
+
+                                <i class="bi bi-trash"></i>
+
+                            </button>
+
+                        </td>
+                    `;
+
+
+                    // BOTÓN ELIMINAR
+
+                    fila
+                        .querySelector(".btn-eliminar")
+                        .addEventListener("click", function () {
+
+                            const indiceEliminar =
+                                Number(this.dataset.indice);
+
+                            detalles.splice(indiceEliminar, 1);
+
+                            actualizarVista();
+                        });
+
+
+                    tbody.appendChild(fila);
+                });
+            }
+
+
+            // =====================================================
+            // TOTALES
+            // =====================================================
+
+            const cantidadTipos = detalles.length;
+
+            const cantidadUnidades = detalles.reduce(
+                function (total, detalle) {
+                    return total + detalle.cantidad;
+                },
+                0
+            );
+
+
+            totalTipos.textContent = cantidadTipos;
+
+            totalUnidades.textContent = cantidadUnidades;
+
+            resumenTipos.textContent = cantidadTipos;
+
+            resumenUnidades.textContent = cantidadUnidades;
+        }
+
+
+        // =========================================================
+        // AGREGAR EQUIPAMIENTO
+        // =========================================================
+
+        agregarButton.addEventListener("click", function () {
+
+            const tipo = tipoSelect.value;
+
+            const cantidad =
+                parseInt(cantidadInput.value, 10);
+
+
+            if (!tipo) {
+
+                alert(
+                    "Debe seleccionar un tipo de equipamiento."
+                );
+
+                tipoSelect.focus();
+
+                return;
+            }
+
+
+            if (!cantidad || cantidad <= 0) {
+
+                alert(
+                    "La cantidad debe ser mayor a 0."
+                );
+
+                cantidadInput.focus();
+
+                return;
+            }
+
+
+            // =====================================================
+            // SI YA EXISTE EL TIPO:
+            // SUMAMOS LA CANTIDAD
+            // =====================================================
+
+            const existente = detalles.find(
+                function (detalle) {
+                    return detalle.tipo === tipo;
+                }
+            );
+
+
+            if (existente) {
+
+                existente.cantidad += cantidad;
+
+            } else {
+
+                detalles.push({
+                    tipo: tipo,
+                    cantidad: cantidad
+                });
+            }
+
+
+            actualizarVista();
+
+
+            // Limpiar controles
+
+            tipoSelect.value = "";
+
+            cantidadInput.value = "1";
+
+            tipoSelect.focus();
+        });
+
+
+        // =========================================================
+        // CREAR SOLICITUD
+        // =========================================================
+
+        form.addEventListener("submit", function (event) {
+
+            // No permitir enviar sin equipamientos
+
+            if (detalles.length === 0) {
+
+                event.preventDefault();
+
+                alert(
+                    "Debe agregar al menos un equipamiento antes de crear la solicitud."
+                );
+
+                return;
+            }
+
+
+            // =====================================================
+            // CREAR LOS INPUT HIDDEN
+            // QUE RECIBIRÁ SolicitudViewModel
+            // =====================================================
+
+            detallesHidden.innerHTML = "";
+
+
+            detalles.forEach(function (detalle, indice) {
+
+                const tipoInput =
+                    document.createElement("input");
+
+                tipoInput.type = "hidden";
+
+                tipoInput.name =
+                    `Detalles[${indice}].TipoEquipamiento`;
+
+                tipoInput.value =
+                    detalle.tipo;
+
+
+                const cantidadInputHidden =
+                    document.createElement("input");
+
+                cantidadInputHidden.type = "hidden";
+
+                cantidadInputHidden.name =
+                    `Detalles[${indice}].Cantidad`;
+
+                cantidadInputHidden.value =
+                    detalle.cantidad;
+
+
+                detallesHidden.appendChild(tipoInput);
+
+                detallesHidden.appendChild(
+                    cantidadInputHidden
+                );
+            });
+
+            // IMPORTANTE:
+            // acá NO hacemos preventDefault().
+            //
+            // El formulario continúa normalmente hacia:
+            //
+            // POST /Solicitud/Create
+            //
+            // y el controller guarda y redirige a Index.
+        });
+
+
+        // =========================================================
+        // ENTER EN CANTIDAD = AGREGAR
+        // =========================================================
+
+        cantidadInput.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (event.key === "Enter") {
+
+                    event.preventDefault();
+
+                    agregarButton.click();
+                }
+            }
+        );
+
+
+        // =========================================================
+        // INICIALIZAR
+        // =========================================================
+
+        actualizarVista();
+
+    });
+</script>
+
