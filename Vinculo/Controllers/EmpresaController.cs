@@ -13,9 +13,9 @@ namespace Vinculo.Controllers
     {
         private readonly VinculoDbContext _context;
         private readonly UserManager<Usuario> _userManager;
-        private readonly SignInManager<Usuario> _signInManager; // 1. Agregamos SignInManager
+        private readonly SignInManager<Usuario> _signInManager; //  SignInManager
 
-        // 2. Lo inyectamos en el constructor
+        // constructor
         public EmpresaController(VinculoDbContext context, UserManager<Usuario> userManager, SignInManager<Usuario> signInManager)
         {
             _context = context;
@@ -26,17 +26,17 @@ namespace Vinculo.Controllers
         // GET: Empresa/Index
         public async Task<IActionResult> Index()
         {
-            // Obtener el usuario actualmente logueado (leyendo la cookie)
+            // Obtener el usuario actualmente logueado
             var user = await _userManager.GetUserAsync(User);
 
-            // 3. Si no hay cookie, buscamos al usuario Y LO LOGUEAMOS REALMENTE
+            //  Si no hay cookie, buscamos al usuario Y LO LOGUEAMOS 
             if (user == null)
             {
                 user = await _userManager.FindByEmailAsync("empresa@vinculo.com");
 
                 if (user != null)
                 {
-                    // Esto crea la cookie de sesión en tu navegador con el rol correspondiente
+                    //  crea la cookie de sesión en tu navegador con el rol correspondiente
                     await _signInManager.SignInAsync(user, isPersistent: false);
 
                     // Recargamos la página para que el _Layout.cshtml lea la cookie nueva y pinte el menú
