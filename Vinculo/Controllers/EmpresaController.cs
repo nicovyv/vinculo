@@ -25,15 +25,22 @@ namespace Vinculo.Controllers
         public async Task<IActionResult> MiPerfil()
         {
             // Obtener el ID del usuario actualmente logueado
-            // var user = await _userManager.GetUserAsync(User);
-            var user = await _userManager.FindByEmailAsync("empresa@vinculo.com");
+            var user = await _userManager.GetUserAsync(User);
+
+            // Si no hay usuario autenticado, intentar obtener por email para pruebas
+            if (user == null)
+                user = await _userManager.FindByEmailAsync("empresa@vinculo.com");
+
+            // Validar que existe el usuario
+            if (user == null)
+                return Unauthorized("El usuario no está autenticado.");
 
             var empresa = await _context.Empresas
                 .Include(e => e.Domicilio)
                 .FirstOrDefaultAsync(e => e.UsuarioId == user.Id);
 
-            //if (empresa == null) return NotFound();
-            return View(new PerfilEmpresaViewModel());
+            if (empresa == null) 
+                return NotFound("No se encontró la empresa asociada a este usuario.");
 
             // Mapear la entidad al ViewModel para mostrarlo en pantalla
             var model = new PerfilEmpresaViewModel

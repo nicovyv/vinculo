@@ -1,8 +1,4 @@
-@* @model Vinculo.Models.ViewModels.PerfilEmpresaViewModel
-
-@{
-    ViewData["Title"] = "Mi Perfil";
-}
+@* 
 
 <div class="container mt-4">
     <h2>Mi Perfil</h2>
@@ -83,30 +79,16 @@
     </div>
 </div>
 
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-} *@
+ *@
 
 
+@model Vinculo.Models.ViewModels.PerfilEmpresaViewModel
+
+@{
+    ViewData["Title"] = "Mi Perfil";
+}
 
 
-<!DOCTYPE html>
-
-<html lang="es">
-<head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Dashboard Empresa Donante - Vínculo por Eisbaer</title>
-    <!-- Google Fonts: Inter -->
-    <link href="https://fonts.googleapis.com" rel="preconnect" />
-    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
-    <!-- Bootstrap 5.3 CSS -->
-    <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" rel="stylesheet" />
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
     <style>
             :root {
               --bs-primary: #0f2a47;
@@ -203,58 +185,9 @@
               vertical-align: -1px;
             }
     </style>
-</head>
+
 <body class="d-flex flex-column min-h-screen">
-    <!-- Header / Navbar Principal -->
-    <header class="navbar navbar-expand-lg bg-white border-bottom border-light-subtle shadow-sm sticky-top py-2 px-3 px-lg-4" style="height: 64px;">
-        <div class="container-fluid px-0 d-flex align-items-center justify-content-between">
-            <!-- Logo y Badges de Marca -->
-            <div class="d-flex align-items-center gap-3">
-                <a class="navbar-brand d-flex align-items-center gap-2 m-0" href="#">
-                    <img alt="Eisbaer Logo" class="img-fluid" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0WB7iOtogyORIIfu37hVUTR9rgkUyNnIYBCr9AUGC0qpVwEJDhn6sJK140_0gGIR33Gc-Nb_wjDCxwE97yq60q2N4EhI8075uuZ3Cci_H2vLU8aUlb7ns99WBh2nlSBGyOwdQ90goVNKrOTVH1bb95aMEfjJ8sggy1itfBiNCBWPvv9jTiNvd0AZiVysocWfn-VHidbAjaUa7hXxkdCPTwYCOtcnuGdcwGzYS0eNGqNjPiaYkVK42_dUBeDbdH5oO208" style="height: 34px; width: auto; object-fit: contain;" />
-                    <div class="d-flex align-items-baseline gap-1">
-                        <span class="fs-4 fw-bold text-corporate-primary lh-1 tracking-tight">Vínculo</span>
-                        <span class="text-secondary small d-none d-sm-inline">por Eisbaer</span>
-                    </div>
-                </a>
-                <div class="vr d-none d-md-block opacity-25 my-1" style="height: 22px;"></div>
-                <span class="badge rounded-pill bg-teal-subtle-custom d-none d-md-inline-flex align-items-center gap-1.5 px-3 py-1 fw-medium font-monospace small">
-                    <span class="spinner-grow spinner-grow-sm text-info" role="status" style="width: 7px; height: 7px;"></span>
-                    Red Vínculo Conectada
-                </span>
-            </div>
-            <!-- Perfil Corporativo / Acciones Rápidas -->
-            <div class="d-flex align-items-center gap-3">
-                <div class="d-none d-lg-block text-end lh-sm">
-                    <div class="fw-semibold text-dark small">Telecom Argentina S.A.</div>
-                    <small class="text-muted font-monospace" style="font-size: 0.78rem;">CUIT 30-63945373-8</small>
-                </div>
-                <div class="position-relative">
-                    <button aria-label="Notificaciones" class="btn btn-light btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center text-secondary border-0" type="button">
-                        <i class="bi bi-bell fs-5"></i>
-                        <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
-                            <span class="visually-hidden">Alertas no leídas</span>
-                        </span>
-                    </button>
-                </div>
-                <div class="vr opacity-25 my-1" style="height: 24px;"></div>
-                <div class="dropdown">
-                    <button aria-expanded="false" class="btn btn-light p-1 rounded-circle border-0 d-flex align-items-center" data-bs-toggle="dropdown" type="button">
-                        <span class="rounded-circle bg-corporate-primary text-white d-inline-flex align-items-center justify-content-center" style="width: 34px; height: 34px;">
-                            <i class="bi bi-person-fill fs-5"></i>
-                        </span>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-light-subtle">
-                        <li class="dropdown-header">Sesión Corporativa</li>
-                        <li><a class="dropdown-item small" href="#"><i class="bi bi-shield-check me-2 text-teal"></i>Seguridad y Llaves</a></li>
-                        <li><a class="dropdown-item small" href="#"><i class="bi bi-gear me-2"></i>Ajustes de Cuenta</a></li>
-                        <li><hr class="dropdown-divider" /></li>
-                        <li><a class="dropdown-item small text-danger" href="#"><i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </header>
+
     <!-- Layout Principal con Sidebar y Área de Trabajo -->
     <div class="container-fluid flex-grow-1 px-0">
         <div class="row g-0">
@@ -281,24 +214,11 @@
                             <i class="bi bi-box-seam fs-5"></i>
                             <span>Mis Donaciones</span>
                         </a>
-                        <a class="nav-sidebar-link" href="#">
-                            <i class="bi bi-geo-alt fs-5"></i>
-                            <span>Coincidencias Geográficas</span>
-                        </a>
                         <a class="nav-sidebar-link justify-content-between" href="#">
                             <div class="d-flex align-items-center gap-2">
                                 <i class="bi bi-card-checklist fs-5"></i>
                                 <span>Mis Asignaciones</span>
                             </div>
-                            <span class="badge bg-primary-subtle text-primary rounded-pill px-2">2</span>
-                        </a>
-                        <a class="nav-sidebar-link" href="#">
-                            <i class="bi bi-patch-check fs-5"></i>
-                            <span>Certificados Fiscales y RSE</span>
-                        </a>
-                        <a class="nav-sidebar-link" href="#">
-                            <i class="bi bi-building-gear fs-5"></i>
-                            <span>Configuración de Planta</span>
                         </a>
                     </nav>
                 </div>
@@ -332,7 +252,12 @@
                             <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
                                 <h1 class="h3 fw-bold text-corporate-primary mb-0">Panel Corporativo de Donaciones</h1>
                                 <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-monospace py-1 px-2">
-                                    <i class="bi bi-shield-lock me-1"></i>Telecom Argentina S.A. | CUIT: 30-63945373-8
+                                    <i class="bi bi-shield-lock me-1"></i>
+                                    <strong>@Model?.RazonSocial</strong>
+                                </span>
+                                <span class="badge bg-primary-subtle text-primary border border-info-subtle font-monospace py-1 px-2 ms-2">
+                                    <i class="bi bi-shield-lock me-1"></i>
+                                    <strong>@Model?.Cuit</strong>
                                 </span>
                             </div>
                             <p class="text-secondary mb-0 small">
@@ -346,30 +271,7 @@
                             </a>
                         </div>
                     </div>
-                    <!-- Alerta de Proximidad Óptima (Motor GeoNode) -->
-                    <div class="alert alert-info alert-dismissible fade show border-0 shadow-sm p-3 mb-4 rounded-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3" role="alert" style="background-color: #ebf6fa; border-left: 5px solid var(--vinculo-teal) !important;">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="rounded-3 bg-white p-2 text-teal shadow-xs d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
-                                <i class="bi bi-radar fs-4"></i>
-                            </div>
-                            <div>
-                                <div class="d-flex align-items-center gap-2 flex-wrap">
-                                    <span class="badge bg-teal-subtle-custom text-uppercase fw-bold" style="font-size: 0.68rem; letter-spacing: 0.05em;">Motor Eisbaer GeoNode</span>
-                                    <small class="text-secondary fw-semibold">• Alerta de Proximidad Óptima</small>
-                                </div>
-                                <div class="text-dark small mt-1">
-                                    Nueva coincidencia prioritaria detectada a <strong>2.4 km</strong> de la Sede Corporativa Barracas para el lote <strong class="font-monospace">#DON-2026-089</strong>: <strong>Escuela Técnica N° 12 Libertador Gral. San Martín</strong>.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="d-flex align-items-center gap-2 align-self-end align-self-md-center">
-                            <a class="btn btn-sm btn-corporate-primary text-white text-nowrap d-inline-flex align-items-center gap-1 shadow-xs" href="#" style="background-color: #0f2a47;">
-                                <i class="bi bi-compass"></i>
-                                <span>Ver Coincidencias Geográficas</span>
-                            </a>
-                            <button aria-label="Cerrar" class="btn-close position-static p-2" data-bs-dismiss="alert" type="button"></button>
-                        </div>
-                    </div>
+
                     <!-- Fila de 4 KPI Cards -->
                     <div class="row g-3 mb-4">
                         <!-- KPI 1 -->
@@ -588,44 +490,6 @@
                                     </a>
                                 </div>
                             </div>
-                            <!-- Tarjeta: Trazabilidad en Cadena de Custodia -->
-                            <div class="card border-0 shadow-sm rounded-3 p-3">
-                                <div class="d-flex align-items-center justify-content-between mb-3">
-                                    <h6 class="fw-bold text-corporate-primary mb-0">Trazabilidad en Cadena de Custodia</h6>
-                                    <span class="badge bg-body-tertiary text-secondary font-monospace border">Protocolo Eisbaer Core v4.2</span>
-                                </div>
-                                <div class="row g-2 text-center">
-                                    <div class="col-6 col-md-3">
-                                        <div class="p-2 bg-body-tertiary rounded-3 h-100 d-flex flex-column align-items-center justify-content-center">
-                                            <i class="bi bi-qr-code-scan fs-4 text-teal mb-1"></i>
-                                            <div class="fw-semibold text-dark small">1. Loteado &amp; QR</div>
-                                            <small class="text-secondary lh-1 mt-1" style="font-size: 0.72rem;">Sanitización NIST 800-88</small>
-                                        </div>
-                                    </div>
-                                    <div class="col-6 col-md-3">
-                                        <div class="p-2 bg-body-tertiary rounded-3 h-100 d-flex flex-column align-items-center justify-content-center">
-                                            <i class="bi bi-diagram-3 fs-4 text-teal mb-1"></i>
-                                            <div class="fw-semibold text-dark small">2. Matching Geo</div>
-                                            <small class="text-secondary lh-1 mt-1" style="font-size: 0.72rem;">Radio menor a 15 km</small>
-                                        </div>
-                                    </div>
-                                    <div class="col-6 col-md-3">
-                                        <div class="p-2 bg-body-tertiary rounded-3 h-100 d-flex flex-column align-items-center justify-content-center">
-                                            <i class="bi bi-truck fs-4 text-teal mb-1"></i>
-                                            <div class="fw-semibold text-dark small">3. Despacho Seguro</div>
-                                            <small class="text-secondary lh-1 mt-1" style="font-size: 0.72rem;">Remito electrónico oficial</small>
-                                        </div>
-                                    </div>
-                                    <div class="col-6 col-md-3">
-                                        <div class="p-2 bg-body-tertiary rounded-3 h-100 d-flex flex-column align-items-center justify-content-center">
-                                            <i class="bi bi-shield-check fs-4 text-teal mb-1"></i>
-                                            <div class="fw-semibold text-dark small">4. Certificado AFIP</div>
-                                            <small class="text-secondary lh-1 mt-1" style="font-size: 0.72rem;">RG 2485 y desgravación</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                         <!-- Columna Derecha (Impacto RSE y Centro de Despacho) -->
                         <div class="col-12 col-lg-4">
                             <!-- Tarjeta: Impacto Social & RSE -->
@@ -634,46 +498,7 @@
                                     <h6 class="fw-bold text-corporate-primary mb-0">Impacto Social &amp; RSE</h6>
                                     <i class="bi bi-globe2 text-teal fs-5"></i>
                                 </div>
-                                <p class="text-secondary small mb-3">
-                                    Indicadores de cumplimiento para memoria de sustentabilidad anual (ESG) 2026.
-                                </p>
-                                <!-- Tarjeta métrica alumnos -->
-                                <div class="card bg-body-tertiary border-0 rounded-3 p-3 mb-3">
-                                    <div class="d-flex align-items-baseline justify-content-between">
-                                        <span class="text-secondary text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Alumnos Beneficiados</span>
-                                        <span class="fs-4 fw-bold text-corporate-primary font-monospace">680</span>
-                                    </div>
-                                    <small class="text-secondary mt-1">En 5 instituciones técnicas y comunitarias asociadas.</small>
-                                </div>
-                                <!-- Barras de Progreso -->
-                                <div class="mb-3">
-                                    <div class="d-flex justify-content-between small mb-1 fw-medium">
-                                        <span>Escuelas Técnicas Secundarias</span>
-                                        <span class="text-corporate-primary fw-bold font-monospace">65% (92 uds)</span>
-                                    </div>
-                                    <div aria-label="Escuelas Técnicas" aria-valuemax="100" aria-valuemin="0" aria-valuenow="65" class="progress mb-3" role="progressbar" style="height: 8px;">
-                                        <div class="progress-bar" style="width: 65%; background-color: var(--vinculo-teal);"></div>
-                                    </div>
-                                    <div class="d-flex justify-content-between small mb-1 fw-medium">
-                                        <span>Comedores y Espacios Comunitarios</span>
-                                        <span class="text-corporate-primary fw-bold font-monospace">25% (35 uds)</span>
-                                    </div>
-                                    <div aria-label="Comedores y Espacios" aria-valuemax="100" aria-valuemin="0" aria-valuenow="25" class="progress mb-3" role="progressbar" style="height: 8px;">
-                                        <div class="progress-bar bg-secondary" style="width: 25%;"></div>
-                                    </div>
-                                    <div class="d-flex justify-content-between small mb-1 fw-medium">
-                                        <span>Centros de Inclusión Digital</span>
-                                        <span class="text-corporate-primary fw-bold font-monospace">10% (15 uds)</span>
-                                    </div>
-                                    <div aria-label="Centros Digitales" aria-valuemax="100" aria-valuemin="0" aria-valuenow="10" class="progress mb-3" role="progressbar" style="height: 8px;">
-                                        <div class="progress-bar bg-dark-subtle" style="width: 10%;"></div>
-                                    </div>
-                                </div>
-                                <!-- Botón de Certificados -->
-                                <a class="btn btn-outline-secondary w-100 d-inline-flex align-items-center justify-content-center gap-2 py-2 fw-medium small" href="#">
-                                    <i class="bi bi-file-earmark-pdf text-danger fs-5"></i>
-                                    <span>Descargar Certificados Fiscales y Acta</span>
-                                </a>
+                               
                             </div>
                             <!-- Tarjeta: Centro de Despacho Asignado -->
                             <div class="card border-0 shadow-sm rounded-3 p-3">
@@ -746,3 +571,10 @@
     <!-- Bootstrap 5.3 Bundle JS -->
     <script crossorigin="anonymous" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body></html>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
