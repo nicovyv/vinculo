@@ -5,127 +5,169 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Vínculo</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Vinculo.styles.css" asp-append-version="true" />
-
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+    
     <style>
         :root {
-            --bs-primary: #0f2a47;
-            --vinculo-teal: #0e9aa7;
-            --vinculo-surface: #f8f9ff;
-            --vinculo-teal-dark: #09757f;
-            --vinculo-teal-bg: #eaf8fa;
+          --bs-primary: #0f2a47;
+          --bs-primary-rgb: 15, 42, 71;
+          --vinculo-teal: #0e9aa7;
+          --vinculo-teal-dark: #09757f;
+          --vinculo-teal-bg: #eaf8fa;
+          --vinculo-surface: #f8f9ff;
+          --vinculo-surface-card: #ffffff;
+          --vinculo-navy-soft: #e9eff7;
+          --vinculo-border: #e3e8f0;
         }
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--vinculo-surface);
-            color: #0b1c30;
-            min-height: 100vh;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+          background-color: var(--vinculo-surface);
+          color: #0b1c30;
+          min-height: 100vh;
         }
         .bg-corporate-primary { background-color: #0f2a47 !important; }
         .text-corporate-primary { color: #0f2a47 !important; }
-        .btn-teal { background-color: var(--vinculo-teal); color: #ffffff; }
-        .sidebar { min-height: calc(100vh - 64px); }
+        .btn-teal { background-color: var(--vinculo-teal); border-color: var(--vinculo-teal); color: #ffffff; }
+        .btn-teal:hover, .btn-teal:focus { background-color: var(--vinculo-teal-dark); border-color: var(--vinculo-teal-dark); color: #ffffff; }
+        .btn-outline-teal { color: var(--vinculo-teal); border-color: var(--vinculo-teal); }
+        .btn-outline-teal:hover { background-color: var(--vinculo-teal); color: #ffffff; }
+        .text-teal { color: var(--vinculo-teal) !important; }
+        .bg-teal-subtle-custom { background-color: #eaf8fa !important; color: #086b75 !important; }
+        .sidebar { width: 260px; min-height: calc(100vh - 64px); }
         .nav-sidebar-link {
-            color: #495057;
-            font-weight: 500;
-            font-size: 0.9rem;
-            border-radius: 0.5rem;
-            padding: 0.6rem 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 0.65rem;
-            text-decoration: none;
+          color: #495057; font-weight: 500; font-size: 0.9rem; border-radius: 0.5rem;
+          padding: 0.6rem 0.85rem; transition: all 0.15s ease-in-out; text-decoration: none;
+          display: flex; align-items: center; gap: 0.65rem;
         }
-        .nav-sidebar-link:hover, .nav-sidebar-link.active {
-            background-color: #dce7f5;
-            color: #0f2a47;
-            font-weight: 600;
-        }
+        .nav-sidebar-link:hover { background-color: #f1f4fa; color: #0f2a47; }
+        .nav-sidebar-link.active { background-color: #dce7f5; color: #0f2a47; font-weight: 600; }
+        .kpi-icon-box { width: 46px; height: 46px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.35rem; }
+        .map-preview-box { background: radial-gradient(circle at 50% 50%, #d4e7f5 0%, #c1d9ec 100%); border: 1px dashed #99bad5; height: 140px; position: relative; }
+        .breadcrumb-item + .breadcrumb-item::before { content: "›"; font-size: 1.1rem; line-height: 1; vertical-align: -1px; }
     </style>
 </head>
 <body class="d-flex flex-column min-h-screen">
-
-    <!-- Header Superior -->
-    <header class="navbar bg-white border-bottom shadow-sm sticky-top px-3" style="height: 64px;">
-        <div class="container-fluid px-0 d-flex justify-content-between">
-            <a class="navbar-brand fw-bold text-corporate-primary" href="/">Vínculo</a>
-            @if (User.Identity!.IsAuthenticated)
-            {
-                <div class="d-flex align-items-center gap-3">
-                    <span class="text-secondary small">Sesión Activa</span>
-                    <button class="btn btn-light rounded-circle"><i class="bi bi-person-fill"></i></button>
-                </div>
-            }
+    
+    <!-- Barra Superior -->
+    <header class="navbar navbar-expand-lg bg-white border-bottom border-light-subtle shadow-sm sticky-top py-2 px-3 px-lg-4" style="height: 64px;">
+        <div class="container-fluid px-0 d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-3">
+                <a class="navbar-brand d-flex align-items-center gap-2 m-0" href="/">
+                    <img alt="Eisbaer Logo" class="img-fluid" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0WB7iOtogyORIIfu37hVUTR9rgkUyNnIYBCr9AUGC0qpVwEJDhn6sJK140_0gGIR33Gc-Nb_wjDCxwE97yq60q2N4EhI8075uuZ3Cci_H2vLU8aUlb7ns99WBh2nlSBGyOwdQ90goVNKrOTVH1bb95aMEfjJ8sggy1itfBiNCBWPvv9jTiNvd0AZiVysocWfn-VHidbAjaUa7hXxkdCPTwYCOtcnuGdcwGzYS0eNGqNjPiaYkVK42_dUBeDbdH5oO208" style="height: 34px; width: auto; object-fit: contain;"/>
+                    <div class="d-flex align-items-baseline gap-1">
+                        <span class="fs-4 fw-bold text-corporate-primary lh-1 tracking-tight">Vínculo</span>
+                        <span class="text-secondary small d-none d-sm-inline">por Eisbaer</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="d-flex align-items-center gap-3">
+                @if (User.Identity!.IsAuthenticated || true) // '|| true'temporal para pruebas de diseño sin login
+                {
+                    <div class="d-none d-lg-block text-end lh-sm">
+                        <div class="fw-semibold text-dark small">Mi Sesión</div>
+                        <small class="text-muted font-monospace" style="font-size: 0.78rem;">@(User.Identity.IsAuthenticated ? User.Identity.Name : "empresa@vinculo.com")</small>
+                    </div>
+                    <div class="dropdown">
+                        <button aria-expanded="false" class="btn btn-light p-1 rounded-circle border-0 d-flex align-items-center" data-bs-toggle="dropdown" type="button">
+                            <span class="rounded-circle bg-corporate-primary text-white d-inline-flex align-items-center justify-content-center" style="width: 34px; height: 34px;">
+                                <i class="bi bi-person-fill fs-5"></i>
+                            </span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-light-subtle">
+                            <li><a class="dropdown-item small text-danger" href="#"><i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión</a></li>
+                        </ul>
+                    </div>
+                }
+            </div>
         </div>
     </header>
 
     <div class="container-fluid flex-grow-1 px-0">
         <div class="row g-0">
-            <!-- Sidebar Dinámico -->
-            <aside class="col-12 col-md-3 col-xl-2 bg-white border-end d-flex flex-column p-3 sidebar">
-                <div class="text-uppercase text-secondary fw-bold px-2 mb-3" style="font-size: 0.72rem;">Menú Principal</div>
-                
-                <nav class="nav flex-column gap-1">
+            <!-- Menú Lateral -->
+            <aside class="col-12 col-md-3 col-xl-2 bg-white border-end border-light-subtle d-flex flex-column justify-content-between p-3 sidebar">
+                <div>
+                    <div class="text-uppercase text-secondary fw-bold px-2 mb-3" style="font-size: 0.72rem; letter-spacing: 0.05em;">
+                        Portal Principal
+                    </div>
                     
-                    @* 1. OPCIONES EXCLUSIVAS PARA EMPRESAS *@
-                    @if (User.IsInRole("Empresa"))
-                    {
-                        <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" href="/Empresa/Index">
-                            <i class="bi bi-speedometer2"></i> Dashboard
-                        </a>
-                        <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "MisDatos" ? "active" : "")" href="/Empresa/MisDatos">
-                            <i class="bi bi-building"></i> Mis Datos
-                        </a>
-                        <a class="nav-sidebar-link" href="#">
-                            <i class="bi bi-box-seam"></i> Publicar Donaciones <!-- Publicación de lotes[cite: 3] -->
-                        </a>
-                        <a class="nav-sidebar-link" href="#">
-                            <i class="bi bi-geo-alt"></i> Coincidencias y Envíos
-                        </a>
-                    }
+                    <nav class="nav flex-column gap-1">
+                        @if (User.IsInRole("Empresa")) // '|| true' temporal de desarrollo. 
+                        {
+                            <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" href="/Empresa/Index">
+                                <i class="bi bi-speedometer2 fs-5"></i>
+                                <span>Principal</span>
+                            </a>
+                            <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "MisDatos" ? "active" : "")" href="/Empresa/MisDatos">
+                                <i class="bi bi-building fs-5"></i>
+                                <span>Mis Datos</span>
+                            </a>
+                             <a class="nav-sidebar-link" href="#">
+                                <i class="bi bi-box-seam fs-5"></i>
+                                <span>Nueva Donación</span>
+                            </a>
+                            <a class="nav-sidebar-link" href="#">
+                                <i class="bi bi-box-seam fs-5"></i>
+                                <span>Mis Donaciones publicadas</span>
+                            </a>
+                        }
+                        
+                        @if (User.IsInRole("Institucion")) // '|| true' temporal de desarrollo
+                        {
+                            <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" href="/Institucion/Index">
+                                <i class="bi bi-speedometer2 fs-5"></i>
+                                <span>Principal</span>
+                            </a>
+                            <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "MisDatos" ? "active" : "")" href="/Institucion/MisDatos">
+                                <i class="bi bi-house fs-5"></i>
+                                <span>Mis Datos</span>
+                            </a>
+                            <a class="nav-sidebar-link" href="#">
+                                <i class="bi bi-card-checklist fs-5"></i>
+                                <span>Nueva Solicitud</span>
+                            </a>
+                            <a class="nav-sidebar-link" href="#">
+                                <i class="bi bi-card-checklist fs-5"></i>
+                                <span>Mis Solicitudes</span>
+                            </a>
+                        }
 
-                    @* 2. OPCIONES EXCLUSIVAS PARA INSTITUCIONES *@
-                    else if (User.IsInRole("Institucion"))
-                    {
-                        <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" href="/Institucion/Index">
-                            <i class="bi bi-speedometer2"></i> Inicio Institucional
-                        </a>
-                        <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "MisDatos" ? "active" : "")" href="/Institucion/MisDatos">
-                            <i class="bi bi-house"></i> Perfil de la Escuela
-                        </a>
-                        <a class="nav-sidebar-link" href="#">
-                            <i class="bi bi-card-checklist"></i> Solicitar Insumos <!-- Carga de necesidades escolares[cite: 3] -->
-                        </a>
-                    }
-
-                    @* 3. OPCIONES EXCLUSIVAS PARA ADMINISTRADORES *@
-                    else if (User.IsInRole("Administrador"))
-                    {
-                        <a class="nav-sidebar-link" href="#">
-                            <i class="bi bi-shield-check"></i> Validar Escuelas <!-- Validación de credenciales de escuelas[cite: 3] -->
-                        </a>
-                        <a class="nav-sidebar-link" href="#">
-                            <i class="bi bi-bar-chart"></i> Tablero de Métricas <!-- Tablero de métricas e impacto[cite: 3] -->
-                        </a>
-                    }
-                    
-                </nav>
+                        @if (User.IsInRole("Administrador")) // '|| true' temporal de desarrollo
+                        {
+                            <a class="nav-sidebar-link" href="#">
+                                <i class="bi bi-shield-check fs-5"></i>
+                                <span>Opciones de Administrador</span>
+                            </a>
+                        }
+                    </nav>
+                </div>
             </aside>
 
-            <!-- Área de Trabajo Central (Aquí se inyectan las vistas particulares) -->
+            <!-- Área Dinámica -->
             <main class="col-12 col-md-9 col-xl-10 p-3 p-lg-4 overflow-auto">
                 @RenderBody()
             </main>
         </div>
     </div>
 
+    <!-- Pie de Página -->
+    <footer class="bg-white border-top border-light-subtle py-3 px-4 mt-auto">
+        <div class="container-fluid px-0 d-flex flex-column flex-sm-row align-items-center justify-content-between gap-2 small text-secondary">
+            <div>© 2026 Vínculo – Todos los derechos reservados. Infraestructura B2B y Certificación AFIP / RG 2681.</div>
+            <div class="d-flex align-items-center gap-2">
+                <span>Desarrollado por Eisbaer</span>
+                <img alt="Eisbaer Logo" class="img-fluid" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDqTaj6ZMKMa_CQEsM5qfu_IWyhzO0KzcilH-o4_XUBxvVePsjjPsCkQk-zuFlCsRGPhyPFXUd4O4qej2KbMpum6jrb0ifsa-d79f2nFv1FFOTnDWdcanquVW5dmGgSHF8cfhNJRvzTbJfMViJla8s0RXi3BbPy-PwJ9Uu6zKoo6ENbEo38MDhzFK08rTuI-H82TSDTuf8oCLnnZp5ZI20Dg9kiz4XU38RJmdRJjfTENjvKb3kSHYKultYR4cfjfg1kVE" style="height: 20px; width: auto; object-fit: contain;"/>
+            </div>
+        </div>
+    </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script crossorigin="anonymous" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

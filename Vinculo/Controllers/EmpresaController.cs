@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
-using Vinculo.Data; 
+using Vinculo.Data;
 using Vinculo.Models;
 using Vinculo.Models.ViewModels;
 
@@ -13,25 +13,37 @@ namespace Vinculo.Controllers
     {
         private readonly VinculoDbContext _context;
         private readonly UserManager<Usuario> _userManager;
+        private readonly SignInManager<Usuario> _signInManager; // 1. Agregamos SignInManager
 
-        public EmpresaController(VinculoDbContext context, UserManager<Usuario> userManager)
+        // 2. Lo inyectamos en el constructor
+        public EmpresaController(VinculoDbContext context, UserManager<Usuario> userManager, SignInManager<Usuario> signInManager)
         {
             _context = context;
             _userManager = userManager;
+            _signInManager = signInManager;
         }
 
-        // GET: Empresas/MiPerfil
-        //[Authorize(Roles = "Empresa")]
+        // GET: Empresa/Index
         public async Task<IActionResult> Index()
         {
-            // Obtener el ID del usuario actualmente logueado
+            // Obtener el usuario actualmente logueado (leyendo la cookie)
             var user = await _userManager.GetUserAsync(User);
 
-            // Si no hay usuario autenticado, intentar obtener por email para pruebas
+            // 3. Si no hay cookie, buscamos al usuario Y LO LOGUEAMOS REALMENTE
             if (user == null)
+            {
                 user = await _userManager.FindByEmailAsync("empresa@vinculo.com");
 
-            // Validar que existe el usuario
+                if (user != null)
+                {
+                    // Esto crea la cookie de sesión en tu navegador con el rol correspondiente
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+
+                    // Recargamos la página para que el _Layout.cshtml lea la cookie nueva y pinte el menú
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+
             if (user == null)
                 return Unauthorized("El usuario no está autenticado.");
 
@@ -39,7 +51,7 @@ namespace Vinculo.Controllers
                 .Include(e => e.Domicilio)
                 .FirstOrDefaultAsync(e => e.UsuarioId == user.Id);
 
-            if (empresa == null) 
+            if (empresa == null)
                 return NotFound("No se encontró la empresa asociada a este usuario.");
 
             // Mapear la entidad al ViewModel para mostrarlo en pantalla
