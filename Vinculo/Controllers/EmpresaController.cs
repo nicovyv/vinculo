@@ -9,18 +9,18 @@ using Vinculo.Models.ViewModels;
 
 namespace Vinculo.Controllers
 {
+    [Authorize(Roles = "Empresa")]
     public class EmpresaController : Controller
     {
         private readonly VinculoDbContext _context;
         private readonly UserManager<Usuario> _userManager;
-        private readonly SignInManager<Usuario> _signInManager; //  SignInManager
+
 
         // constructor
         public EmpresaController(VinculoDbContext context, UserManager<Usuario> userManager, SignInManager<Usuario> signInManager)
         {
             _context = context;
             _userManager = userManager;
-            _signInManager = signInManager;
         }
 
         // GET: Empresa/Index
@@ -29,30 +29,14 @@ namespace Vinculo.Controllers
             // Obtener el usuario actualmente logueado
             var user = await _userManager.GetUserAsync(User);
 
-            //  Si no hay cookie, buscamos al usuario Y LO LOGUEAMOS 
-            if (user == null)
-            {
-                user = await _userManager.FindByEmailAsync("empresa@vinculo.com");
-
-                if (user != null)
-                {
-                    //  crea la cookie de sesión en tu navegador con el rol correspondiente
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-
-                    // Recargamos la página para que el _Layout.cshtml lea la cookie nueva y pinte el menú
-                    return RedirectToAction(nameof(Index));
-                }
-            }
-
-            if (user == null)
-                return Unauthorized("El usuario no está autenticado.");
-
             var empresa = await _context.Empresas
                 .Include(e => e.Domicilio)
                 .FirstOrDefaultAsync(e => e.UsuarioId == user.Id);
 
+
             if (empresa == null)
                 return NotFound("No se encontró la empresa asociada a este usuario.");
+
 
             // Mapear la entidad al ViewModel para mostrarlo en pantalla
             var model = new PerfilEmpresaViewModel

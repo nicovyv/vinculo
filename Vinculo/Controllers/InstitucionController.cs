@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Vinculo.Data;
@@ -7,6 +8,7 @@ using Vinculo.Models.ViewModels;
 
 namespace Vinculo.Controllers
 {
+    [Authorize(Roles = "Institucion")]
     public class InstitucionController : Controller
     {
         private readonly VinculoDbContext _context;
@@ -22,14 +24,9 @@ namespace Vinculo.Controllers
 
         // GET: Institucion/MiPerfil
         [HttpGet]
-        public async Task<IActionResult> MiPerfil()
+        public async Task<IActionResult> Index()
         {
-            var user = await _userManager.FindByEmailAsync("institucion@vinculo.com");
-
-            if (user == null)
-            {
-                return NotFound();
-            }
+            var user = await _userManager.GetUserAsync(User);
 
             var institucion = await _context.Instituciones
                 .Include(i => i.Domicilio)
@@ -39,6 +36,7 @@ namespace Vinculo.Controllers
             {
                 return NotFound();
             }
+
 
             var model = new PerfilInstitucionViewModel
             {

@@ -28,7 +28,13 @@ builder.Services.AddIdentity<Usuario, IdentityRole>(options =>
 .AddEntityFrameworkStores<VinculoDbContext>()
 .AddDefaultTokenProviders();
 
-
+//ruta login
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Usuario/Login";
+    options.LogoutPath = "/Usuario/Logout";
+    options.AccessDeniedPath = "/Usuario/Login";
+});
 
 var app = builder.Build();
 
@@ -69,7 +75,7 @@ app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
+    pattern: "{controller=Usuario}/{action=Login}/{id?}")
     .WithStaticAssets();
 
 
