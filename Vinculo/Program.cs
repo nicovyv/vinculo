@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Win32;
 using Vinculo.Data;
 using Vinculo.Models;
+using Vinculo.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +36,9 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LogoutPath = "/Usuario/Logout";
     options.AccessDeniedPath = "/Usuario/Login";
 });
+
+// Registrar servicio propio de almacenamiento
+builder.Services.AddScoped<IImagenStorage, ImagenStorage>();
 
 var app = builder.Build();
 
