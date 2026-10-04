@@ -59,7 +59,7 @@ namespace Vinculo.Controllers
             var nuevaDonacion = new Donacion
             {
                 EmpresaId = empresa.Id,
-                TipoEquipamiento = model.Tipo, // O TipoEquipamiento, según el nombre exacto en tu entidad y ViewModel
+                Tipo = model.Tipo, // O TipoEquipamiento, según el nombre exacto en tu entidad y ViewModel
                 Descripcion = model.Descripcion,
                 FotoRuta = rutaRelativaBd,
                 Fecha = DateTime.Now,

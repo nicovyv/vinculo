@@ -321,5 +321,83 @@ namespace Vinculo.Controllers
 
             return RedirectToAction(nameof(Usuarios));
         }
+    
+        // =========================================================
+        // ADMINISTRACIÓN DE INSTITUCIONES
+        // =========================================================
+
+        [HttpGet]
+        public async Task<IActionResult> Instituciones(string? busqueda)
+        {
+            var query = _context.Instituciones
+                .Include(i => i.Domicilio)
+                .Include(i => i.Usuario)
+                .Include(i => i.Solicitudes)
+                .AsQueryable();
+
+            // =========================
+            // BÚSQUEDA
+            // =========================
+
+            if (!string.IsNullOrWhiteSpace(busqueda))
+            {
+                busqueda = busqueda.Trim();
+
+                query = query.Where(i =>
+                    i.Nombre.Contains(busqueda) ||
+                    i.Cuit.Contains(busqueda) ||
+                    i.Email.Contains(busqueda));
+            }
+
+            // =========================
+            // PROYECCIÓN
+            // =========================
+
+            var instituciones = await query
+                .OrderBy(i => i.Nombre)
+                .Select(i => new AdminInstitucionItemViewModel
+                {
+                    Id = i.Id,
+
+                    Nombre = i.Nombre,
+
+                    Cuit = i.Cuit,
+
+                    Email = i.Email,
+
+                    Telefono = i.Telefono,
+
+                    Localidad = i.Domicilio.Localidad,
+
+                    Provincia = i.Domicilio.Provincia,
+
+                    Activo = i.Usuario.Activo,
+
+                    CantidadSolicitudes = i.Solicitudes.Count(),
+
+                    SolicitudesPendientes = i.Solicitudes.Count(
+                        s => s.Estado == EstadoSolicitud.Pendiente),
+
+                    SolicitudesEnCoordinacion = i.Solicitudes.Count(
+                        s => s.Estado == EstadoSolicitud.EnCoordinacion),
+
+                    SolicitudesConcretadas = i.Solicitudes.Count(
+                        s => s.Estado == EstadoSolicitud.Concretado)
+                })
+                .ToListAsync();
+
+            // =========================
+            // VIEW MODEL
+            // =========================
+
+            var model = new AdminInstitucionViewModel
+            {
+                Instituciones = instituciones,
+
+                Busqueda = busqueda
+            };
+
+            return View(model);
+        }
     }
 }
