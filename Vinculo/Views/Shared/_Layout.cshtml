@@ -97,7 +97,7 @@
                     </div>
                     
                     <nav class="nav flex-column gap-1">
-                        @if (User.IsInRole("Empresa")) // '|| true' temporal de desarrollo. 
+                        @if (User.IsInRole("Empresa")) 
                         {
                             <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" href="/Empresa/Index">
                                 <i class="bi bi-speedometer2 fs-5"></i>
@@ -117,7 +117,7 @@
                             </a>
                         }
                         
-                        @if (User.IsInRole("Institucion")) // '|| true' temporal de desarrollo
+                        @if (User.IsInRole("Institucion")) 
                         {
                             <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Institucion" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")"
                                href="/Institucion/Index">
@@ -141,7 +141,7 @@
                             </a>
                         }
 
-                        @if (User.IsInRole("Administrador")) // '|| true' temporal de desarrollo
+                        @if (User.IsInRole("Administrador")) 
                         {
                             <a class="nav-sidebar-link" href="#">
                                 <i class="bi bi-shield-check fs-5"></i>

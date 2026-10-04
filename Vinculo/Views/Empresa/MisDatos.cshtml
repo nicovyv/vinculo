@@ -1,0 +1,175 @@
+﻿@model Vinculo.Models.ViewModels.PerfilEmpresaViewModel
+@{
+    ViewData["Title"] = "Mis Datos";
+}
+
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1 text-secondary" style="font-size: 0.82rem;">
+            <li class="breadcrumb-item"><a class="text-decoration-none text-secondary" href="#">Inicio</a></li>
+            <li class="breadcrumb-item"><a class="text-decoration-none text-secondary" href="#">Perfil Empresa</a></li>
+            <li aria-current="page" class="breadcrumb-item active text-corporate-primary fw-semibold">Mis Datos Corporativos</li>
+        </ol>
+    </nav>
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 pt-1">
+        <div>
+            <h1 class="h3 fw-bold text-corporate-primary mb-1 d-flex align-items-center gap-2">
+                <span>Mis Datos Corporativos</span>
+                <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-2.5 py-1" style="font-size: 0.72rem;">
+                    <i class="bi bi-shield-check me-1"></i>Perfil Activo
+                </span>
+            </h1>
+            <p class="text-secondary small mb-0 lh-base" style="max-width: 820px;">
+                Administración de personería jurídica, datos de contacto institucional y domicilio de despacho con geolocalización activa.
+            </p>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-shrink-0">
+            <button class="btn btn-outline-secondary btn-sm px-3 py-2 fw-medium d-flex align-items-center gap-1.5 shadow-sm" type="button" onclick="window.location.reload();">
+                <i class="bi bi-arrow-counterclockwise"></i><span>Descartar Cambios</span>
+            </button>
+            <button class="btn btn-teal btn-sm px-3.5 py-2 fw-medium d-flex align-items-center gap-2 shadow-sm" type="button" onclick="handleSaveProfile()">
+                <i class="bi bi-check2-circle fs-6"></i><span>Guardar Modificaciones</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<form asp-action="MisDatos" method="post" id="formPerfilEmpresa">
+    <!-- BLOQUE 1: DATOS CORPORATIVOS -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4 bg-white">
+        <div class="card-header bg-white border-bottom border-light-subtle px-4 py-3 d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-2.5">
+                <div class="rounded-2 bg-corporate-primary text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                    <i class="bi bi-building"></i>
+                </div>
+                <div>
+                    <h2 class="h6 fw-bold text-corporate-primary mb-0">1. Información General y Contacto Institucional</h2>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-3">
+                <div class="col-12 col-lg-8">
+                    <label asp-for="RazonSocial" class="form-label small fw-semibold text-corporate-primary mb-1">Razón Social Declarada <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-body-tertiary text-secondary"><i class="bi bi-briefcase"></i></span>
+                        <input asp-for="RazonSocial" class="form-control fw-semibold text-dark" readonly type="text" />
+                    </div>
+                </div>
+                <div class="col-12 col-lg-4">
+                    <label asp-for="Cuit" class="form-label small fw-semibold text-corporate-primary mb-1">CUIT <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-body-tertiary text-secondary"><i class="bi bi-shield-lock"></i></span>
+                        <input asp-for="Cuit" class="form-control font-monospace bg-light text-secondary" readonly type="text" />
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-6">
+                    <label asp-for="Email" class="form-label small fw-semibold text-corporate-primary mb-1">Correo Electrónico Institucional <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white text-secondary"><i class="bi bi-envelope text-teal"></i></span>
+                        <input asp-for="Email" class="form-control" type="email" required />
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-6">
+                    <label asp-for="Telefono" class="form-label small fw-semibold text-corporate-primary mb-1">Teléfono de Contacto Operativo <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white text-secondary"><i class="bi bi-telephone text-teal"></i></span>
+                        <input asp-for="Telefono" class="form-control font-monospace" type="tel" required />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BLOQUE 2: DOMICILIO -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4 bg-white overflow-hidden">
+        <div class="card-header bg-white border-bottom border-light-subtle px-4 py-3 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-2">
+            <div class="d-flex align-items-center gap-2.5">
+                <div class="rounded-2 bg-teal-subtle-custom text-teal d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                    <i class="bi bi-geo-alt-fill fs-5"></i>
+                </div>
+                <div>
+                    <h2 class="h6 fw-bold text-corporate-primary mb-0">2. Domicilio de Retiro</h2>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-4">
+                <div class="col-12 col-xl-6 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-12 col-sm-8">
+                                <label asp-for="Calle" class="form-label small fw-semibold text-corporate-primary mb-1">Calle / Avenida <span class="text-danger">*</span></label>
+                                <input asp-for="Calle" class="form-control" type="text" required />
+                            </div>
+                            <div class="col-12 col-sm-4">
+                                <label asp-for="Numero" class="form-label small fw-semibold text-corporate-primary mb-1">Número <span class="text-danger">*</span></label>
+                                <input asp-for="Numero" class="form-control font-monospace" type="text" required />
+                            </div>
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-12 col-sm-8">
+                                <label asp-for="Localidad" class="form-label small fw-semibold text-corporate-primary mb-1">Localidad <span class="text-danger">*</span></label>
+                                <input asp-for="Localidad" class="form-control" type="text" required />
+                            </div>
+                            <div class="col-12 col-sm-4">
+                                <label asp-for="CodigoPostal" class="form-label small fw-semibold text-corporate-primary mb-1">Código Postal <span class="text-danger">*</span></label>
+                                <input asp-for="CodigoPostal" class="form-control font-monospace text-uppercase" type="text" required />
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Provincia" class="form-label small fw-semibold text-corporate-primary mb-1">Provincia <span class="text-danger">*</span></label>
+                            <select asp-for="Provincia" class="form-select">
+                                <option value="CABA">Ciudad Autónoma de Buenos Aires (CABA)</option>
+                                <option value="BA-AMBA">Buenos Aires - Conurbano Bonaerense</option>
+                                <option value="BA-INT">Buenos Aires - Interior</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12 col-xl-6">
+                    <div class="bg-body-tertiary rounded-3 p-3 h-100 d-flex flex-column justify-content-center align-items-center border border-light-subtle">
+                         <i class="bi bi-map text-teal" style="font-size: 3rem; opacity: 0.5;"></i>
+                         <p class="text-secondary small mt-3 text-center">Motor Geoespacial pendiente de sincronización con las coordenadas indicadas.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTONES INFERIORES -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white mb-4 overflow-hidden">
+        <div class="card-body p-3.5 px-4">
+            <div class="d-flex justify-content-end gap-2.5">
+                <button class="btn btn-teal px-4 py-2 fw-semibold d-flex align-items-center gap-2 shadow-sm" id="btnGuardarFinal" type="button" onclick="handleSaveProfile()">
+                    <i class="bi bi-save2"></i><span>Guardar Perfil</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function handleSaveProfile() {
+            const btn = document.getElementById("btnGuardarFinal");
+            const form = document.getElementById("formPerfilEmpresa");
+            
+            // Validar nativamente antes de hacer la animación
+            if(!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Registrando...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                form.submit(); // Dispara el POST hacia tu controlador
+            }, 800);
+        }
+    </script>
+}
