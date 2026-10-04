@@ -27,22 +27,46 @@ namespace Vinculo.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, isPersistent: false, lockoutOnFailure: false);
 
-                if (result.Succeeded)
+                // Buscar usuario
+                var user = await _userManager.FindByEmailAsync(model.Email);
+
+                if (user == null)
                 {
-                    // Buscar al usuario para saber qué rol tiene
-                    var user = await _userManager.FindByEmailAsync(model.Email);
+                    ModelState.AddModelError(
+                        string.Empty,
+                        "Intento de inicio de sesión no válido.");
 
-                    // Redirección  según el rol
-                    if (await _userManager.IsInRoleAsync(user, "Empresa"))
-                        return RedirectToAction("Index", "Empresa");
-
-                    if (await _userManager.IsInRoleAsync(user, "Institucion"))
-                        return RedirectToAction("Index", "Institucion");
-
-                    return RedirectToAction("Index", "Home");
+                    return View(model);
                 }
+
+                // Verificar si está activo
+                if (!user.Activo)
+                {
+                    ModelState.AddModelError(
+                        string.Empty,
+                        "Tu cuenta se encuentra desactivada. Contactá al administrador.");
+
+                    return View(model);
+                }
+
+                // Verificar contraseña
+                var result = await _signInManager.PasswordSignInAsync(
+                    user,
+                    model.Password,
+                    isPersistent: false,
+                    lockoutOnFailure: false);
+
+                // Redirección  según el rol
+                if (await _userManager.IsInRoleAsync(user, "Empresa"))
+                    return RedirectToAction("Index", "Empresa");
+
+                if (await _userManager.IsInRoleAsync(user, "Institucion"))
+                    return RedirectToAction("Index", "Institucion");
+
+                if (await _userManager.IsInRoleAsync(user, "Administrador"))
+                    return RedirectToAction("Index", "Administrador");
+
 
                 ModelState.AddModelError(string.Empty, "Intento de inicio de sesión no válido.");
             }

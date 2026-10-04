@@ -1,0 +1,576 @@
+﻿@model Vinculo.Models.ViewModels.AdminUsuarioViewModel
+
+@{
+    ViewData["Title"] = "Administración de Usuarios";
+
+    var totalUsuarios = Model.Usuarios.Count;
+    var usuariosActivos = Model.Usuarios.Count(u => u.Activo);
+    var usuariosInactivos = Model.Usuarios.Count(u => !u.Activo);
+}
+
+<!-- ENCABEZADO -->
+
+<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+
+    <div>
+
+        <div class="d-flex align-items-center gap-2 mb-1">
+
+            <i class="bi bi-people-fill fs-4 text-teal"></i>
+
+            <h1 class="h3 fw-bold mb-0 text-corporate-primary">
+                Administración de Usuarios
+            </h1>
+
+        </div>
+
+        <p class="text-muted mb-0 small">
+            Gestión de las cuentas registradas en Vínculo.
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- KPIs -->
+
+<div class="row g-3 mb-4">
+
+    <!-- Total -->
+
+    <div class="col-12 col-md-4">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body p-4">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="kpi-icon-box bg-teal-subtle-custom">
+
+                        <i class="bi bi-people-fill"></i>
+
+                    </div>
+
+                    <div>
+
+                        <div class="text-muted small">
+                            Usuarios totales
+                        </div>
+
+                        <div class="h3 fw-bold mb-0 text-corporate-primary">
+                            @totalUsuarios
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Activos -->
+
+    <div class="col-12 col-md-4">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body p-4">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="kpi-icon-box"
+                         style="background:#EAF8FA;color:#0E9AA7;">
+
+                        <i class="bi bi-person-check-fill"></i>
+
+                    </div>
+
+                    <div>
+
+                        <div class="text-muted small">
+                            Usuarios activos
+                        </div>
+
+                        <div class="h3 fw-bold mb-0 text-corporate-primary">
+                            @usuariosActivos
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Inactivos -->
+
+    <div class="col-12 col-md-4">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body p-4">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="kpi-icon-box"
+                         style="background:#F1F5F9;color:#64748B;">
+
+                        <i class="bi bi-person-x-fill"></i>
+
+                    </div>
+
+                    <div>
+
+                        <div class="text-muted small">
+                            Usuarios inactivos
+                        </div>
+
+                        <div class="h3 fw-bold mb-0 text-corporate-primary">
+                            @usuariosInactivos
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- FILTROS -->
+
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-body p-4">
+
+        <div class="d-flex align-items-center gap-2 mb-3">
+
+            <i class="bi bi-funnel-fill text-teal"></i>
+
+            <h6 class="fw-bold mb-0 text-corporate-primary">
+                Filtros
+            </h6>
+
+        </div>
+
+
+        <form asp-controller="Administrador"
+              asp-action="Usuarios"
+              method="get">
+
+            <div class="row g-3 align-items-end">
+
+                <!-- TIPO -->
+
+                <div class="col-12 col-md-5">
+
+                    <label class="form-label small fw-semibold text-secondary">
+                        Tipo de usuario
+                    </label>
+
+                    <select name="tipo"
+                            class="form-select">
+
+                        <option value="">
+                            Todos los tipos
+                        </option>
+
+                        @foreach (var tipo in Enum.GetValues<Vinculo.Models.Enums.TipoUsuario>())
+                        {
+                            if (Model.TipoFiltro == tipo.ToString())
+                            {
+                                <option value="@tipo" selected>
+                                    @tipo
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="@tipo">
+                                    @tipo
+                                </option>
+                            }
+                        }
+
+                    </select>
+
+                </div>
+
+
+                <!-- ESTADO -->
+
+                <div class="col-12 col-md-5">
+
+                    <label class="form-label small fw-semibold text-secondary">
+                        Estado
+                    </label>
+
+                    <select name="estado"
+                            class="form-select">
+
+                        @if (string.IsNullOrEmpty(Model.EstadoFiltro))
+                        {
+                            <option value="" selected>
+                                Todos los estados
+                            </option>
+                        }
+                        else
+                        {
+                            <option value="">
+                                Todos los estados
+                            </option>
+                        }
+
+
+                        @if (Model.EstadoFiltro == "Activo")
+                        {
+                            <option value="Activo" selected>
+                                Activos
+                            </option>
+                        }
+                        else
+                        {
+                            <option value="Activo">
+                                Activos
+                            </option>
+                        }
+
+
+                        @if (Model.EstadoFiltro == "Inactivo")
+                        {
+                            <option value="Inactivo" selected>
+                                Inactivos
+                            </option>
+                        }
+                        else
+                        {
+                            <option value="Inactivo">
+                                Inactivos
+                            </option>
+                        }
+
+                    </select>
+
+                </div>
+
+
+                <!-- BOTONES -->
+
+                <div class="col-12 col-md-2 d-flex gap-2">
+
+                    <button type="submit"
+                            class="btn btn-teal flex-grow-1">
+
+                        <i class="bi bi-search me-1"></i>
+                        Filtrar
+
+                    </button>
+
+                    <a asp-controller="Administrador"
+                       asp-action="Usuarios"
+                       class="btn btn-outline-secondary"
+                       title="Limpiar filtros">
+
+                        <i class="bi bi-x-lg"></i>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- TABLA -->
+
+<div class="card border-0 shadow-sm">
+
+    <div class="card-header bg-white border-bottom py-3">
+
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+
+            <div class="d-flex align-items-center gap-2">
+
+                <i class="bi bi-person-lines-fill text-teal fs-5"></i>
+
+                <h6 class="fw-bold mb-0 text-corporate-primary">
+                    Usuarios registrados
+                </h6>
+
+            </div>
+
+            <span class="badge bg-light text-secondary border">
+                @Model.Usuarios.Count usuario(s)
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div class="card-body p-0">
+
+        @if (Model.Usuarios.Any())
+        {
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead class="table-light text-secondary small text-uppercase"
+                           style="font-size:.72rem;letter-spacing:.03em;">
+
+                        <tr>
+
+                            <th class="ps-4 py-3">
+                                Usuario
+                            </th>
+
+                            <th class="py-3">
+                                Tipo
+                            </th>
+
+                            <th class="py-3">
+                                Fecha de alta
+                            </th>
+
+                            <th class="py-3">
+                                Estado
+                            </th>
+
+                            <th class="pe-4 py-3 text-end">
+                                Acción
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        @foreach (var usuario in Model.Usuarios)
+                        {
+                            <tr>
+
+                                <!-- USUARIO -->
+
+                                <td class="ps-4 py-3">
+
+                                    <div class="d-flex align-items-center gap-3">
+
+                                        <div class="rounded-circle bg-corporate-primary text-white d-flex align-items-center justify-content-center flex-shrink-0"
+                                             style="width:40px;height:40px;">
+
+                                            <i class="bi bi-person-fill"></i>
+
+                                        </div>
+
+                                        <div>
+
+                                            <div class="fw-semibold text-dark">
+                                                @usuario.Email
+                                            </div>
+
+                                            <div class="text-muted"
+                                                 style="font-size:.75rem;">
+
+                                                ID: @usuario.Id
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- TIPO -->
+
+                                <td>
+
+                                    @switch (usuario.TipoUsuario)
+                                    {
+                                        case Vinculo.Models.Enums.TipoUsuario.Administrador:
+
+                                            <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle">
+
+                                                <i class="bi bi-shield-check me-1"></i>
+                                                Administrador
+
+                                            </span>
+
+                                            break;
+
+
+                                        case Vinculo.Models.Enums.TipoUsuario.Empresa:
+
+                                            <span class="badge rounded-pill bg-info-subtle text-info-emphasis border border-info-subtle">
+
+                                                <i class="bi bi-building me-1"></i>
+                                                Empresa
+
+                                            </span>
+
+                                            break;
+
+
+                                        case Vinculo.Models.Enums.TipoUsuario.Institucion:
+
+                                            <span class="badge rounded-pill bg-teal-subtle-custom border">
+
+                                                <i class="bi bi-house me-1"></i>
+                                                Institución
+
+                                            </span>
+
+                                            break;
+
+
+                                        default:
+
+                                            <span class="badge rounded-pill bg-light text-secondary border">
+                                                @usuario.TipoUsuario
+                                            </span>
+
+                                            break;
+                                    }
+
+                                </td>
+
+
+                                <!-- FECHA -->
+
+                                <td>
+
+                                    <span class="text-dark small">
+
+                                        <i class="bi bi-calendar3 text-secondary me-1"></i>
+
+                                        @usuario.FechaAlta.ToString("dd/MM/yyyy")
+
+                                    </span>
+
+                                </td>
+
+
+                                <!-- ESTADO -->
+
+                                <td>
+
+                                    @if (usuario.Activo)
+                                    {
+                                        <span class="badge rounded-pill bg-success-subtle text-success-emphasis border border-success-subtle">
+
+                                            <i class="bi bi-check-circle me-1"></i>
+                                            Activo
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge rounded-pill bg-secondary-subtle text-secondary border">
+
+                                            <i class="bi bi-x-circle me-1"></i>
+                                            Inactivo
+
+                                        </span>
+                                    }
+
+                                </td>
+
+
+                                <!-- ACCIÓN -->
+
+                                <td class="pe-4 text-end">
+
+                                    <form asp-controller="Administrador"
+                                          asp-action="CambiarEstadoUsuario"
+                                          method="post"
+                                          class="d-inline">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden"
+                                               name="id"
+                                               value="@usuario.Id" />
+
+
+                                        @if (usuario.Activo)
+                                        {
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-danger">
+
+                                                <i class="bi bi-person-x me-1"></i>
+                                                Desactivar
+
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-success">
+
+                                                <i class="bi bi-person-check me-1"></i>
+                                                Activar
+
+                                            </button>
+                                        }
+
+                                    </form>
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+        else
+        {
+            <div class="p-5 text-center">
+
+                <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-3"
+                     style="width:64px;height:64px;">
+
+                    <i class="bi bi-people fs-2 text-secondary"></i>
+
+                </div>
+
+                <h6 class="fw-bold text-dark">
+                    No se encontraron usuarios
+                </h6>
+
+                <p class="text-muted small mb-0">
+                    No hay usuarios que coincidan con los filtros seleccionados.
+                </p>
+
+            </div>
+        }
+
+    </div>
+
+</div>

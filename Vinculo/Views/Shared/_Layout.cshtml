@@ -140,14 +140,216 @@
                                 <span>Mis Solicitudes</span>
                             </a>
                         }
+                                               
+                        @if (User.IsInRole("Administrador"))
 
-                        @if (User.IsInRole("Administrador")) 
                         {
-                            <a class="nav-sidebar-link" href="#">
-                                <i class="bi bi-shield-check fs-5"></i>
-                                <span>Opciones de Administrador</span>
+                            <!-- Panel de Control - IMPLEMENTADO -->
+                            <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Administrador" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")"
+                               asp-controller="Administrador"
+                               asp-action="Index">
+
+                                <i class="bi bi-speedometer2 fs-5"></i>
+                                <span>Panel de Control</span>
+
                             </a>
+
+
+                            <!-- Usuarios - IMPLEMENTADO -->
+                            <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Administrador" && ViewContext.RouteData.Values["Action"]?.ToString() == "Usuarios" ? "active" : "")"
+                               asp-controller="Administrador"
+                               asp-action="Usuarios">
+
+                                <i class="bi bi-people fs-5"></i>
+                                <span>Usuarios</span>
+
+                            </a>
+
+
+                            <!-- Instituciones - FALTA IMPLEMENTAR -->
+                            <a class="nav-sidebar-link"
+                               href="#">
+
+                                <i class="bi bi-buildings fs-5"></i>
+                                <span>Instituciones</span>
+
+                            </a>
+
+                            @*
+        Cuando exista la acción:
+
+        <a class="nav-sidebar-link"
+           asp-controller="Administrador"
+           asp-action="Instituciones">
+
+            <i class="bi bi-buildings fs-5"></i>
+            <span>Instituciones</span>
+
+        </a>
+    *@
+
+
+                            <!-- Empresas - FALTA IMPLEMENTAR -->
+                            <a class="nav-sidebar-link"
+                               href="#">
+
+                                <i class="bi bi-building fs-5"></i>
+                                <span>Empresas</span>
+
+                            </a>
+
+                            @*
+        Cuando exista la acción:
+
+        <a class="nav-sidebar-link"
+           asp-controller="Administrador"
+           asp-action="Empresas">
+
+            <i class="bi bi-building fs-5"></i>
+            <span>Empresas</span>
+
+        </a>
+    *@
+
+
+                            <!-- Solicitudes - FALTA IMPLEMENTAR -->
+                            <a class="nav-sidebar-link"
+                               href="#">
+
+                                <i class="bi bi-card-checklist fs-5"></i>
+                                <span>Solicitudes</span>
+
+                            </a>
+
+                            @*
+        Cuando exista la acción:
+
+        <a class="nav-sidebar-link"
+           asp-controller="Administrador"
+           asp-action="Solicitudes">
+
+            <i class="bi bi-card-checklist fs-5"></i>
+            <span>Solicitudes</span>
+
+        </a>
+    *@
+
+
+                            <!-- Donaciones - FALTA IMPLEMENTAR -->
+                            <a class="nav-sidebar-link"
+                               href="#">
+
+                                <i class="bi bi-box-seam fs-5"></i>
+                                <span>Donaciones</span>
+
+                            </a>
+
+                            @*
+        Cuando exista la acción:
+
+        <a class="nav-sidebar-link"
+           asp-controller="Administrador"
+           asp-action="Donaciones">
+
+            <i class="bi bi-box-seam fs-5"></i>
+            <span>Donaciones</span>
+
+        </a>
+    *@
+
+
+                            <!-- Asignaciones - FALTA IMPLEMENTAR -->
+                            <a class="nav-sidebar-link"
+                               href="#">
+
+                                <i class="bi bi-arrow-left-right fs-5"></i>
+                                <span>Asignaciones</span>
+
+                            </a>
+
+                            @*
+        Cuando exista la acción:
+
+        <a class="nav-sidebar-link"
+           asp-controller="Administrador"
+           asp-action="Asignaciones">
+
+            <i class="bi bi-arrow-left-right fs-5"></i>
+            <span>Asignaciones</span>
+
+        </a>
+    *@
+
+
+                            <!-- Logística y Entregas - FALTA IMPLEMENTAR -->
+                            <a class="nav-sidebar-link"
+                               href="#">
+
+                                <i class="bi bi-truck fs-5"></i>
+                                <span>Logística y Entregas</span>
+
+                            </a>
+
+                            @*
+        Cuando exista la acción:
+
+        <a class="nav-sidebar-link"
+           asp-controller="Administrador"
+           asp-action="Entregas">
+
+            <i class="bi bi-truck fs-5"></i>
+            <span>Logística y Entregas</span>
+
+        </a>
+    *@
+
+
+                            <!-- Reportes - FALTA IMPLEMENTAR -->
+                            <a class="nav-sidebar-link"
+                               href="#">
+
+                                <i class="bi bi-bar-chart-line fs-5"></i>
+                                <span>Reportes</span>
+
+                            </a>
+
+                            @*
+        Cuando exista la acción:
+
+        <a class="nav-sidebar-link"
+           asp-controller="Administrador"
+           asp-action="Reportes">
+
+            <i class="bi bi-bar-chart-line fs-5"></i>
+            <span>Reportes</span>
+
+        </a>
+    *@
+
+
+                            <!-- Configuración - FALTA IMPLEMENTAR -->
+                            <a class="nav-sidebar-link"
+                               href="#">
+
+                                <i class="bi bi-gear fs-5"></i>
+                                <span>Configuración</span>
+
+                            </a>
+
+                            @*
+        Cuando exista la acción:
+
+        <a class="nav-sidebar-link"
+           asp-controller="Administrador"
+           asp-action="Configuracion">
+
+            <i class="bi bi-gear fs-5"></i>
+            <span>Configuración</span>
+
+        </a>
+    *@
                         }
+
                     </nav>
                 </div>
             </aside>
