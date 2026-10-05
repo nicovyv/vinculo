@@ -37,5 +37,7 @@ namespace Vinculo.Models.ViewModels
         [Required(ErrorMessage = "El código postal es obligatorio")]
         [Display(Name = "Código Postal")]
         public string CodigoPostal { get; set; }
+        public double? Latitud { get; set; }
+        public double? Longitud { get; set; }
     }
 }

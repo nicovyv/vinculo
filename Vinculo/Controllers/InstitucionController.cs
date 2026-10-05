@@ -6,6 +6,7 @@ using Vinculo.Data;
 using Vinculo.Models;
 using Vinculo.Models.Enums;
 using Vinculo.Models.ViewModels;
+using Vinculo.Services;
 
 namespace Vinculo.Controllers
 {
@@ -14,13 +15,16 @@ namespace Vinculo.Controllers
     {
         private readonly VinculoDbContext _context;
         private readonly UserManager<Usuario> _userManager;
+        private readonly NominatimService _nominatimService;
 
-    public InstitucionController(
-        VinculoDbContext context,
-        UserManager<Usuario> userManager)
+        public InstitucionController(
+         VinculoDbContext context,
+         UserManager<Usuario> userManager,
+         NominatimService nominatimService)
         {
             _context = context;
             _userManager = userManager;
+            _nominatimService = nominatimService;
         }
 
         // GET: Institucion/Index
@@ -104,16 +108,18 @@ namespace Vinculo.Controllers
                 Cuit = institucion.Cuit,
                 Telefono = institucion.Telefono,
                 Email = institucion.Email,
-
                 Calle = institucion.Domicilio?.Calle,
                 Numero = institucion.Domicilio?.Numero,
                 Localidad = institucion.Domicilio?.Localidad,
                 Provincia = institucion.Domicilio?.Provincia,
-                CodigoPostal = institucion.Domicilio?.CodigoPostal
+                CodigoPostal = institucion.Domicilio?.CodigoPostal,
+                Latitud = institucion.Domicilio?.Latitud,
+                Longitud = institucion.Domicilio?.Longitud
             };
 
             return View(model);
         }
+
 
         // POST: Institucion/MisDatos
         [HttpPost]
@@ -150,6 +156,8 @@ namespace Vinculo.Controllers
             institucion.Domicilio.Localidad = model.Localidad;
             institucion.Domicilio.Provincia = model.Provincia;
             institucion.Domicilio.CodigoPostal = model.CodigoPostal;
+            institucion.Domicilio.Latitud = model.Latitud;
+            institucion.Domicilio.Longitud = model.Longitud;
 
             await _context.SaveChangesAsync();
 
@@ -157,6 +165,80 @@ namespace Vinculo.Controllers
                 "Los datos de la institución fueron actualizados correctamente.";
 
             return RedirectToAction(nameof(MisDatos));
+        }
+
+        // GET: Institucion/BuscarUbicacion
+        [HttpGet]
+        public async Task<IActionResult> BuscarUbicacion(
+            string calle,
+            string numero,
+            string localidad,
+            string provincia,
+            string? codigoPostal)
+        {
+            if (string.IsNullOrWhiteSpace(calle) ||
+                string.IsNullOrWhiteSpace(numero) ||
+                string.IsNullOrWhiteSpace(localidad) ||
+                string.IsNullOrWhiteSpace(provincia))
+            {
+                return BadRequest(new
+                {
+                    mensaje = "Completá calle, número, localidad y provincia."
+                });
+            }
+
+            var coordenadas = await _nominatimService.BuscarCoordenadasAsync(
+                calle,
+                numero,
+                localidad,
+                provincia,
+                codigoPostal);
+
+            if (coordenadas == null)
+            {
+                return NotFound(new
+                {
+                    mensaje = "No se encontró una ubicación para el domicilio ingresado."
+                });
+            }
+
+            return Json(new
+            {
+                latitud = coordenadas.Value.Latitud,
+                longitud = coordenadas.Value.Longitud
+            });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerDireccion(double latitud, double longitud)
+        {
+            var resultado = await _nominatimService
+                .ObtenerDireccionAsync(latitud, longitud);
+
+            if (resultado?.Address == null)
+            {
+                return NotFound(new
+                {
+                    mensaje = "No se pudo determinar la dirección."
+                });
+            }
+
+            var direccion = resultado.Address;
+
+            var localidad =
+                direccion.City ??
+                direccion.Town ??
+                direccion.Village ??
+                direccion.Municipality;
+
+            return Json(new
+            {
+                calle = direccion.Road,
+                numero = direccion.HouseNumber,
+                localidad = localidad,
+                provincia = direccion.State,
+                codigoPostal = direccion.Postcode
+            });
         }
 
         // Obtiene la institución asociada al usuario actualmente autenticado.

@@ -15,5 +15,8 @@ namespace Vinculo.Models
         public string Provincia { get; set; }
         [Required]
         public string CodigoPostal { get; set; }
+        public double? Latitud { get; set; }
+
+        public double? Longitud { get; set; }
     }
 }
