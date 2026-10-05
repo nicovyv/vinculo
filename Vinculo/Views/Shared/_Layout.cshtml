@@ -165,28 +165,16 @@
 
                             </a>
 
-
-                            <!-- Instituciones - FALTA IMPLEMENTAR -->
-                            <a class="nav-sidebar-link"
-                               href="#">
+                            <!-- Instituciones - IMPLEMENTADO -->
+                            
+                            <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Administrador" && ViewContext.RouteData.Values["Action"]?.ToString() == "Instituciones" ? "active" : "")"
+                               asp-controller="Administrador"
+                               asp-action="Instituciones">
 
                                 <i class="bi bi-buildings fs-5"></i>
                                 <span>Instituciones</span>
 
                             </a>
-
-                            @*
-        Cuando exista la acción:
-
-        <a class="nav-sidebar-link"
-           asp-controller="Administrador"
-           asp-action="Instituciones">
-
-            <i class="bi bi-buildings fs-5"></i>
-            <span>Instituciones</span>
-
-        </a>
-    *@
 
 
                             <!-- Empresas - FALTA IMPLEMENTAR -->
@@ -212,27 +200,16 @@
     *@
 
 
-                            <!-- Solicitudes - FALTA IMPLEMENTAR -->
-                            <a class="nav-sidebar-link"
-                               href="#">
+                            <!-- Solicitudes - Implementado -->
+                            <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Administrador" && ViewContext.RouteData.Values["Action"]?.ToString() == "Solicitudes" ? "active" : "")"
+                               asp-controller="Administrador"
+                               asp-action="Solicitudes">
 
                                 <i class="bi bi-card-checklist fs-5"></i>
                                 <span>Solicitudes</span>
 
                             </a>
 
-                            @*
-        Cuando exista la acción:
-
-        <a class="nav-sidebar-link"
-           asp-controller="Administrador"
-           asp-action="Solicitudes">
-
-            <i class="bi bi-card-checklist fs-5"></i>
-            <span>Solicitudes</span>
-
-        </a>
-    *@
 
 
                             <!-- Donaciones - FALTA IMPLEMENTAR -->

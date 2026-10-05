@@ -321,7 +321,7 @@ namespace Vinculo.Controllers
 
             return RedirectToAction(nameof(Usuarios));
         }
-    
+
         // =========================================================
         // ADMINISTRACIÓN DE INSTITUCIONES
         // =========================================================
@@ -399,5 +399,104 @@ namespace Vinculo.Controllers
 
             return View(model);
         }
+
+        // =========================================================
+        // ADMINISTRACIÓN DE SOLICITUDES
+        // =========================================================
+
+        [HttpGet]
+        public async Task<IActionResult> Solicitudes(
+        string? busqueda,
+        string? estado)
+        {
+            // =========================
+            // OBTENER SOLICITUDES
+            // =========================
+
+            var query = _context.Solicitudes
+                .Include(s => s.Institucion)
+                .Include(s => s.Equipamientos)
+                .AsQueryable();
+
+
+            // =========================
+            // BÚSQUEDA
+            // =========================
+
+            if (!string.IsNullOrWhiteSpace(busqueda))
+            {
+                busqueda = busqueda.Trim();
+
+                query = query.Where(s =>
+                    s.NumeroReferencia.Contains(busqueda) ||
+                    s.Institucion.Nombre.Contains(busqueda));
+            }
+
+
+            // =========================
+            // FILTRO POR ESTADO
+            // =========================
+
+            if (!string.IsNullOrWhiteSpace(estado))
+            {
+                if (Enum.TryParse<EstadoSolicitud>(
+                    estado,
+                    true,
+                    out var estadoSolicitud))
+                {
+                    query = query.Where(s =>
+                        s.Estado == estadoSolicitud);
+                }
+            }
+
+
+            // =========================
+            // PROYECCIÓN
+            // =========================
+
+            var solicitudes = await query
+                .OrderByDescending(s => s.Fecha)
+                .Select(s => new AdminSolicitudItemViewModel
+                {
+                    Id = s.Id,
+
+                    NumeroReferencia = s.NumeroReferencia,
+
+                    Institucion = s.Institucion.Nombre,
+
+                    Fecha = s.Fecha,
+
+                    Estado = s.Estado,
+
+                    CantidadEquipamientos = s.Equipamientos
+                        .Sum(e => e.Cantidad),
+
+                    CantidadTipos = s.Equipamientos
+                        .Select(e => e.TipoEquipamiento)
+                        .Distinct()
+                        .Count()
+                })
+                .ToListAsync();
+
+
+            // =========================
+            // VIEW MODEL
+            // =========================
+
+            var model = new AdminSolicitudViewModel
+            {
+                Solicitudes = solicitudes,
+
+                Busqueda = busqueda,
+
+                EstadoFiltro = estado
+            };
+
+
+            return View(model);
+
+        }
+
     }
+
 }
