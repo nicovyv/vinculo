@@ -138,9 +138,6 @@ namespace Vinculo.Controllers
                 Detalles = new List<DetalleSolicitudViewModel>()
             };
 
-            // La vista usa ViewBag.Institucion
-            // para mostrar Nombre, CUIT, teléfono,
-            // email y domicilio.
             ViewBag.Institucion = institucion;
 
             return View(model);
@@ -155,10 +152,6 @@ namespace Vinculo.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(SolicitudViewModel model)
         {
-            // -----------------------------------------------------
-            // 1. Obtener la institución del usuario logueado
-            // -----------------------------------------------------
-
             var institucion = await ObtenerInstitucionActual();
 
             if (institucion == null)
@@ -166,26 +159,16 @@ namespace Vinculo.Controllers
                 return NotFound();
             }
 
-
-            // -----------------------------------------------------
-            // 2. Asegurarnos de que Detalles no sea null
-            // -----------------------------------------------------
-
             model.Detalles ??= new List<DetalleSolicitudViewModel>();
 
-
-            // -----------------------------------------------------
-            // 3. Tomar solamente detalles con cantidad válida
-            // -----------------------------------------------------
-
             model.Detalles = model.Detalles
-                .Where(d => d.Cantidad > 0)
-                .ToList();
-
-
-            // -----------------------------------------------------
-            // 4. Validar que exista al menos un equipamiento
-            // -----------------------------------------------------
+            .GroupBy(d => d.TipoEquipamiento)
+            .Select(g => new DetalleSolicitudViewModel
+            {
+                TipoEquipamiento = g.Key,
+                Cantidad = g.Sum(d => d.Cantidad)
+            })
+            .ToList();
 
             if (!model.Detalles.Any())
             {
@@ -194,23 +177,12 @@ namespace Vinculo.Controllers
                     "Debe agregar al menos un equipamiento.");
             }
 
-
-            // -----------------------------------------------------
-            // 5. Si hay errores, volvemos a mostrar Create
-            //    SIN guardar nada
-            // -----------------------------------------------------
-
             if (!ModelState.IsValid)
             {
                 ViewBag.Institucion = institucion;
 
                 return View(model);
             }
-
-
-            // -----------------------------------------------------
-            // 6. Crear la entidad Solicitud
-            // -----------------------------------------------------
 
             var solicitud = new Solicitud
             {
@@ -231,32 +203,203 @@ namespace Vinculo.Controllers
                     .ToList()
             };
 
-
-            // -----------------------------------------------------
-            // 7. Guardar en la base de datos
-            // -----------------------------------------------------
-
             _context.Solicitudes.Add(solicitud);
 
             await _context.SaveChangesAsync();
 
-
-            // -----------------------------------------------------
-            // 8. Mensaje para el listado
-            // -----------------------------------------------------
-
             TempData["MensajeExito"] =
                 $"La solicitud {solicitud.NumeroReferencia} fue creada correctamente.";
 
-
-            // -----------------------------------------------------
-            // 9. MUY IMPORTANTE:
-            //    después de guardar NO volvemos a Create.
-            //
-            //    Vamos al listado de solicitudes.
-            // -----------------------------------------------------
-
             return RedirectToAction(nameof(Index));
+        }
+
+
+        // =========================================================
+        // EDIT - GET
+        // =========================================================
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var institucion = await ObtenerInstitucionActual();
+
+            if (institucion == null)
+            {
+                return NotFound();
+            }
+
+            var solicitud = await _context.Solicitudes
+                .AsNoTracking()
+                .Include(s => s.Equipamientos)
+                .FirstOrDefaultAsync(s =>
+                    s.Id == id &&
+                    s.InstitucionId == institucion.Id);
+
+            if (solicitud == null)
+            {
+                return NotFound();
+            }
+
+            // Solo se pueden editar solicitudes pendientes.
+            if (solicitud.Estado != EstadoSolicitud.Pendiente)
+            {
+                TempData["MensajeError"] =
+                    "La solicitud no puede modificarse porque ya no se encuentra pendiente.";
+
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            var model = new SolicitudViewModel
+            {
+                Id = solicitud.Id,
+                NumeroReferencia = solicitud.NumeroReferencia,
+                Fecha = solicitud.Fecha,
+                Estado = solicitud.Estado,
+
+                Detalles = solicitud.Equipamientos
+                    .Select(d => new DetalleSolicitudViewModel
+                    {
+                        TipoEquipamiento = d.TipoEquipamiento,
+                        Cantidad = d.Cantidad
+                    })
+                    .ToList()
+            };
+
+            return View(model);
+        }
+
+        // =========================================================
+        // EDIT - POST
+        // =========================================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(
+            int id,
+            SolicitudViewModel model)
+        {
+            var institucion = await ObtenerInstitucionActual();
+
+            if (institucion == null)
+            {
+                return NotFound();
+            }
+
+            var solicitud = await _context.Solicitudes
+                .Include(s => s.Equipamientos)
+                .FirstOrDefaultAsync(s =>
+                    s.Id == id &&
+                    s.InstitucionId == institucion.Id);
+
+            if (solicitud == null)
+            {
+                return NotFound();
+            }
+
+            // =========================================================
+            // VALIDAR QUE SIGA PENDIENTE
+            // =========================================================
+
+            if (solicitud.Estado != EstadoSolicitud.Pendiente)
+            {
+                TempData["MensajeError"] =
+                    "La solicitud no puede modificarse porque ya no se encuentra pendiente.";
+
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            model.Detalles ??= new List<DetalleSolicitudViewModel>();
+
+
+            // =========================================================
+            // ELIMINAR CANTIDADES INVÁLIDAS
+            // =========================================================
+
+            model.Detalles = model.Detalles
+                .Where(d => d.Cantidad > 0)
+                .ToList();
+
+
+            // =========================================================
+            // UNIFICAR EQUIPAMIENTOS REPETIDOS
+            // =========================================================
+
+            model.Detalles = model.Detalles
+                .GroupBy(d => d.TipoEquipamiento)
+                .Select(g => new DetalleSolicitudViewModel
+                {
+                    TipoEquipamiento = g.Key,
+                    Cantidad = g.Sum(d => d.Cantidad)
+                })
+                .ToList();
+
+
+            // =========================================================
+            // VALIDAR QUE EXISTA AL MENOS UN EQUIPAMIENTO
+            // =========================================================
+
+            if (!model.Detalles.Any())
+            {
+                ModelState.AddModelError(
+                    nameof(model.Detalles),
+                    "Debe existir al menos un equipamiento.");
+            }
+
+
+            // =========================================================
+            // SI HAY ERRORES
+            // =========================================================
+
+            if (!ModelState.IsValid)
+            {
+                model.Id = solicitud.Id;
+                model.NumeroReferencia = solicitud.NumeroReferencia;
+                model.Fecha = solicitud.Fecha;
+                model.Estado = solicitud.Estado;
+
+                return View(model);
+            }
+
+
+            // =========================================================
+            // REEMPLAZAR DETALLES
+            // =========================================================
+
+            _context.RemoveRange(solicitud.Equipamientos);
+
+            solicitud.Equipamientos = model.Detalles
+                .Select(d => new DetalleSolicitud
+                {
+                    SolicitudId = solicitud.Id,
+                    TipoEquipamiento = d.TipoEquipamiento,
+                    Cantidad = d.Cantidad
+                })
+                .ToList();
+
+
+            await _context.SaveChangesAsync();
+
+
+            // =========================================================
+            // MENSAJE
+            // =========================================================
+
+            TempData["MensajeExito"] =
+                $"La solicitud {solicitud.NumeroReferencia} fue modificada correctamente.";
+
+
+            // =========================================================
+            // VOLVER A DETAILS
+            // =========================================================
+
+            return RedirectToAction(
+                nameof(Details),
+                new { id = solicitud.Id });
         }
 
 
@@ -286,50 +429,6 @@ namespace Vinculo.Controllers
         private string GenerarNumeroReferencia()
         {
             return $"SOL-{DateTime.Now:yyyyMMddHHmmss}";
-        }
-
-        // =========================================================
-        // CANCEL
-        // =========================================================
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Cancel(int id)
-        {
-            var institucion = await ObtenerInstitucionActual();
-
-            if (institucion == null)
-            {
-                return NotFound();
-            }
-
-            var solicitud = await _context.Solicitudes
-                .FirstOrDefaultAsync(s =>
-                    s.Id == id &&
-                    s.InstitucionId == institucion.Id);
-
-            if (solicitud == null)
-            {
-                return NotFound();
-            }
-
-            // Solo se pueden cancelar solicitudes pendientes.
-            if (solicitud.Estado != EstadoSolicitud.Pendiente)
-            {
-                TempData["MensajeError"] =
-                    "La solicitud no puede cancelarse porque ya no se encuentra pendiente.";
-
-                return RedirectToAction(nameof(Details), new { id });
-            }
-
-            solicitud.Estado = EstadoSolicitud.Cancelada;
-
-            await _context.SaveChangesAsync();
-
-            TempData["MensajeExito"] =
-                $"La solicitud {solicitud.NumeroReferencia} fue cancelada correctamente.";
-
-            return RedirectToAction(nameof(Index));
         }
     }
 }
