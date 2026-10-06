@@ -1,0 +1,295 @@
+﻿@model IEnumerable<Vinculo.Models.Donacion>
+@{
+    ViewData["Title"] = "Mis Donaciones";
+
+    // Cálculos dinámicos para los KPI
+    var totalDonaciones = Model.Count();
+    var disponibles = Model.Count(d => d.Estado == Vinculo.Models.Enums.EstadoDonacion.Disponible);
+    var asignadas = Model.Count(d => d.Estado == Vinculo.Models.Enums.EstadoDonacion.Asignada);
+    var entregadas = Model.Count(d => d.Estado == Vinculo.Models.Enums.EstadoDonacion.Entregada);
+}
+
+<style>
+    .table-custom th {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #64748b;
+        background-color: #f8fafc;
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+    }
+    .table-custom td {
+        vertical-align: middle;
+        padding-top: 0.9rem;
+        padding-bottom: 0.9rem;
+    }
+    .kpi-card {
+        border: 1px solid var(--vinculo-border);
+        border-radius: 0.5rem;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .kpi-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(15, 42, 71, 0.08);
+    }
+</style>
+
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-2">
+    <ol class="breadcrumb small mb-1">
+        <li class="breadcrumb-item"><a class="text-decoration-none text-secondary" asp-controller="Empresa" asp-action="Index"><i class="bi bi-house me-1"></i>Inicio</a></li>
+        <li aria-current="page" class="breadcrumb-item active fw-semibold text-dark">Mis Donaciones</li>
+    </ol>
+</nav>
+
+<!-- Page Header & Actions -->
+<div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4 pb-2 border-bottom">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+            <h1 class="h3 fw-bold text-corporate-primary mb-0">Mis Lotes de Donación</h1>
+            <span class="badge rounded-pill bg-white text-dark border px-2 py-1 small">
+                <i class="bi bi-calendar3 me-1 text-teal"></i> Período Fiscal @DateTime.Now.Year
+            </span>
+        </div>
+        <p class="text-secondary small mb-0">
+            Administración centralizada, trazabilidad y estado de despacho de parques informáticos corporativos.
+        </p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <a class="btn btn-teal btn-sm shadow-sm px-3 text-decoration-none d-flex align-items-center gap-1" asp-action="RegistrarDonacion">
+            <i class="bi bi-plus-circle-fill"></i>
+            <span>Nueva Donación</span>
+        </a>
+    </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="row g-3 mb-4">
+    <!-- KPI Total -->
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card kpi-card bg-white h-100 shadow-sm p-3 border-0">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                    <span class="text-uppercase text-secondary fw-semibold small" style="font-size: 0.72rem;">Lotes Totales</span>
+                    <div class="d-flex align-items-baseline gap-2 mt-1">
+                        <span class="h2 fw-bold text-corporate-primary mb-0">@totalDonaciones</span>
+                    </div>
+                </div>
+                <div class="p-2 rounded bg-light text-corporate-primary">
+                    <i class="bi bi-boxes fs-4"></i>
+                </div>
+            </div>
+            <div class="progress" style="height: 5px;">
+                <div class="progress-bar bg-corporate-primary" role="progressbar" style="width: 100%;"></div>
+            </div>
+        </div>
+    </div>
+    <!-- KPI Disponibles -->
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card kpi-card bg-white h-100 shadow-sm p-3 border-0">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                    <span class="text-uppercase text-secondary fw-semibold small" style="font-size: 0.72rem;">Disponibles</span>
+                    <div class="d-flex align-items-baseline gap-2 mt-1">
+                        <span class="h2 fw-bold text-success mb-0">@disponibles</span>
+                    </div>
+                </div>
+                <div class="p-2 rounded bg-success-subtle text-success">
+                    <i class="bi bi-geo-alt-fill fs-4"></i>
+                </div>
+            </div>
+            <div class="progress" style="height: 5px;">
+                <div class="progress-bar bg-success" role="progressbar" style="width: @(totalDonaciones > 0 ? (disponibles * 100 / totalDonaciones) : 0)%;"></div>
+            </div>
+        </div>
+    </div>
+    <!-- KPI En Asignación -->
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card kpi-card bg-white h-100 shadow-sm p-3 border-0">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                    <span class="text-uppercase text-secondary fw-semibold small" style="font-size: 0.72rem;">En Logística</span>
+                    <div class="d-flex align-items-baseline gap-2 mt-1">
+                        <span class="h2 fw-bold text-primary mb-0">@asignadas</span>
+                    </div>
+                </div>
+                <div class="p-2 rounded bg-primary-subtle text-primary">
+                    <i class="bi bi-truck fs-4"></i>
+                </div>
+            </div>
+            <div class="progress" style="height: 5px;">
+                <div class="progress-bar bg-primary" role="progressbar" style="width: @(totalDonaciones > 0 ? (asignadas * 100 / totalDonaciones) : 0)%;"></div>
+            </div>
+        </div>
+    </div>
+    <!-- KPI Entregadas -->
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card kpi-card bg-white h-100 shadow-sm p-3 border-0">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                    <span class="text-uppercase text-secondary fw-semibold small" style="font-size: 0.72rem;">Entregadas</span>
+                    <div class="d-flex align-items-baseline gap-2 mt-1">
+                        <span class="h2 fw-bold text-teal mb-0">@entregadas</span>
+                    </div>
+                </div>
+                <div class="p-2 rounded bg-teal-subtle-custom text-teal">
+                    <i class="bi bi-patch-check-fill fs-4"></i>
+                </div>
+            </div>
+            <div class="progress" style="height: 5px;">
+                <div class="progress-bar" style="background-color: var(--vinculo-teal); width: @(totalDonaciones > 0 ? (entregadas * 100 / totalDonaciones) : 0)%;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="card border rounded bg-white shadow-sm p-3 mb-4">
+    <div class="row g-2 align-items-center">
+        <div class="col-12 col-md-4 col-lg-4">
+            <div class="input-group input-group-sm">
+                <span class="input-group-text bg-light text-secondary border-end-0"><i class="bi bi-search"></i></span>
+                <input class="form-control border-start-0" id="filtroBusqueda" placeholder="Buscar por referencia o descripción..." type="text"/>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+            <select aria-label="Filtrar por Estado" class="form-select form-select-sm" id="filtroEstado">
+                <option selected="" value="">Estado: Todos</option>
+                <option value="Disponible">Disponible</option>
+                <option value="Asignada">Asignada / Logística</option>
+                <option value="Entregada">Entregada</option>
+            </select>
+        </div>
+        <div class="col-6 col-md-4 col-lg-5 d-flex gap-2 justify-content-end">
+            <button class="btn btn-outline-secondary btn-sm px-3" id="btnLimpiar" type="button">
+                <i class="bi bi-arrow-counterclockwise me-1"></i> Limpiar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Table Card -->
+<div class="card border rounded bg-white shadow-sm mb-4">
+    <div class="card-header bg-white border-bottom py-3 px-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-table text-secondary"></i>
+            <span class="fw-semibold text-corporate-primary">Inventario de Donaciones</span>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle table-custom mb-0" id="tablaDonaciones">
+            <thead>
+                <tr>
+                    <th class="ps-3" scope="col">Referencia</th>
+                    <th scope="col">Fecha Pub.</th>
+                    <th scope="col">Equipamiento</th>
+                    <th scope="col">Descripción</th>
+                    <th scope="col">Estado Donación</th>
+                    <th class="text-end pe-3" scope="col">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="small">
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-secondary">
+                            <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                            Aún no has registrado ninguna donación.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="ps-3">
+                                <div class="fw-bold text-corporate-primary font-monospace">#DON-@item.Id.ToString("D4")</div>
+                            </td>
+                            <td>
+                                <div class="fw-medium text-dark">@item.Fecha.ToString("dd/MM/yyyy")</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">@item.Tipo</span>
+                            </td>
+                            <td>
+                                <div class="text-muted text-truncate" style="max-width: 250px;" title="@item.Descripcion">
+                                    @item.Descripcion
+                                </div>
+                            </td>
+                            <td>
+                                @if (item.Estado == Vinculo.Models.Enums.EstadoDonacion.Disponible)
+                                {
+                                    <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                                        <i class="bi bi-broadcast me-1"></i>Disponible
+                                    </span>
+                                }
+                                else if (item.Estado == Vinculo.Models.Enums.EstadoDonacion.Asignada)
+                                {
+                                    <span class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                                        <i class="bi bi-truck me-1"></i>En Logística
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge rounded-pill bg-info-subtle text-info-emphasis border border-info-subtle px-2 py-1">
+                                        <i class="bi bi-check-circle-fill me-1"></i>Entregada
+                                    </span>
+                                }
+                            </td>
+                            <td class="text-end pe-3">
+                                <button class="btn btn-outline-secondary btn-sm" type="button">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const inputBusqueda = document.getElementById('filtroBusqueda');
+            const selectEstado = document.getElementById('filtroEstado');
+            const btnLimpiar = document.getElementById('btnLimpiar');
+            const tabla = document.getElementById('tablaDonaciones');
+
+            function filtrarTabla() {
+                const termino = inputBusqueda ? inputBusqueda.value.toLowerCase().trim() : '';
+                const estadoSeleccionado = selectEstado ? selectEstado.value.toLowerCase().trim() : '';
+                const filas = tabla.querySelectorAll('tbody tr');
+
+                filas.forEach(fila => {
+                    // Si es la fila de "Aún no has registrado", la salteamos
+                    if (fila.cells.length === 1) return;
+
+                    const textoFila = fila.innerText.toLowerCase();
+                    const coincideTermino = !termino || textoFila.includes(termino);
+                    const coincideEstado = !estadoSeleccionado || textoFila.includes(estadoSeleccionado);
+
+                    if (coincideTermino && coincideEstado) {
+                        fila.style.display = '';
+                    } else {
+                        fila.style.display = 'none';
+                    }
+                });
+            }
+
+            if (inputBusqueda) inputBusqueda.addEventListener('input', filtrarTabla);
+            if (selectEstado) selectEstado.addEventListener('change', filtrarTabla);
+
+            if (btnLimpiar) {
+                btnLimpiar.addEventListener('click', function () {
+                    if (inputBusqueda) inputBusqueda.value = '';
+                    if (selectEstado) selectEstado.value = '';
+                    filtrarTabla();
+                });
+            }
+        });
+    </script>
+}

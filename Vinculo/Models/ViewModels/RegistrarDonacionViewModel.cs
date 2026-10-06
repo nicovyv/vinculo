@@ -4,7 +4,7 @@ using Vinculo.Models.Enums;
 
 namespace Vinculo.Models.ViewModels
 {
-    public class CrearDonacionViewModel
+    public class RegistrarDonacionViewModel
     {
         [Required(ErrorMessage = "Seleccione el tipo de equipamiento.")]
         [Display(Name = "Tipo de Equipamiento")]

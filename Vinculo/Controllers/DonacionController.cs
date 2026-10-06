@@ -8,19 +8,19 @@ using Vinculo.Data;
 using Vinculo.Models;
 using Vinculo.Models.Enums;
 using Vinculo.Models.ViewModels;
-using Vinculo.Services; // Espacio de nombres de tu nuevo servicio
+using Vinculo.Services; 
 
 namespace Vinculo.Controllers
 {
     [Authorize(Roles = "Empresa")]
-    public class DonacionesController : Controller
+    public class DonacionController : Controller
     {
         private readonly VinculoDbContext _context;
         private readonly UserManager<Usuario> _userManager;
         private readonly IImagenStorage _imagenStorage;
 
         // Inyectamos IImagenStorage en lugar de IWebHostEnvironment
-        public DonacionesController(
+        public DonacionController(
             VinculoDbContext context,
             UserManager<Usuario> userManager,
             IImagenStorage imagenStorage)
@@ -30,15 +30,35 @@ namespace Vinculo.Controllers
             _imagenStorage = imagenStorage;
         }
 
+
         [HttpGet]
-        public IActionResult CrearDonacion()
+        public async Task<IActionResult> Index()
         {
-            return View(new CrearDonacionViewModel());
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login", "Usuario");
+
+            // Buscamos la empresa y sus donaciones asociadas
+            var empresa = await _context.Empresas
+                .Include(e => e.Donaciones)
+                .FirstOrDefaultAsync(e => e.UsuarioId == user.Id);
+
+            if (empresa == null) return NotFound("Debe completar su perfil antes de ver sus donaciones.");
+
+            // Ordenamos por fecha descendente (las más nuevas primero)
+            var donaciones = empresa.Donaciones?.OrderByDescending(d => d.Fecha).ToList() ?? new List<Donacion>();
+
+            return View(donaciones);
+        }
+
+        [HttpGet]
+        public IActionResult RegistrarDonacion()
+        {
+            return View(new RegistrarDonacionViewModel());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CrearDonacion(CrearDonacionViewModel model)
+        public async Task<IActionResult> CrearDonacion(RegistrarDonacionViewModel model)
         {
             if (!ModelState.IsValid) return View(model);
 
@@ -46,7 +66,7 @@ namespace Vinculo.Controllers
             if (user == null) return RedirectToAction("Login", "Usuario");
 
             var empresa = await _context.Empresas.FirstOrDefaultAsync(e => e.UsuarioId == user.Id);
-            if (empresa == null) return NotFound("Debe completar su perfil corporativo antes de donar.");
+            if (empresa == null) return NotFound("Debe completar su perfil antes de donar.");
 
             // 1. Usar el servicio para guardar la foto
             string rutaRelativaBd = null;
@@ -60,8 +80,7 @@ namespace Vinculo.Controllers
             {
                 EmpresaId = empresa.Id,
 
-                Tipo = model.Tipo, // O TipoEquipamiento, según el nombre exacto en tu entidad y ViewModel
-                Tipo = model.Tipo, // Propiedad correcta en la entidad Donacion (vista CrearDonacion)
+                Tipo = model.Tipo, 
                 Descripcion = model.Descripcion,
                 FotoRuta = rutaRelativaBd,
                 Fecha = DateTime.Now,
