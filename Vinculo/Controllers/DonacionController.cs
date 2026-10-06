@@ -31,14 +31,14 @@ namespace Vinculo.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public IActionResult CrearDonacion()
         {
             return View(new CrearDonacionViewModel());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CrearDonacionViewModel model)
+        public async Task<IActionResult> CrearDonacion(CrearDonacionViewModel model)
         {
             if (!ModelState.IsValid) return View(model);
 
@@ -59,7 +59,9 @@ namespace Vinculo.Controllers
             var nuevaDonacion = new Donacion
             {
                 EmpresaId = empresa.Id,
+
                 Tipo = model.Tipo, // O TipoEquipamiento, según el nombre exacto en tu entidad y ViewModel
+                Tipo = model.Tipo, // Propiedad correcta en la entidad Donacion (vista CrearDonacion)
                 Descripcion = model.Descripcion,
                 FotoRuta = rutaRelativaBd,
                 Fecha = DateTime.Now,

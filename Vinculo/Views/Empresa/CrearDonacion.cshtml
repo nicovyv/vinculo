@@ -1,0 +1,166 @@
+﻿@model Vinculo.Models.ViewModels.CrearDonacionViewModel
+@{
+    ViewData["Title"] = "Registrar Donación";
+}
+
+<!-- Motor de Tailwind y variables específicas para mantener el diseño de Stitch -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: {
+                    "primary": "#0f2a47",
+                    "secondary": "#515f74",
+                    "tertiary": "#0e9aa7",
+                    "surface": "#f8f9ff",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-low": "#eaf8fa",
+                    "on-surface": "#0b1c30",
+                    "outline": "#e3e8f0"
+                }
+            }
+        }
+    };
+</script>
+<style>
+    .tnum { font-feature-settings: "tnum" 1, "cv05" 1; }
+    /* Evita que Tailwind pise tipografías de Bootstrap globalmente */
+    .stitch-container { font-family: 'Inter', sans-serif; }
+    .stitch-container input, .stitch-container select, .stitch-container textarea {
+        border: 1px solid #c4c6ce;
+    }
+</style>
+
+<div class="stitch-container">
+    <!-- Encabezado y Breadcrumbs -->
+    <div class="py-4 flex flex-col gap-2">
+        <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-secondary text-sm">
+            <a class="hover:text-primary transition-colors flex items-center gap-1 text-decoration-none" asp-controller="Empresa" asp-action="Index">
+                <i class="bi bi-house"></i> Inicio
+            </a>
+            <span class="text-outline">/</span>
+            <span class="text-on-surface fw-semibold">Nueva Donación</span>
+        </nav>
+        
+        <div class="flex flex-wrap items-center justify-between gap-4 mt-1">
+            <div class="flex items-center gap-3 flex-wrap">
+                <h1 class="h3 text-primary tracking-tight fw-bold mb-0">Registrar Equipamiento</h1>
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-light text-dark rounded-pill shadow-sm border">
+                    <span class="spinner-grow spinner-grow-sm text-success" style="width: 8px; height: 8px;"></span>
+                    <span class="font-monospace fw-semibold" style="font-size: 0.8rem;">Modo de Publicación Directa</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 bg-white px-4 py-2 rounded-3 shadow-sm border">
+                <i class="bi bi-shield-check text-success fs-4"></i>
+                <div class="flex flex-col lh-sm">
+                    <span class="text-secondary text-uppercase" style="font-size: 0.7rem;">Cumplimiento Fiscal</span>
+                    <span class="text-dark fw-bold" style="font-size: 0.85rem;">RG 2681 / Habilitado</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario Principal -->
+    <form asp-action="CrearDonacion" method="post" enctype="multipart/form-data" id="formDonacion">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 my-4 items-start">
+            
+            <!-- Columna Izquierda: Formulario (8 columnas) -->
+            <div class="lg:col-span-8 space-y-4">
+                <section class="bg-white rounded-3 p-4 shadow-sm border">
+                    <div class="flex items-center gap-2 pb-2 mb-4 border-bottom">
+                        <i class="bi bi-pc-display text-primary fs-4"></i>
+                        <h2 class="h5 text-dark fw-bold mb-0">Detalles del Equipo Tecnológico</h2>
+                    </div>
+
+                    <div class="row g-4">
+                        <!-- Tipo de Equipamiento -->
+                        <div class="col-12 col-md-6">
+                            <label asp-for="Tipo" class="form-label small fw-semibold text-primary mb-1">Categoría del Ítem <span class="text-danger">*</span></label>
+                            <select asp-for="Tipo" class="form-select bg-light" asp-items="Html.GetEnumSelectList<Vinculo.Models.Enums.TipoEquipamiento>()">
+                                <option value="">Seleccione una categoría...</option>
+                            </select>
+                            <span asp-validation-for="Tipo" class="text-danger small mt-1 d-block"></span>
+                        </div>
+
+                        <!-- Fotografía del Equipo -->
+                        <div class="col-12 col-md-6">
+                            <label asp-for="FotoArchivo" class="form-label small fw-semibold text-primary mb-1">Fotografía del Activo (Opcional)</label>
+                            <input asp-for="FotoArchivo" class="form-control bg-light" type="file" accept="image/jpeg, image/png, image/webp" />
+                            <div class="form-text small text-muted" style="font-size: 0.76rem;">Recomendado para agilizar la asignación. Máx: 2MB.</div>
+                        </div>
+
+                        <!-- Descripción Técnica y Estado -->
+                        <div class="col-12">
+                            <label asp-for="Descripcion" class="form-label small fw-semibold text-primary mb-1">Descripción, Estado Operativo y Accesorios <span class="text-danger">*</span></label>
+                            <textarea asp-for="Descripcion" class="form-control bg-light" rows="4" placeholder="Ej: Notebook ThinkPad T490, 100% funcional. Batería en buen estado. Incluye cargador original. Disco con borrado seguro Blancco." required></textarea>
+                            <span asp-validation-for="Descripcion" class="text-danger small mt-1 d-block"></span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Columna Derecha: Motor de Matching y Acciones (4 columnas) -->
+            <aside class="lg:col-span-4 space-y-4">
+                
+                <!-- Tarjeta de Algoritmo -->
+                <section class="bg-light rounded-3 p-4 shadow-sm border" style="background: linear-gradient(145deg, #f8f9ff 0%, #eaf8fa 100%);">
+                    <div class="flex items-center gap-2 mb-3 text-primary">
+                        <i class="bi bi-radar fs-4 text-teal"></i>
+                        <h3 class="h6 fw-bold mb-0">Motor de Matching Preventivo</h3>
+                    </div>
+                    <p class="small text-secondary mb-4 lh-sm">
+                        Al publicar este activo, el algoritmo de Vínculo notificará en tiempo real a las instituciones educativas compatibles más cercanas a tu domicilio de despacho.
+                    </p>
+                    
+                    <div class="bg-white p-3 rounded-3 shadow-sm border">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="small fw-bold text-dark">Demanda Activa en tu zona</span>
+                            <span class="badge bg-teal-subtle-custom text-teal">Radio 15km</span>
+                        </div>
+                        <div class="fs-3 fw-bold text-primary font-monospace">7 Solicitudes</div>
+                        <div class="progress mt-3" style="height: 6px;">
+                            <div class="progress-bar" role="progressbar" style="width: 85%; background-color: var(--vinculo-teal);"></div>
+                        </div>
+                        <div class="text-end small text-muted mt-1" style="font-size: 0.7rem;">Índice de afinidad alto</div>
+                    </div>
+                </section>
+
+                <!-- Tarjeta de Acciones -->
+                <section class="bg-white rounded-3 p-4 shadow-sm border">
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" id="checkWipe" required>
+                        <label class="form-check-label small fw-semibold" for="checkWipe">
+                            Confirmo que el equipo no contiene información confidencial corporativa.
+                        </label>
+                    </div>
+
+                    <button type="submit" id="btnPublicar" class="btn btn-teal w-100 py-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2">
+                        <i class="bi bi-send-fill"></i> Publicar y Buscar Coincidencias
+                    </button>
+                    
+                    <div class="text-center mt-3">
+                        <a asp-controller="Empresa" asp-action="Index" class="small text-secondary text-decoration-none hover:text-danger">
+                            Descartar publicación
+                        </a>
+                    </div>
+                </section>
+
+            </aside>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.getElementById('formDonacion').addEventListener('submit', function(e) {
+            if(this.checkValidity()) {
+                const btn = document.getElementById('btnPublicar');
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Registrando activo...';
+                btn.classList.add('disabled');
+            }
+        });
+    </script>
+}
