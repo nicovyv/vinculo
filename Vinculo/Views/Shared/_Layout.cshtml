@@ -97,21 +97,21 @@
                     </div>
                     
                     <nav class="nav flex-column gap-1">
-                        @if (User.IsInRole("Empresa")) 
+                        @if (User.IsInRole("Empresa"))
                         {
-                            <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" href="/Empresa/Index">
+                            <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Empresa" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" href="/Empresa/Index">
                                 <i class="bi bi-speedometer2 fs-5"></i>
                                 <span>Principal</span>
                             </a>
-                            <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "MisDatos" ? "active" : "")" href="/Empresa/MisDatos">
+                            <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Empresa" && ViewContext.RouteData.Values["Action"]?.ToString() == "MisDatos" ? "active" : "")" href="/Empresa/MisDatos">
                                 <i class="bi bi-building fs-5"></i>
                                 <span>Mis Datos</span>
                             </a>
-                             <a class="nav-sidebar-link" href="#">
-                                <i class="bi bi-box-seam fs-5"></i>
+                            <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Donacion" && ViewContext.RouteData.Values["Action"]?.ToString() == "RegistrarDonacion" ? "active" : "")" href="/Donacion/RegistrarDonacion">
+                                <i class="bi bi-plus-circle fs-5"></i>
                                 <span>Nueva Donación</span>
                             </a>
-                            <a class="nav-sidebar-link" href="#">
+                            <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Donacion" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" href="/Donacion/Index">
                                 <i class="bi bi-box-seam fs-5"></i>
                                 <span>Mis Donaciones publicadas</span>
                             </a>
