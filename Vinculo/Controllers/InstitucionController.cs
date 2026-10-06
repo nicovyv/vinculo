@@ -62,10 +62,14 @@ namespace Vinculo.Controllers
 
                 SolicitudesConcretadas = solicitudes.Count(
                     s => s.Estado == EstadoSolicitud.Concretado),
+                SolicitudesCanceladas = solicitudes.Count(
+                    s => s.Estado == EstadoSolicitud.Cancelada),
 
                 EquipamientosSolicitados = solicitudes
+                    .Where(s => s.Estado != EstadoSolicitud.Cancelada)
                     .SelectMany(s => s.Equipamientos)
                     .Sum(d => d.Cantidad),
+
 
                 SolicitudesRecientes = solicitudes
                     .Take(5)

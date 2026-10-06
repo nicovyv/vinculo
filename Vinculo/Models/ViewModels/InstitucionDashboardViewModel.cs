@@ -16,6 +16,7 @@ namespace Vinculo.Models.ViewModels
         public int SolicitudesEnCoordinacion { get; set; }
 
         public int SolicitudesConcretadas { get; set; }
+        public int SolicitudesCanceladas { get; set; }
 
         public int EquipamientosSolicitados { get; set; }
 

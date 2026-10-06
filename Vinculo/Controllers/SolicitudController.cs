@@ -287,5 +287,49 @@ namespace Vinculo.Controllers
         {
             return $"SOL-{DateTime.Now:yyyyMMddHHmmss}";
         }
+
+        // =========================================================
+        // CANCEL
+        // =========================================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Cancel(int id)
+        {
+            var institucion = await ObtenerInstitucionActual();
+
+            if (institucion == null)
+            {
+                return NotFound();
+            }
+
+            var solicitud = await _context.Solicitudes
+                .FirstOrDefaultAsync(s =>
+                    s.Id == id &&
+                    s.InstitucionId == institucion.Id);
+
+            if (solicitud == null)
+            {
+                return NotFound();
+            }
+
+            // Solo se pueden cancelar solicitudes pendientes.
+            if (solicitud.Estado != EstadoSolicitud.Pendiente)
+            {
+                TempData["MensajeError"] =
+                    "La solicitud no puede cancelarse porque ya no se encuentra pendiente.";
+
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            solicitud.Estado = EstadoSolicitud.Cancelada;
+
+            await _context.SaveChangesAsync();
+
+            TempData["MensajeExito"] =
+                $"La solicitud {solicitud.NumeroReferencia} fue cancelada correctamente.";
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

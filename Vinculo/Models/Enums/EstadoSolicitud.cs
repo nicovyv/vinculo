@@ -4,6 +4,7 @@
     {
         Pendiente, 
         EnCoordinacion, 
-        Concretado
+        Concretado,
+        Cancelada
     }
 }

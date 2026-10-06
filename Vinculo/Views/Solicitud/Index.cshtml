@@ -522,6 +522,17 @@
 
                                         </span>
                                     }
+                                    else if (solicitud.Estado == EstadoSolicitud.Cancelada)
+                                    {
+                                        <span class="badge rounded-pill d-inline-flex align-items-center gap-1"
+                                              style="background-color:#FEE2E2;color:#991B1B;border:1px solid #FECACA;padding:0.35rem 0.65rem;">
+
+                                            <i class="bi bi-x-circle"></i>
+
+                                            <span>Cancelada</span>
+
+                                        </span>
+                                    }
 
                                 </td>
 
@@ -540,6 +551,29 @@
                                         Detalle
 
                                     </a>
+                                    @if (solicitud.Estado == EstadoSolicitud.Pendiente)
+                                    {
+                                        <form asp-controller="Solicitud"
+                                              asp-action="Cancel"
+                                              asp-route-id="@solicitud.Id"
+                                              method="post"
+                                              class="d-inline"
+                                              onsubmit="return confirm('¿Está seguro de que desea cancelar esta solicitud?');">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-danger py-1 px-2"
+                                                    style="font-size:0.75rem;">
+
+                                                <i class="bi bi-x-circle me-1"></i>
+                                                Cancelar
+
+                                            </button>
+
+                                        </form>
+                                    }
+
 
                                 </td>
 
