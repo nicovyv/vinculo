@@ -7,9 +7,50 @@
 
     string NombreEstado(Vinculo.Models.Enums.EstadoSolicitud estado)
     {
-        return estado.ToString();
+        return estado switch
+        {
+            Vinculo.Models.Enums.EstadoSolicitud.Pendiente => "Pendiente",
+            Vinculo.Models.Enums.EstadoSolicitud.EnCoordinacion => "En coordinación",
+            Vinculo.Models.Enums.EstadoSolicitud.Concretado => "Concretado",
+            Vinculo.Models.Enums.EstadoSolicitud.Cancelada => "Cancelada",
+            _ => estado.ToString()
+        };
+    }
+
+    string ClaseEstado(Vinculo.Models.Enums.EstadoSolicitud estado)
+    {
+        return estado switch
+        {
+            Vinculo.Models.Enums.EstadoSolicitud.Pendiente =>
+                "bg-warning-subtle text-warning-emphasis border-warning-subtle",
+
+            Vinculo.Models.Enums.EstadoSolicitud.EnCoordinacion =>
+                "bg-info-subtle text-info-emphasis border-info-subtle",
+
+            Vinculo.Models.Enums.EstadoSolicitud.Concretado =>
+                "bg-success-subtle text-success border-success-subtle",
+
+            Vinculo.Models.Enums.EstadoSolicitud.Cancelada =>
+                "bg-danger-subtle text-danger border-danger-subtle",
+
+            _ =>
+                "bg-light text-secondary border-secondary-subtle"
+        };
+    }
+
+    string IconoEstado(Vinculo.Models.Enums.EstadoSolicitud estado)
+    {
+        return estado switch
+        {
+            Vinculo.Models.Enums.EstadoSolicitud.Pendiente => "bi-clock-history",
+            Vinculo.Models.Enums.EstadoSolicitud.EnCoordinacion => "bi-arrow-left-right",
+            Vinculo.Models.Enums.EstadoSolicitud.Concretado => "bi-check-circle",
+            Vinculo.Models.Enums.EstadoSolicitud.Cancelada => "bi-x-circle",
+            _ => "bi-info-circle"
+        };
     }
 }
+
 
 <!-- Breadcrumb -->
 <nav aria-label="breadcrumb" class="mb-3">
@@ -290,9 +331,36 @@
 
                                 <td class="pe-4 py-3 text-end">
 
-                                    <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle">
-                                        Pendiente de asignación
-                                    </span>
+                                    @switch (Model.Estado)
+                                    {
+                                        case Vinculo.Models.Enums.EstadoSolicitud.Pendiente:
+                                            <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle">
+                                                <i class="bi bi-clock me-1"></i>
+                                                Pendiente de asignación
+                                            </span>
+                                            break;
+
+                                        case Vinculo.Models.Enums.EstadoSolicitud.EnCoordinacion:
+                                            <span class="badge rounded-pill bg-info-subtle text-info-emphasis border border-info-subtle">
+                                                <i class="bi bi-arrow-left-right me-1"></i>
+                                                En coordinación
+                                            </span>
+                                            break;
+
+                                        case Vinculo.Models.Enums.EstadoSolicitud.Concretado:
+                                            <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle">
+                                                <i class="bi bi-check-circle me-1"></i>
+                                                Concretado
+                                            </span>
+                                            break;
+
+                                        case Vinculo.Models.Enums.EstadoSolicitud.Cancelada:
+                                            <span class="badge rounded-pill bg-danger-subtle text-danger border border-danger-subtle">
+                                                <i class="bi bi-x-circle me-1"></i>
+                                                Solicitud cancelada
+                                            </span>
+                                            break;
+                                    }
 
                                 </td>
 
