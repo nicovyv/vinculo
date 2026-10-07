@@ -58,7 +58,7 @@ namespace Vinculo.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CrearDonacion(RegistrarDonacionViewModel model)
+        public async Task<IActionResult> RegistrarDonacion(RegistrarDonacionViewModel model)
         {
             if (!ModelState.IsValid) return View(model);
 
@@ -79,8 +79,8 @@ namespace Vinculo.Controllers
             var nuevaDonacion = new Donacion
             {
                 EmpresaId = empresa.Id,
-
-                Tipo = model.Tipo, 
+                Tipo = model.Tipo,
+                Cantidad = model.Cantidad,
                 Descripcion = model.Descripcion,
                 FotoRuta = rutaRelativaBd,
                 Fecha = DateTime.Now,

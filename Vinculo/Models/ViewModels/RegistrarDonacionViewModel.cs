@@ -10,6 +10,11 @@ namespace Vinculo.Models.ViewModels
         [Display(Name = "Tipo de Equipamiento")]
         public TipoEquipamiento Tipo { get; set; }
 
+        [Required(ErrorMessage = "La cantidad es obligatoria.")]
+        [Range(1, int.MaxValue, ErrorMessage = "La cantidad debe ser mayor a 0")]
+        [Display(Name = "Cantidad")]
+        public int Cantidad { get; set; }
+
         [Required(ErrorMessage = "La descripción es obligatoria.")]
         [StringLength(200)]
         public string Descripcion { get; set; }

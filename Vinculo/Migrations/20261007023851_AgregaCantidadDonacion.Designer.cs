@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vinculo.Data;
 
@@ -11,9 +12,11 @@ using Vinculo.Data;
 namespace Vinculo.Migrations
 {
     [DbContext(typeof(VinculoDbContext))]
-    partial class VinculoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261007023851_AgregaCantidadDonacion")]
+    partial class AgregaCantidadDonacion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

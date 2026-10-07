@@ -31,7 +31,7 @@
     </div>
 
     <!-- INICIO DEL FORMULARIO -->
-    <form asp-action="CrearDonacion" method="post" enctype="multipart/form-data" id="formDonacion">
+    <form asp-action="RegistrarDonacion" method="post" enctype="multipart/form-data" id="formDonacion">
         <div class="row g-4">
 
             <!-- COLUMNA IZQUIERDA: DATOS -->
@@ -90,9 +90,9 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label asp-for="FotoArchivo" class="form-label small fw-semibold text-secondary mb-1">Fotografía del equipo (Opcional)</label>
-                                <input asp-for="FotoArchivo" type="file" class="form-control" accept="image/*" />
-                                <span asp-validation-for="FotoArchivo" class="text-danger small mt-1 d-block"></span>
+                                <label asp-for="Cantidad" class="form-label small fw-semibold text-secondary mb-1">Cantidad *</label>
+                                <input asp-for="Cantidad" type="number" class="form-control" min="1" placeholder="Ingrese la cantidad" required />
+                                <span asp-validation-for="Cantidad" class="text-danger small mt-1 d-block"></span>
                             </div>
                         </div>
 
@@ -101,6 +101,14 @@
                                 <label asp-for="Descripcion" class="form-label small fw-semibold text-secondary mb-1">Descripción y Estado Técnico *</label>
                                 <textarea asp-for="Descripcion" class="form-control" rows="3" placeholder="Ej: Notebook Lenovo T490. Funcional 100%. Incluye cargador original y borrado seguro Blancco OK." required></textarea>
                                 <span asp-validation-for="Descripcion" class="text-danger small mt-1 d-block"></span>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label asp-for="FotoArchivo" class="form-label small fw-semibold text-secondary mb-1">Fotografía del equipo (Opcional)</label>
+                                <input asp-for="FotoArchivo" type="file" class="form-control" accept="image/*" />
+                                <span asp-validation-for="FotoArchivo" class="text-danger small mt-1 d-block"></span>
                             </div>
                         </div>
                     </div>
