@@ -109,8 +109,8 @@ namespace Vinculo.Controllers
 
             if (donacion == null) return NotFound("Donación no encontrada.");
 
-            // Buscar solicitudes que tengan el mismo tipo de equipamiento y estén pendientes
-            var solicitudesCompatibles = await _context.Solicitudes
+            // 1. Buscamos las solicitudes candidatas
+            var solicitudesCandidatas = await _context.Solicitudes
                 .Include(s => s.Institucion)
                     .ThenInclude(i => i.Domicilio)
                 .Include(s => s.Equipamientos)
@@ -118,12 +118,23 @@ namespace Vinculo.Controllers
                             s.Equipamientos.Any(e => e.TipoEquipamiento == donacion.Tipo))
                 .ToListAsync();
 
-            // Crear el ViewModel (puedes crear esta clase en la carpeta ViewModels)
+            // 2. Calculamos distancia y ordenamos (El Core del proyecto)
+            var solicitudesConDistancia = solicitudesCandidatas.Select(s => new SolicitudConDistancia
+            {
+                Solicitud = s,
+                DistanciaKm = Utils.GeoUtils.CalcularDistanciaKm(
+                    empresa.Domicilio?.Latitud, empresa.Domicilio?.Longitud,
+                    s.Institucion.Domicilio?.Latitud, s.Institucion.Domicilio?.Longitud
+                )
+            })
+            .OrderBy(x => x.DistanciaKm) // Se ordenan de menor a mayor distancia
+            .ToList();
+
             var model = new CoincidenciasViewModel
             {
                 Donacion = donacion,
                 Empresa = empresa,
-                SolicitudesCompatibles = solicitudesCompatibles
+                SolicitudesCompatibles = solicitudesConDistancia
             };
 
             return View(model);

@@ -6,6 +6,12 @@ namespace Vinculo.Models.ViewModels
     {
         public Donacion Donacion { get; set; }
         public Empresa Empresa { get; set; }
-        public List<Solicitud> SolicitudesCompatibles { get; set; }
+        public List<SolicitudConDistancia> SolicitudesCompatibles { get; set; } = new List<SolicitudConDistancia>();
+    }
+
+    public class SolicitudConDistancia
+    {
+        public Solicitud Solicitud { get; set; }
+        public double DistanciaKm { get; set; }
     }
 }
