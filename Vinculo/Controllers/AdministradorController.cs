@@ -496,6 +496,69 @@ namespace Vinculo.Controllers
             return View(model);
 
         }
+        // =========================================================
+        // DETALLE DE SOLICITUD
+        // =========================================================
+
+        [HttpGet]
+        public async Task<IActionResult> DetailsSolicitud(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var solicitud = await _context.Solicitudes
+                .AsNoTracking()
+                .Include(s => s.Institucion)
+                    .ThenInclude(i => i.Domicilio)
+                .Include(s => s.Equipamientos)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (solicitud == null)
+            {
+                return NotFound();
+            }
+
+            var model = new AdminSolicitudDetalleViewModel
+            {
+                Id = solicitud.Id,
+
+                NumeroReferencia = solicitud.NumeroReferencia,
+
+                Institucion = solicitud.Institucion.Nombre,
+
+                Cuit = solicitud.Institucion.Cuit,
+
+                Email = solicitud.Institucion.Email,
+
+                Telefono = solicitud.Institucion.Telefono,
+
+                Fecha = solicitud.Fecha,
+
+                Estado = solicitud.Estado,
+
+                Calle = solicitud.Institucion.Domicilio.Calle,
+
+                Numero = solicitud.Institucion.Domicilio.Numero,
+
+                Localidad = solicitud.Institucion.Domicilio.Localidad,
+
+                Provincia = solicitud.Institucion.Domicilio.Provincia,
+
+                CodigoPostal = solicitud.Institucion.Domicilio.CodigoPostal,
+
+                Equipamientos = solicitud.Equipamientos
+                    .Select(e => new DetalleSolicitudViewModel
+                    {
+                        TipoEquipamiento = e.TipoEquipamiento,
+                        Cantidad = e.Cantidad
+                    })
+                    .ToList()
+            };
+
+            return View(model);
+        }
 
     }
 
