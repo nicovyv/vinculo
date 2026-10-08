@@ -42,7 +42,7 @@ namespace Vinculo.Data
                     TipoUsuario = TipoUsuario.Administrador,
                     Activo = true,
                     FechaAlta = DateTime.Now,
-                    EmailConfirmed = false // confirmación por mail
+                    EmailConfirmed = true // confirmación por mail
                 };
 
                 // Asignamos una contraseña por defecto
@@ -69,7 +69,7 @@ namespace Vinculo.Data
                     TipoUsuario = TipoUsuario.Empresa,
                     Activo = true,
                     FechaAlta = DateTime.Now,
-                    EmailConfirmed = false // confirmación por mail
+                    EmailConfirmed = true // confirmación por mail
                 };
 
                 // Asignamos una contraseña por defecto
@@ -107,6 +107,7 @@ namespace Vinculo.Data
                     Telefono = "11-4567-8901",
                     Email = empresaEmail,
                     UsuarioId = empresaUser.Id,
+                    PersonaContacto = "Juan Pérez",
                     Domicilio = domicilioEmpresa
                 };
 
@@ -128,7 +129,7 @@ namespace Vinculo.Data
                     TipoUsuario = TipoUsuario.Institucion,
                     Activo = true,
                     FechaAlta = DateTime.Now,
-                    EmailConfirmed = false // confirmación por mail
+                    EmailConfirmed = true // confirmación por mail
                 };
 
                 // Asignamos una contraseña por defecto
@@ -170,6 +171,7 @@ namespace Vinculo.Data
                     Telefono = "11-9876-5432",
                     Email = institucionEmail,
                     UsuarioId = institucionUser.Id,
+                    PersonaContacto = "María Gómez",
                     Domicilio = domicilioInstitucion
                 };
 

@@ -17,6 +17,9 @@ namespace Vinculo.Models
         public string Email { get; set; }
         public string UsuarioId { get; set; }
         public Usuario Usuario { get; set; }
+        [Required]
+        [Display(Name = "Persona a Cargo")]
+        public string PersonaContacto { get; set; }
         public List<Solicitud>? Solicitudes { get; set; }
 
     }

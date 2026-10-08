@@ -12,8 +12,8 @@ using Vinculo.Data;
 namespace Vinculo.Migrations
 {
     [DbContext(typeof(VinculoDbContext))]
-    [Migration("20261001233958_AgregaDetalleSolicitud")]
-    partial class AgregaDetalleSolicitud
+    [Migration("20261008223509_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -158,6 +158,44 @@ namespace Vinculo.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Vinculo.Models.Asignacion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DonacionId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("DonacionId1")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("NumeroReferencia")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SolicitudId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DonacionId");
+
+                    b.HasIndex("DonacionId1");
+
+                    b.HasIndex("SolicitudId");
+
+                    b.ToTable("Asignaciones");
+                });
+
             modelBuilder.Entity("Vinculo.Models.DetalleSolicitud", b =>
                 {
                     b.Property<int>("Id")
@@ -198,9 +236,15 @@ namespace Vinculo.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<double?>("Latitud")
+                        .HasColumnType("float");
+
                     b.Property<string>("Localidad")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("Longitud")
+                        .HasColumnType("float");
 
                     b.Property<string>("Numero")
                         .IsRequired()
@@ -223,6 +267,14 @@ namespace Vinculo.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<int>("EmpresaId")
                         .HasColumnType("int");
 
@@ -231,6 +283,16 @@ namespace Vinculo.Migrations
 
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("FotoRuta")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NumeroReferencia")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Tipo")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -255,6 +317,10 @@ namespace Vinculo.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PersonaContacto")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -299,6 +365,10 @@ namespace Vinculo.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PersonaContacto")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -472,6 +542,29 @@ namespace Vinculo.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Vinculo.Models.Asignacion", b =>
+                {
+                    b.HasOne("Vinculo.Models.Donacion", "Donacion")
+                        .WithMany()
+                        .HasForeignKey("DonacionId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Vinculo.Models.Donacion", null)
+                        .WithMany("Asignaciones")
+                        .HasForeignKey("DonacionId1");
+
+                    b.HasOne("Vinculo.Models.Solicitud", "Solicitud")
+                        .WithMany()
+                        .HasForeignKey("SolicitudId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Donacion");
+
+                    b.Navigation("Solicitud");
+                });
+
             modelBuilder.Entity("Vinculo.Models.DetalleSolicitud", b =>
                 {
                     b.HasOne("Vinculo.Models.Solicitud", "Solicitud")
@@ -541,6 +634,11 @@ namespace Vinculo.Migrations
                         .IsRequired();
 
                     b.Navigation("Institucion");
+                });
+
+            modelBuilder.Entity("Vinculo.Models.Donacion", b =>
+                {
+                    b.Navigation("Asignaciones");
                 });
 
             modelBuilder.Entity("Vinculo.Models.Empresa", b =>

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Vinculo.Models.Enums;
 
 namespace Vinculo.Models
@@ -6,6 +7,8 @@ namespace Vinculo.Models
     public class Donacion
     {
         public int Id { get; set; }
+        [Required]
+        public string NumeroReferencia { get; set; }
 
         [Required]
         public int EmpresaId { get; set; }
@@ -31,6 +34,9 @@ namespace Vinculo.Models
 
         [Required]
         public EstadoDonacion Estado { get; set; }
+
+   
+        public List<Asignacion>? Asignaciones { get; set; }
 
     }
 }

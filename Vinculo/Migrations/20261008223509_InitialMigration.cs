@@ -63,7 +63,9 @@ namespace Vinculo.Migrations
                     Numero = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Localidad = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Provincia = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CodigoPostal = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    CodigoPostal = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Latitud = table.Column<double>(type: "float", nullable: true),
+                    Longitud = table.Column<double>(type: "float", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -187,7 +189,8 @@ namespace Vinculo.Migrations
                     Telefono = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DomicilioId = table.Column<int>(type: "int", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UsuarioId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    UsuarioId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    PersonaContacto = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -217,7 +220,8 @@ namespace Vinculo.Migrations
                     Telefono = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DomicilioId = table.Column<int>(type: "int", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UsuarioId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    UsuarioId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    PersonaContacto = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -242,7 +246,12 @@ namespace Vinculo.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    NumeroReferencia = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     EmpresaId = table.Column<int>(type: "int", nullable: false),
+                    Tipo = table.Column<int>(type: "int", nullable: false),
+                    Cantidad = table.Column<int>(type: "int", nullable: false),
+                    Descripcion = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    FotoRuta = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Fecha = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Estado = table.Column<int>(type: "int", nullable: false)
                 },
@@ -278,6 +287,75 @@ namespace Vinculo.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "Asignaciones",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    NumeroReferencia = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SolicitudId = table.Column<int>(type: "int", nullable: false),
+                    DonacionId = table.Column<int>(type: "int", nullable: false),
+                    Fecha = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Estado = table.Column<int>(type: "int", nullable: false),
+                    DonacionId1 = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Asignaciones", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Asignaciones_Donaciones_DonacionId",
+                        column: x => x.DonacionId,
+                        principalTable: "Donaciones",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Asignaciones_Donaciones_DonacionId1",
+                        column: x => x.DonacionId1,
+                        principalTable: "Donaciones",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Asignaciones_Solicitudes_SolicitudId",
+                        column: x => x.SolicitudId,
+                        principalTable: "Solicitudes",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DetalleSolicitud",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SolicitudId = table.Column<int>(type: "int", nullable: false),
+                    TipoEquipamiento = table.Column<int>(type: "int", nullable: false),
+                    Cantidad = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DetalleSolicitud", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DetalleSolicitud_Solicitudes_SolicitudId",
+                        column: x => x.SolicitudId,
+                        principalTable: "Solicitudes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Asignaciones_DonacionId",
+                table: "Asignaciones",
+                column: "DonacionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Asignaciones_DonacionId1",
+                table: "Asignaciones",
+                column: "DonacionId1");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Asignaciones_SolicitudId",
+                table: "Asignaciones",
+                column: "SolicitudId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -319,6 +397,11 @@ namespace Vinculo.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_DetalleSolicitud_SolicitudId",
+                table: "DetalleSolicitud",
+                column: "SolicitudId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Donaciones_EmpresaId",
                 table: "Donaciones",
                 column: "EmpresaId");
@@ -353,6 +436,9 @@ namespace Vinculo.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "Asignaciones");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
             migrationBuilder.DropTable(
@@ -368,13 +454,16 @@ namespace Vinculo.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "DetalleSolicitud");
+
+            migrationBuilder.DropTable(
                 name: "Donaciones");
 
             migrationBuilder.DropTable(
-                name: "Solicitudes");
+                name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetRoles");
+                name: "Solicitudes");
 
             migrationBuilder.DropTable(
                 name: "Empresas");

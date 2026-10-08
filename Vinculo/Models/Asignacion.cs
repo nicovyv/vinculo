@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema; 
 using Vinculo.Models.Enums;
 
 namespace Vinculo.Models
@@ -7,13 +8,19 @@ namespace Vinculo.Models
     {
         public int Id { get; set; }
 
+        [Required]
+        public string NumeroReferencia { get; set; } 
+
         public int SolicitudId { get; set; }
+
+
         public Solicitud Solicitud { get; set; } = null!;
 
         public int DonacionId { get; set; }
+
+   
         public Donacion Donacion { get; set; } = null!;
 
-        public int Cantidad { get; set; }
 
         public DateTime Fecha { get; set; }
 

@@ -32,20 +32,24 @@ namespace Vinculo.Controllers
 
 
         [HttpGet]
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return RedirectToAction("Login", "Usuario");
 
-            // Buscamos la empresa y sus donaciones asociadas
-            var empresa = await _context.Empresas
-                .Include(e => e.Donaciones)
-                .FirstOrDefaultAsync(e => e.UsuarioId == user.Id);
-
+            var empresa = await _context.Empresas.FirstOrDefaultAsync(e => e.UsuarioId == user.Id);
             if (empresa == null) return NotFound("Debe completar su perfil antes de ver sus donaciones.");
 
-            // Ordenamos por fecha descendente (las más nuevas primero)
-            var donaciones = empresa.Donaciones?.OrderByDescending(d => d.Fecha).ToList() ?? new List<Donacion>();
+            // Consulta con "Eager Loading" para traer toda la cadena de datos hacia el Modal
+            var donaciones = await _context.Donaciones
+                .Include(d => d.Asignaciones)
+                    .ThenInclude(a => a.Solicitud)
+                        .ThenInclude(s => s.Institucion)
+                            .ThenInclude(i => i.Domicilio)
+                .Where(d => d.EmpresaId == empresa.Id)
+                .OrderByDescending(d => d.Fecha)
+                .ToListAsync();
 
             return View(donaciones);
         }
@@ -76,6 +80,7 @@ namespace Vinculo.Controllers
 
             var nuevaDonacion = new Donacion
             {
+                NumeroReferencia = GenerarReferenciaDonacion(), 
                 EmpresaId = empresa.Id,
                 Tipo = model.Tipo,
                 Cantidad = model.Cantidad,
@@ -201,9 +206,9 @@ namespace Vinculo.Controllers
             // Creamos la asignación
             var asignacion = new Asignacion
             {
+                NumeroReferencia = GenerarReferenciaAsignacion(),
                 SolicitudId = solicitud.Id,
                 DonacionId = donacion.Id,
-                Cantidad = donacion.Cantidad,
                 Fecha = DateTime.Now,
                 Estado = EstadoAsignacion.Activa
             };
@@ -219,6 +224,18 @@ namespace Vinculo.Controllers
             TempData["Success"] = "La donación fue asignada correctamente.";
 
             return RedirectToAction(nameof(Index));
+        }
+
+
+
+        private string GenerarReferenciaDonacion()
+        {
+            return $"DON-{DateTime.Now:yyyyMMddHHmmss}";
+        }
+
+        private string GenerarReferenciaAsignacion()
+        {
+            return $"ASIG-{DateTime.Now:yyyyMMddHHmmss}";
         }
 
     }
