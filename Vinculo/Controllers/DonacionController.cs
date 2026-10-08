@@ -8,7 +8,7 @@ using Vinculo.Data;
 using Vinculo.Models;
 using Vinculo.Models.Enums;
 using Vinculo.Models.ViewModels;
-using Vinculo.Services; 
+using Vinculo.Services;
 
 namespace Vinculo.Controllers
 {
@@ -139,5 +139,87 @@ namespace Vinculo.Controllers
 
             return View(model);
         }
+
+        // Metodo Asignar donacion
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Asignar(int donacionId, int solicitudId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return RedirectToAction("Login", "Usuario");
+
+            // Verificamos que la empresa autenticada sea la propietaria de la donación
+            var empresa = await _context.Empresas
+                .FirstOrDefaultAsync(e => e.UsuarioId == user.Id);
+
+            if (empresa == null)
+                return NotFound("Debe completar su perfil antes de asignar una donación.");
+
+            // La donación debe pertenecer a la empresa autenticada
+            var donacion = await _context.Donaciones
+                .FirstOrDefaultAsync(d =>
+                    d.Id == donacionId &&
+                    d.EmpresaId == empresa.Id);
+
+            if (donacion == null)
+                return NotFound("Donación no encontrada.");
+
+            // La donación solo puede asignarse si está disponible
+            if (donacion.Estado != EstadoDonacion.Disponible)
+            {
+                TempData["Error"] = "La donación ya no está disponible para asignación.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Buscamos la solicitud y sus equipamientos
+            var solicitud = await _context.Solicitudes
+                .Include(s => s.Equipamientos)
+                .FirstOrDefaultAsync(s => s.Id == solicitudId);
+
+            if (solicitud == null)
+                return NotFound("Solicitud no encontrada.");
+
+            // La solicitud debe estar pendiente
+            if (solicitud.Estado != EstadoSolicitud.Pendiente)
+            {
+                TempData["Error"] = "La solicitud ya no está pendiente de asignación.";
+                return RedirectToAction(nameof(Coincidencias), new { id = donacion.Id });
+            }
+
+            // Verificamos que la solicitud realmente requiera
+            // el mismo tipo de equipamiento que estamos donando
+            var detalleCompatible = solicitud.Equipamientos
+                .FirstOrDefault(e => e.TipoEquipamiento == donacion.Tipo);
+
+            if (detalleCompatible == null)
+            {
+                TempData["Error"] = "La donación no corresponde a ningún equipamiento solicitado.";
+                return RedirectToAction(nameof(Coincidencias), new { id = donacion.Id });
+            }
+
+            // Creamos la asignación
+            var asignacion = new Asignacion
+            {
+                SolicitudId = solicitud.Id,
+                DonacionId = donacion.Id,
+                Cantidad = donacion.Cantidad,
+                Fecha = DateTime.Now,
+                Estado = EstadoAsignacion.Activa
+            };
+
+            _context.Asignaciones.Add(asignacion);
+
+            // Actualizamos los estados relacionados
+            donacion.Estado = EstadoDonacion.Asignada;
+            solicitud.Estado = EstadoSolicitud.EnCoordinacion;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "La donación fue asignada correctamente.";
+
+            return RedirectToAction(nameof(Index));
+        }
+
     }
 }

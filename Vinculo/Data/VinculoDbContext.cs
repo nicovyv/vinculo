@@ -16,6 +16,24 @@ namespace Vinculo.Data
         public DbSet<Solicitud> Solicitudes { get; set; }
         public DbSet<Donacion> Donaciones { get; set; }
         public DbSet<Domicilio> Domicilios { get; set; }
+        public DbSet<Asignacion> Asignaciones { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Asignacion>()
+                .HasOne(a => a.Solicitud)
+                .WithMany()
+                .HasForeignKey(a => a.SolicitudId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Asignacion>()
+                .HasOne(a => a.Donacion)
+                .WithMany()
+                .HasForeignKey(a => a.DonacionId)
+                .OnDelete(DeleteBehavior.NoAction);
+        }
 
 
     }

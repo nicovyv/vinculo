@@ -53,7 +53,9 @@ namespace Vinculo.Controllers
                 Numero = empresa.Domicilio?.Numero,
                 Localidad = empresa.Domicilio?.Localidad,
                 Provincia = empresa.Domicilio?.Provincia,
-                CodigoPostal = empresa.Domicilio?.CodigoPostal
+                CodigoPostal = empresa.Domicilio?.CodigoPostal,
+                Latitud = empresa.Domicilio?.Latitud,
+                Longitud = empresa.Domicilio?.Longitud
             };
 
             return View(model);
@@ -126,6 +128,8 @@ namespace Vinculo.Controllers
                 empresa.Domicilio.Localidad = model.Localidad;
                 empresa.Domicilio.Provincia = model.Provincia;
                 empresa.Domicilio.CodigoPostal = model.CodigoPostal;
+                empresa.Domicilio.Latitud = model.Latitud;
+                empresa.Domicilio.Longitud = model.Longitud;
             }
 
             _context.Empresas.Update(empresa);
