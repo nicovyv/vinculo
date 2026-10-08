@@ -18,21 +18,22 @@ namespace Vinculo.Data
         public DbSet<Domicilio> Domicilios { get; set; }
         public DbSet<Asignacion> Asignaciones { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder builder)
         {
-            base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(builder);
 
-            modelBuilder.Entity<Asignacion>()
-                .HasOne(a => a.Solicitud)
-                .WithMany()
-                .HasForeignKey(a => a.SolicitudId)
-                .OnDelete(DeleteBehavior.NoAction);
-
-            modelBuilder.Entity<Asignacion>()
+           
+            builder.Entity<Asignacion>()
                 .HasOne(a => a.Donacion)
-                .WithMany()
+                .WithMany(d => d.Asignaciones)
                 .HasForeignKey(a => a.DonacionId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Restrict); 
+
+            builder.Entity<Asignacion>()
+                .HasOne(a => a.Solicitud)
+                .WithMany() 
+                .HasForeignKey(a => a.SolicitudId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
 

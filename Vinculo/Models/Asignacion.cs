@@ -18,7 +18,6 @@ namespace Vinculo.Models
 
         public int DonacionId { get; set; }
 
-   
         public Donacion Donacion { get; set; } = null!;
 
 
