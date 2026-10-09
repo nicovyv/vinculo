@@ -4,6 +4,10 @@
     ViewData["Title"] = "Dashboard Empresa";
 }
 
+<!-- Estilos para el mapa de Leaflet en el Dashboard -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+<link rel="stylesheet" href="~/css/dashboard-responsive.css" />
+
 <div class="container-fluid px-0">
     <!-- Breadcrumb y Título de Página -->
     <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
@@ -15,7 +19,7 @@
                 </ol>
             </nav>
             <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
-                <h1 class="h3 fw-bold text-corporate-primary mb-0">Panel Corporativo de Donaciones</h1>
+                <h1 class="h3 fw-bold text-corporate-primary mb-0">Panel Principal</h1>
                 <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-monospace py-1 px-2">
                     <i class="bi bi-shield-lock me-1"></i>
                     <strong>@Model?.RazonSocial</strong>
@@ -25,93 +29,89 @@
                     <strong>@Model?.Cuit</strong>
                 </span>
             </div>
-            <p class="text-secondary mb-0 small">
+@*             <p class="text-secondary mb-0 small">
                 Supervisión de parque informático en desuso, trazabilidad fiscal, logística inversa y asignación geolocalizada a entidades educativas y comunitarias de la Red Eisbaer.
-            </p>
+            </p> *@
         </div>
         <div class="text-nowrap">
-            <a class="btn btn-teal d-inline-flex align-items-center gap-2 px-3 py-2 fw-medium shadow-sm" href="#">
+            <!-- Botón adaptado al nuevo controlador Donaciones y acción CrearDonacion -->
+            <a class="btn btn-teal d-inline-flex align-items-center gap-2 px-3 py-2 fw-medium shadow-sm" asp-controller="Donaciones" asp-action="CrearDonacion">
                 <i class="bi bi-plus-circle"></i>
                 <span>Registrar Nueva Donación</span>
             </a>
         </div>
     </div>
 
-    <!-- Fila de 4 KPI Cards -->
+    <!-- Fila de 4 KPI Cards Dinámicas -->
     <div class="row g-3 mb-4">
-        <!-- KPI 1 -->
+        <!-- KPI 1: Lotes Totales -->
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card border-0 shadow-sm rounded-3 h-100 p-3">
                 <div class="d-flex align-items-start justify-content-between mb-2">
                     <div>
-                        <span class="text-secondary text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Donaciones Publicadas</span>
-                        <div class="h3 fw-bold text-corporate-primary mb-0 mt-1 font-monospace">8 <span class="fs-6 text-secondary fw-normal">lotes</span></div>
+                        <span class="text-secondary text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Lotes Registrados</span>
+                        <div class="h3 fw-bold text-corporate-primary mb-0 mt-1 font-monospace">@Model.TotalDonaciones <span class="fs-6 text-secondary fw-normal">totales</span></div>
                     </div>
                     <div class="kpi-icon-box bg-body-tertiary text-corporate-primary">
-                        <i class="bi bi-box-seam"></i>
+                        <i class="bi bi-boxes"></i>
                     </div>
                 </div>
-                <div class="d-flex align-items-center gap-1 text-success small pt-2 border-top border-light-subtle">
-                    <i class="bi bi-arrow-up-right"></i>
-                    <span class="fw-bold">+2 lotes</span>
-                    <span class="text-secondary">ingresados este mes</span>
+                <div class="progress mt-2" style="height: 4px;">
+                    <div class="progress-bar bg-corporate-primary" style="width: 100%;"></div>
                 </div>
             </div>
         </div>
-        <!-- KPI 2 -->
+
+        <!-- KPI 2: Disponibles -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-3 h-100 p-3">
+                <div class="d-flex align-items-start justify-content-between mb-2">
+                    <div>
+                        <span class="text-secondary text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Disponibles para Match</span>
+                        <div class="h3 fw-bold text-success mb-0 mt-1 font-monospace">@Model.Disponibles <span class="fs-6 text-secondary fw-normal">lotes</span></div>
+                    </div>
+                    <div class="kpi-icon-box bg-success-subtle text-success">
+                        <i class="bi bi-geo-alt-fill"></i>
+                    </div>
+                </div>
+                <div class="progress mt-2" style="height: 4px;">
+                    <div class="progress-bar bg-success" style="width: @(Model.TotalDonaciones > 0 ? (Model.Disponibles * 100 / Model.TotalDonaciones) : 0)%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI 3: En Logística -->
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card border-0 shadow-sm rounded-3 h-100 p-3">
                 <div class="d-flex align-items-start justify-content-between mb-2">
                     <div>
                         <span class="text-secondary text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Asignaciones en Curso</span>
-                        <div class="h3 fw-bold text-corporate-primary mb-0 mt-1 font-monospace">3 <span class="fs-6 text-secondary fw-normal">activas</span></div>
+                        <div class="h3 fw-bold text-primary mb-0 mt-1 font-monospace">@Model.Asignadas <span class="fs-6 text-secondary fw-normal">activas</span></div>
                     </div>
-                    <div class="kpi-icon-box bg-info-subtle text-info">
+                    <div class="kpi-icon-box bg-primary-subtle text-primary">
                         <i class="bi bi-truck"></i>
                     </div>
                 </div>
-                <div class="d-flex align-items-center gap-1 text-secondary small pt-2 border-top border-light-subtle">
-                    <i class="bi bi-clock-history"></i>
-                    <span class="fw-semibold text-dark">Logística programada</span>
-                    <span class="text-muted">48-72 hs</span>
+                <div class="progress mt-2" style="height: 4px;">
+                    <div class="progress-bar bg-primary" style="width: @(Model.TotalDonaciones > 0 ? (Model.Asignadas * 100 / Model.TotalDonaciones) : 0)%;"></div>
                 </div>
             </div>
         </div>
-        <!-- KPI 3 -->
+
+        <!-- KPI 4: Entregadas -->
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card border-0 shadow-sm rounded-3 h-100 p-3">
                 <div class="d-flex align-items-start justify-content-between mb-2">
                     <div>
                         <span class="text-secondary text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Entregas Concretadas</span>
-                        <div class="h3 fw-bold text-corporate-primary mb-0 mt-1 font-monospace">18 <span class="fs-6 text-secondary fw-normal">completadas</span></div>
-                    </div>
-                    <div class="kpi-icon-box bg-success-subtle text-success">
-                        <i class="bi bi-check-circle"></i>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center gap-1 text-success small pt-2 border-top border-light-subtle">
-                    <i class="bi bi-file-earmark-check"></i>
-                    <span class="fw-bold">100% actas recibidas</span>
-                    <span class="text-secondary">y visadas</span>
-                </div>
-            </div>
-        </div>
-        <!-- KPI 4 -->
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card border-0 shadow-sm rounded-3 h-100 p-3">
-                <div class="d-flex align-items-start justify-content-between mb-2">
-                    <div>
-                        <span class="text-secondary text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Equipamiento Cedido</span>
-                        <div class="h3 fw-bold text-corporate-primary mb-0 mt-1 font-monospace">142 <span class="fs-6 text-secondary fw-normal">unidades</span></div>
+                        <div class="h3 fw-bold text-teal mb-0 mt-1 font-monospace">@Model.Entregadas <span class="fs-6 text-secondary fw-normal">lotes</span></div>
                     </div>
                     <div class="kpi-icon-box bg-teal-subtle-custom text-teal">
-                        <i class="bi bi-cpu"></i>
+                        <i class="bi bi-patch-check-fill"></i>
                     </div>
                 </div>
-                <div class="d-flex align-items-center gap-1 text-secondary small pt-2 border-top border-light-subtle">
-                    <i class="bi bi-globe-americas text-success"></i>
-                    <span class="text-secondary">Ahorro CO2 est.:</span>
-                    <strong class="text-dark font-monospace">2.8 Tn eq.</strong>
+                <div class="progress mt-2" style="height: 4px;">
+                    <div class="progress-bar" style="background-color: var(--vinculo-teal); width: @(Model.TotalDonaciones > 0 ? (Model.Entregadas * 100 / Model.TotalDonaciones) : 0)%;"></div>
                 </div>
             </div>
         </div>
@@ -119,134 +119,163 @@
 
     <!-- Sección Principal de Dos Columnas -->
     <div class="row g-4">
-        <!-- Columna Izquierda (Tabla y Trazabilidad) -->
+<!-- Columna Izquierda (Línea de Tiempo de Actividad Reciente) -->
         <div class="col-12 col-lg-8">
-            <div class="card border-0 shadow-sm rounded-3 mb-4">
+            <div class="card border-0 shadow-sm rounded-3 mb-4 h-100">
                 <div class="card-header bg-white border-0 pt-3 px-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
                     <div>
-                        <h5 class="fw-bold text-corporate-primary mb-0">Donaciones Activas y Estado Logístico</h5>
-                        <small class="text-secondary">Control de inventario publicado, canalización comunitaria y remitos de entrega</small>
+                        <h5 class="fw-bold text-corporate-primary mb-0">Actividad Logística Reciente</h5>
+                        <small class="text-secondary">Trazabilidad en tiempo real de tus lotes asignados</small>
                     </div>
-                    <!-- Tabs de filtrado -->
                     <div class="btn-group btn-group-sm p-1 bg-body-tertiary rounded-3" role="group">
-                        <button class="btn btn-white fw-semibold bg-white shadow-xs text-corporate-primary rounded-2" type="button">En Curso (4)</button>
-                        <button class="btn btn-light bg-transparent text-secondary border-0" type="button">Disponibles (2)</button>
-                        <button class="btn btn-light bg-transparent text-secondary border-0" type="button">Historial (18)</button>
+                        <button class="btn btn-white fw-semibold bg-white shadow-xs text-corporate-primary rounded-2" type="button">Últimos 7 días</button>
                     </div>
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0 text-nowrap">
-                            <thead class="table-light small text-uppercase text-secondary border-top">
-                                <tr>
-                                    <th class="ps-3 py-2 fw-semibold" scope="col">Lote Ref.</th>
-                                    <th class="py-2 fw-semibold" scope="col">Equipos</th>
-                                    <th class="py-2 fw-semibold" scope="col">Fecha Pub.</th>
-                                    <th class="py-2 fw-semibold" scope="col">Estado</th>
-                                    <th class="py-2 fw-semibold" scope="col">Destino Asignado</th>
-                                    <th class="pe-3 py-2 text-end fw-semibold" scope="col">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody class="small">
-                                <tr>
-                                    <td class="ps-3 fw-bold font-monospace text-corporate-primary">#DON-2026-089</td>
-                                    <td>
-                                        <div class="fw-semibold text-dark">25 Notebooks Lenovo T480</div>
-                                        <span class="text-secondary font-monospace" style="font-size: 0.75rem;">i5 8va · 16GB · 256GB SSD</span>
-                                    </td>
-                                    <td class="text-secondary font-monospace">18/03/2026</td>
-                                    <td>
-                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
-                                            <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>En Coordinación
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="fw-medium text-dark">Escuela Técnica N° 12</div>
-                                        <small class="text-secondary d-flex align-items-center gap-1 font-monospace">
-                                            <i class="bi bi-geo-alt-fill text-teal"></i>2.4 km · Barracas
-                                        </small>
-                                    </td>
-                                    <td class="pe-3 text-end">
-                                        <div class="btn-group btn-group-sm">
-                                            <a class="btn btn-sm btn-outline-primary fw-medium px-2 py-1" href="#">Gestionar Remito</a>
-                                            <a class="btn btn-sm btn-light border text-secondary" href="#" title="Ver en mapa"><i class="bi bi-geo-alt"></i></a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="ps-3 fw-bold font-monospace text-corporate-primary">#DON-2026-077</td>
-                                    <td>
-                                        <div class="fw-semibold text-dark">15 PC Dell OptiPlex 7050</div>
-                                        <span class="text-secondary font-monospace" style="font-size: 0.75rem;">Con monitores 22" FHD</span>
-                                    </td>
-                                    <td class="text-secondary font-monospace">10/03/2026</td>
-                                    <td>
-                                        <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-2 py-1">
-                                            <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>Asignada
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="fw-medium text-dark">Centro Comunitario La Boca</div>
-                                        <small class="text-secondary d-flex align-items-center gap-1 font-monospace">
-                                            <i class="bi bi-truck text-secondary"></i>En tránsito (Flecha Sur)
-                                        </small>
-                                    </td>
-                                    <td class="pe-3 text-end">
-                                        <a class="btn btn-sm btn-outline-secondary fw-medium px-2 py-1" href="#">Hoja de Ruta</a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                
+                <div class="card-body p-4 pt-2">
+                    <!-- Contenedor del Timeline -->
+                    <div class="position-relative ms-2 mt-3">
+                        <!-- Línea vertical del timeline -->
+                        <div class="position-absolute border-start border-2 border-light-subtle h-100" style="left: 15px; top: 10px; z-index: 0;"></div>
+
+                        <!-- Evento 1: En tránsito -->
+                        <div class="position-relative d-flex align-items-start mb-4" style="z-index: 1;">
+                            <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px; box-shadow: 0 0 0 6px #fff;">
+                                <i class="bi bi-truck small"></i>
+                            </div>
+                            <div class="ms-3 bg-light rounded-3 p-3 w-100 border border-light-subtle shadow-sm">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <span class="fw-bold text-dark small">Lote #DON-2026-089 en tránsito logístico</span>
+                                    <span class="badge bg-white text-secondary border small fw-normal font-monospace"><i class="bi bi-clock me-1"></i>Hace 2 horas</span>
+                                </div>
+                                <p class="text-secondary small mb-0 lh-sm mt-1">El transporte retiró los equipos Lenovo T480 de tu sede central. Dirigiéndose a <strong>Escuela Técnica N° 12</strong>.</p>
+                            </div>
+                        </div>
+
+                        <!-- Evento 2: Entrega Confirmada -->
+                        <div class="position-relative d-flex align-items-start mb-4" style="z-index: 1;">
+                            <div class="bg-teal-subtle-custom text-teal rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px; box-shadow: 0 0 0 6px #fff;">
+                                <i class="bi bi-patch-check-fill small"></i>
+                            </div>
+                            <div class="ms-3 bg-white rounded-3 p-3 w-100 border border-success-subtle shadow-sm">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <span class="fw-bold text-dark small">Entrega Exitosa: Lote #DON-2026-077</span>
+                                    <span class="badge bg-white text-secondary border small fw-normal font-monospace"><i class="bi bi-calendar me-1"></i>Ayer, 15:30</span>
+                                </div>
+                                <p class="text-secondary small mb-0 lh-sm mt-1">El <strong>Centro Comunitario La Boca</strong> confirmó la recepción de 15 PC Dell OptiPlex. Se emitió el remito digital.</p>
+                            </div>
+                        </div>
+
+                        <!-- Evento 3: Asignación Inicial -->
+                        <div class="position-relative d-flex align-items-start mb-2" style="z-index: 1;">
+                            <div class="bg-warning-subtle text-warning-emphasis rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px; box-shadow: 0 0 0 6px #fff;">
+                                <i class="bi bi-link-45deg fs-5"></i>
+                            </div>
+                            <div class="ms-3 bg-white rounded-3 p-3 w-100 border border-light-subtle">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <span class="fw-bold text-dark small">Match Comunitario Realizado</span>
+                                    <span class="badge bg-white text-secondary border small fw-normal font-monospace"><i class="bi bi-calendar me-1"></i>Lun 05/10</span>
+                                </div>
+                                <p class="text-secondary small mb-0 lh-sm mt-1">El algoritmo de Vínculo asignó tus monitores sobrantes a la <strong>Fundación Equidad</strong>. Esperando confirmación de retiro.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="card-footer bg-white border-top border-light-subtle d-flex flex-column flex-sm-row align-items-center justify-content-between py-3 px-3 gap-2">
-                    <small class="text-secondary">
-                        Mostrando <strong class="text-dark font-monospace">2</strong> de <strong class="text-dark font-monospace">8</strong> lotes de activos
-                    </small>
-                    <a class="small fw-semibold text-teal text-decoration-none d-inline-flex align-items-center gap-1" href="#">
-                        <span>Ver inventario completo de lotes</span>
+                
+                <!-- Footer para ir a la vista completa de la tabla de donaciones -->
+                <div class="card-footer bg-white border-top border-light-subtle d-flex justify-content-center py-3 px-3 mt-auto">
+                    <a class="small fw-semibold text-teal text-decoration-none d-inline-flex align-items-center gap-1" asp-controller="Donaciones" asp-action="Index">
+                        <span>Ver registro completo y remitos</span>
                         <i class="bi bi-arrow-right"></i>
                     </a>
                 </div>
             </div>
         </div>
-
-        <!-- Columna Derecha (Centro de Despacho) -->
+<!-- Columna Derecha (Centro de Despacho con Mapa Dinámico) -->
         <div class="col-12 col-lg-4">
-            <div class="card border-0 shadow-sm rounded-3 p-3">
+            <div class="card border-0 shadow-sm rounded-3 p-3 h-100">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <h6 class="fw-bold text-corporate-primary mb-0">Centro de Despacho Asignado</h6>
+                    <h6 class="fw-bold text-corporate-primary mb-0">Domicilio Registrado</h6>
                     <i class="bi bi-building text-secondary fs-5"></i>
                 </div>
-                <div class="mb-2">
-                    <div class="fw-semibold text-corporate-primary small">Planta Barracas (Hub CABA)</div>
-                    <div class="text-secondary small">Av. Regimiento de Patricios 1052, C1266 CABA</div>
-                    <div class="text-muted font-monospace mt-1" style="font-size: 0.75rem;">Dársenas 3 y 4 · Control de Acceso CUIT</div>
+                
+                <div class="mb-3">
+                    @if (!string.IsNullOrEmpty(Model.Calle) && !string.IsNullOrEmpty(Model.Numero))
+                    {
+                        <div class="text-secondary small">@Model.Calle @Model.Numero, @Model.Localidad</div>
+                        <div class="text-muted font-monospace mt-1" style="font-size: 0.75rem;">@Model.Provincia · CP: @Model.CodigoPostal</div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning py-2 mb-0 d-flex align-items-center gap-2 small border-warning-subtle">
+                            <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                            <div>Falta configurar domicilio de retiro. <a asp-action="MisDatos" class="alert-link text-decoration-none">Completar aquí</a>.</div>
+                        </div>
+                    }
                 </div>
-                <div class="map-preview-box rounded-3 p-2 d-flex flex-column justify-content-end mb-3">
-                    <div class="bg-white bg-opacity-90 rounded p-1 d-inline-flex align-items-center gap-1 shadow-xs align-self-start font-monospace small" style="font-size: 0.72rem;">
-                        <i class="bi bi-geo-alt-fill text-danger"></i>
-                        <span>-34.6412° S, -58.3731° W</span>
-                    </div>
+
+                <!-- IMPORTANTE: El contenedor padre debe tener una altura fija (ej. 280px) -->
+                <div class="map-preview-box rounded-3 position-relative overflow-hidden mb-3 border border-light-subtle" style="width: 100%; height: 280px; background-color: #f8f9fa;">
+                    @if (Model.Latitud.HasValue && Model.Longitud.HasValue)
+                    {
+                        <!-- z-index: 1 evita conflictos con otras capas de Bootstrap -->
+                        <div id="mapaDashboard" style="width: 100%; height: 100%; z-index: 1;"></div>
+                        <div class="position-absolute bottom-0 start-0 m-2 bg-white bg-opacity-90 rounded p-1 d-inline-flex align-items-center gap-1 shadow-sm font-monospace small" style="font-size: 0.72rem; z-index: 1000;">
+                            <i class="bi bi-geo-alt-fill text-danger"></i>
+                            <span>@Model.Latitud?.ToString("0.000")° S, @Model.Longitud?.ToString("0.000")° W</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="d-flex flex-column h-100 align-items-center justify-content-center text-muted w-100">
+                            <i class="bi bi-map fs-1 opacity-25 mb-2"></i>
+                            <span class="small fw-medium">Motor Geográfico Inactivo</span>
+                        </div>
+                    }
                 </div>
-                <div class="bg-body-tertiary rounded-3 p-2 small mb-3">
-                    <div class="d-flex align-items-center justify-content-between mb-1">
-                        <span class="text-secondary">Horario de carga habilitado:</span>
-                        <strong class="text-dark font-monospace">08:00 a 16:30 hs</strong>
-                    </div>
-                </div>
+
             </div>
         </div>
-    </div>
 
-    <!-- Pie de Módulo / Certificación Institucional -->
+    @* <!-- Pie de Módulo / Certificación Institucional --> *@
     <div class="mt-5 pt-4 border-top border-light-subtle d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 text-secondary small">
         <div class="d-flex align-items-center gap-3">
             <img alt="Eisbaer Logo" class="img-fluid opacity-75" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBo-17XWs1TbXjug6LezZr3BxNSZHwcUWe1RZYB1YMtBEcWqnYQ797BIfPkTtDn5VcYKEA_M8-E7sYwAvDxTqPhQ_q95KZ3D6uSWFuR2pIl0FcaYg8gF5I2ARsk6e1Wu6ShBXzhBL_LHp2HZwgblUxV9EOu0501awblbwqZw-cmPkUXbGUw0Oy8HOKOlsK5EQnczwKstL-0w_7Dfb4hrtvnf3zMPFZqW-M_Qx7XkzC53NM6ht9VWyohnUrNy4wZ_YDIZT4" style="width: 36px; height: 36px; object-fit: contain;" />
             <div>
-                <div class="fw-semibold text-corporate-primary">Vínculo · Módulo de Donaciones Corporativas</div>
-                <div style="font-size: 0.8rem;">Tecnología con Sentido Humano respaldada por Eisbaer. Certificación conforme Resolución AFIP 2485/DG Impositiva.</div>
+                <div class="fw-semibold text-corporate-primary">Vínculo · Módulo Principal</div>
             </div>
         </div>
     </div>
 </div>
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Leer como strings primero evita errores de sintaxis en JS si el valor viene vacío de ASP.NET
+            const latStr = "@(Model.Latitud?.ToString(System.Globalization.CultureInfo.InvariantCulture))";
+            const lngStr = "@(Model.Longitud?.ToString(System.Globalization.CultureInfo.InvariantCulture))";
+
+            if (latStr && lngStr) {
+                const lat = parseFloat(latStr);
+                const lng = parseFloat(lngStr);
+
+                // Instanciamos el mapa con controles nativos activos (zoom, paneo)
+                const mapaDashboard = L.map("mapaDashboard").setView([lat, lng], 15);
+
+                L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                    maxZoom: 19,
+                    attribution: '&copy; OSM'
+                }).addTo(mapaDashboard);
+
+                // Dibujamos el marcador
+                L.marker([lat, lng]).addTo(mapaDashboard)
+                    .bindPopup("<b>@(Model.RazonSocial ?? "Empresa")</b><br>Centro de Despacho Logístico");
+
+                // El timeout asegura que el mapa tome la dimensión correcta si el contenedor se carga dinámicamente
+                setTimeout(() => {
+                    mapaDashboard.invalidateSize();
+                }, 500);
+            }
+        });
+    </script>
+}

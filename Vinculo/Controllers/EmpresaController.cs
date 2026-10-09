@@ -40,6 +40,10 @@ namespace Vinculo.Controllers
             if (empresa == null)
                 return NotFound("No se encontró la empresa asociada a este usuario.");
 
+            var totalDonaciones = await _context.Donaciones.CountAsync(d => d.EmpresaId == empresa.Id);
+            var disponibles = await _context.Donaciones.CountAsync(d => d.EmpresaId == empresa.Id && d.Estado == Vinculo.Models.Enums.EstadoDonacion.Disponible);
+            var asignadas = await _context.Donaciones.CountAsync(d => d.EmpresaId == empresa.Id && d.Estado == Vinculo.Models.Enums.EstadoDonacion.Asignada);
+            var entregadas = await _context.Donaciones.CountAsync(d => d.EmpresaId == empresa.Id && d.Estado == Vinculo.Models.Enums.EstadoDonacion.Entregada);
 
             // Mapear la entidad al ViewModel para mostrarlo en pantalla
             var model = new PerfilEmpresaViewModel
@@ -55,7 +59,12 @@ namespace Vinculo.Controllers
                 Provincia = empresa.Domicilio?.Provincia,
                 CodigoPostal = empresa.Domicilio?.CodigoPostal,
                 Latitud = empresa.Domicilio?.Latitud,
-                Longitud = empresa.Domicilio?.Longitud
+                Longitud = empresa.Domicilio?.Longitud,
+
+                TotalDonaciones = totalDonaciones,
+                Disponibles = disponibles,
+                Asignadas = asignadas,
+                Entregadas = entregadas
             };
 
             return View(model);

@@ -1,0 +1,125 @@
+/* Dashboard Responsive Styles */
+
+@media (max-width: 576px) {
+    .container-fluid {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
+    .card {
+        padding: 1rem !important;
+    }
+
+    .badge {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.6rem !important;
+    }
+
+    .h3, h3 {
+        font-size: 1.5rem;
+    }
+
+    .text-nowrap {
+        display: block !important;
+        width: 100%;
+    }
+
+    .btn {
+        width: 100%;
+    }
+
+    .map-preview-box {
+        min-height: 250px;
+    }
+}
+
+@media (max-width: 768px) {
+    .gap-3 {
+        gap: 1rem !important;
+    }
+
+    .row.g-3 > [class*='col-'] {
+        margin-bottom: 0.5rem;
+    }
+
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+}
+
+@media (max-width: 992px) {
+    .row.g-4 > .col-12.col-lg-8 {
+        min-height: auto;
+    }
+
+    .row.g-4 > .col-12.col-lg-4 {
+        min-height: auto;
+    }
+}
+
+/* Asegurar que el layout responde correctamente a zoom y cambios de viewport */
+* {
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+}
+
+.container-fluid {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* CONTAINER DEL MAPA - ESTILOS CRÍTICOS */
+.map-preview-box {
+    position: relative;
+    width: 100%;
+    min-height: 250px;
+    height: auto;
+    display: flex;
+    align-items: stretch;
+    overflow: hidden;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    z-index: 1;
+}
+
+#mapaDashboard {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 250px;
+    position: relative;
+    z-index: 1;
+    background-color: #fff;
+    flex: 1 1 100%;
+}
+
+/* Asegurar que Leaflet se expande correctamente */
+.leaflet-container {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 250px;
+    background-color: #fff;
+    z-index: 1;
+}
+
+.leaflet-map-pane {
+    z-index: 2;
+}
+
+.leaflet-tile-pane {
+    z-index: 3;
+}
+
+/* Scroll en tablas responsive */
+.table-responsive {
+    -webkit-overflow-scrolling: touch;
+}
+

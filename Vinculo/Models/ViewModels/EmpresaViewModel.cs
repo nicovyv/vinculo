@@ -40,5 +40,10 @@ namespace Vinculo.Models.ViewModels
 
         public double? Latitud { get; set; }
         public double? Longitud { get; set; }
+
+        public int TotalDonaciones { get; set; }
+        public int Disponibles { get; set; }
+        public int Asignadas { get; set; }
+        public int Entregadas { get; set; }
     }
 }

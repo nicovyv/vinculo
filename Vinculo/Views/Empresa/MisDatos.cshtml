@@ -176,10 +176,11 @@
                 mensajeUbicacion.innerHTML = texto;
             }
 
-            function actualizarCoordenadas(lat, lng) {
-                document.getElementById("Latitud").value = lat.toString();
-                document.getElementById("Longitud").value = lng.toString();
-            }
+           function actualizarCoordenadas(lat, lng) {
+    // Reemplazamos el punto por coma para que el ModelBinder de C# lo entienda correctamente
+    document.getElementById("Latitud").value = lat.toString().replace('.', ',');
+    document.getElementById("Longitud").value = lng.toString().replace('.', ',');
+}   
 
             function colocarMarcador(lat, lng, zoom = 16) {
                 if (marcador) mapa.removeLayer(marcador);
