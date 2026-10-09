@@ -177,28 +177,15 @@
                             </a>
 
 
-                            <!-- Empresas - FALTA IMPLEMENTAR -->
-                            <a class="nav-sidebar-link"
-                               href="#">
+                            <!-- Empresas - IMPLEMENTADO -->
+                            <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Administrador" && ViewContext.RouteData.Values["Action"]?.ToString() == "Empresas" ? "active" : "")"
+                               asp-controller="Administrador"
+                               asp-action="Empresas">
 
                                 <i class="bi bi-building fs-5"></i>
                                 <span>Empresas</span>
 
                             </a>
-
-                            @*
-        Cuando exista la acción:
-
-        <a class="nav-sidebar-link"
-           asp-controller="Administrador"
-           asp-action="Empresas">
-
-            <i class="bi bi-building fs-5"></i>
-            <span>Empresas</span>
-
-        </a>
-    *@
-
 
                             <!-- Solicitudes - Implementado -->
                             <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Administrador" && ViewContext.RouteData.Values["Action"]?.ToString() == "Solicitudes" ? "active" : "")"

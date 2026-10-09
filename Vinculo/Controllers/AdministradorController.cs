@@ -508,7 +508,47 @@ namespace Vinculo.Controllers
             return View(model);
 
         }
+        // =========================================================
+        // ADMINISTRACIÓN DE EMPRESAS
+        // =========================================================
 
+        [HttpGet]
+        public async Task<IActionResult> Empresas(string? busqueda)
+        {
+            var query = _context.Empresas
+                .AsNoTracking()
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(busqueda))
+            {
+                busqueda = busqueda.Trim();
+
+                query = query.Where(e =>
+                    e.RazonSocial.Contains(busqueda) ||
+                    e.Cuit.Contains(busqueda));
+            }
+
+            var empresas = await query
+                .OrderBy(e => e.RazonSocial)
+                .Select(e => new AdminEmpresaItemViewModel
+                {
+                    Id = e.Id,
+                    RazonSocial = e.RazonSocial,
+                    Cuit = e.Cuit,
+                    Telefono = e.Telefono,
+                    Email = e.Email,
+                    PersonaContacto = e.PersonaContacto
+                })
+                .ToListAsync();
+
+            var modelo = new AdminEmpresaViewModel
+            {
+                Empresas = empresas,
+                Busqueda = busqueda
+            };
+
+            return View(modelo);
+        }
 
         // =========================================================
         // ADMINISTRACIÓN DE DONACIONES
