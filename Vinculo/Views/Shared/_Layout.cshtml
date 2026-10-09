@@ -211,28 +211,15 @@
                             </a>
 
 
-
-                            <!-- Donaciones - FALTA IMPLEMENTAR -->
-                            <a class="nav-sidebar-link"
-                               href="#">
+                             <!-- Donaciones - Implementado -->
+                            
+                            <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Administrador" && ViewContext.RouteData.Values["Action"]?.ToString() == "Donaciones" ? "active" : "")"
+                               asp-controller="Administrador"
+                               asp-action="Donaciones">
 
                                 <i class="bi bi-box-seam fs-5"></i>
                                 <span>Donaciones</span>
-
                             </a>
-
-                            @*
-        Cuando exista la acción:
-
-        <a class="nav-sidebar-link"
-           asp-controller="Administrador"
-           asp-action="Donaciones">
-
-            <i class="bi bi-box-seam fs-5"></i>
-            <span>Donaciones</span>
-
-        </a>
-    *@
 
 
                             <!-- Asignaciones - FALTA IMPLEMENTAR -->

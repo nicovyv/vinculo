@@ -102,6 +102,20 @@ namespace Vinculo.Controllers
 
 
             // =========================
+            // DONACIONES
+            // =========================
+
+            var donacionesDisponibles = await _context.Donaciones
+                .CountAsync(d => d.Estado == EstadoDonacion.Disponible);
+
+            var donacionesAsignadas = await _context.Donaciones
+                .CountAsync(d => d.Estado == EstadoDonacion.Asignada);
+
+            var donacionesEntregadas = await _context.Donaciones
+                .CountAsync(d => d.Estado == EstadoDonacion.Entregada);
+
+
+            // =========================
             // DASHBOARD
             // =========================
 
@@ -123,11 +137,9 @@ namespace Vinculo.Controllers
                 TotalSolicitudes = totalSolicitudes,
 
                 // Donaciones
-                // Todavía no conectadas con la lógica
-                // de administración.
-                DonacionesDisponibles = 0,
-                DonacionesAsignadas = 0,
-                DonacionesEntregadas = 0,
+                DonacionesDisponibles = donacionesDisponibles,
+                DonacionesAsignadas = donacionesAsignadas,
+                DonacionesEntregadas = donacionesEntregadas,
 
                 // Actividad
                 SolicitudesRecientes = solicitudesRecientes
@@ -495,6 +507,68 @@ namespace Vinculo.Controllers
 
             return View(model);
 
+        }
+
+
+        // =========================================================
+        // ADMINISTRACIÓN DE DONACIONES
+        // =========================================================
+
+        [HttpGet]
+        public async Task<IActionResult> Donaciones(
+            string? busqueda,
+            string? estado)
+        {
+            var query = _context.Donaciones
+                .AsNoTracking()
+                .Include(d => d.Empresa)
+                .AsQueryable();
+
+            // Búsqueda por referencia o empresa
+            if (!string.IsNullOrWhiteSpace(busqueda))
+            {
+                busqueda = busqueda.Trim();
+
+                query = query.Where(d =>
+                    d.NumeroReferencia.Contains(busqueda) ||
+                    d.Empresa.RazonSocial.Contains(busqueda));
+            }
+
+            // Filtro por estado
+            if (!string.IsNullOrWhiteSpace(estado) &&
+                Enum.TryParse<EstadoDonacion>(
+                    estado,
+                    true,
+                    out var estadoDonacion))
+            {
+                query = query.Where(d =>
+                    d.Estado == estadoDonacion);
+            }
+
+            var donaciones = await query
+                .OrderByDescending(d => d.Fecha)
+                .Select(d => new AdminDonacionItemViewModel
+                {
+                    Id = d.Id,
+                    NumeroReferencia = d.NumeroReferencia,
+                    Empresa = d.Empresa.RazonSocial,
+                    Tipo = d.Tipo,
+                    Cantidad = d.Cantidad,
+                    Descripcion = d.Descripcion,
+                    FotoRuta = d.FotoRuta,
+                    Fecha = d.Fecha,
+                    Estado = d.Estado
+                })
+                .ToListAsync();
+
+            var model = new AdminDonacionViewModel
+            {
+                Donaciones = donaciones,
+                Busqueda = busqueda,
+                EstadoFiltro = estado
+            };
+
+            return View(model);
         }
         // =========================================================
         // DETALLE DE SOLICITUD
