@@ -381,6 +381,42 @@ namespace Vinculo.Migrations
                     b.ToTable("Instituciones");
                 });
 
+            modelBuilder.Entity("Vinculo.Models.Observacion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AsignacionId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("DonacionId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Mensaje")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int?>("SolicitudId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AsignacionId");
+
+                    b.HasIndex("DonacionId");
+
+                    b.HasIndex("SolicitudId");
+
+                    b.ToTable("Observaciones");
+                });
+
             modelBuilder.Entity("Vinculo.Models.Solicitud", b =>
                 {
                     b.Property<int>("Id")
@@ -613,6 +649,30 @@ namespace Vinculo.Migrations
                     b.Navigation("Usuario");
                 });
 
+            modelBuilder.Entity("Vinculo.Models.Observacion", b =>
+                {
+                    b.HasOne("Vinculo.Models.Asignacion", "Asignacion")
+                        .WithMany("Observaciones")
+                        .HasForeignKey("AsignacionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Vinculo.Models.Donacion", "Donacion")
+                        .WithMany("Observaciones")
+                        .HasForeignKey("DonacionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Vinculo.Models.Solicitud", "Solicitud")
+                        .WithMany("Observaciones")
+                        .HasForeignKey("SolicitudId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Asignacion");
+
+                    b.Navigation("Donacion");
+
+                    b.Navigation("Solicitud");
+                });
+
             modelBuilder.Entity("Vinculo.Models.Solicitud", b =>
                 {
                     b.HasOne("Vinculo.Models.Institucion", "Institucion")
@@ -624,9 +684,16 @@ namespace Vinculo.Migrations
                     b.Navigation("Institucion");
                 });
 
+            modelBuilder.Entity("Vinculo.Models.Asignacion", b =>
+                {
+                    b.Navigation("Observaciones");
+                });
+
             modelBuilder.Entity("Vinculo.Models.Donacion", b =>
                 {
                     b.Navigation("Asignaciones");
+
+                    b.Navigation("Observaciones");
                 });
 
             modelBuilder.Entity("Vinculo.Models.Empresa", b =>
@@ -642,6 +709,8 @@ namespace Vinculo.Migrations
             modelBuilder.Entity("Vinculo.Models.Solicitud", b =>
                 {
                     b.Navigation("Equipamientos");
+
+                    b.Navigation("Observaciones");
                 });
 #pragma warning restore 612, 618
         }

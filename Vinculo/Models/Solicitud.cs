@@ -16,5 +16,6 @@ namespace Vinculo.Models
         [Required]
         public EstadoSolicitud Estado { get; set; }
         public  List<DetalleSolicitud> Equipamientos { get; set; } = new List<DetalleSolicitud>();
+        public ICollection<Observacion> Observaciones { get; set; } = new List<Observacion>();
     }
 }

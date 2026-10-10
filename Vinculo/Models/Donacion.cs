@@ -35,8 +35,9 @@ namespace Vinculo.Models
         [Required]
         public EstadoDonacion Estado { get; set; }
 
-   
+
         public List<Asignacion>? Asignaciones { get; set; }
+        public ICollection<Observacion> Observaciones { get; set; } = new List<Observacion>();
 
     }
 }

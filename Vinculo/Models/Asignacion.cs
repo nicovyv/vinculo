@@ -24,5 +24,6 @@ namespace Vinculo.Models
         public DateTime Fecha { get; set; }
 
         public EstadoAsignacion Estado { get; set; }
+        public ICollection<Observacion> Observaciones { get; set; } = new List<Observacion>();
     }
 }
