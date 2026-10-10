@@ -170,18 +170,16 @@
                                     </td>
 
                                     <td class="pe-4 py-3 text-end">
+
                                         <button type="button"
                                                 class="btn btn-sm btn-outline-primary"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#detalleEmpresaModal"
-                                                data-razon="@empresa.RazonSocial"
-                                                data-cuit="@empresa.Cuit"
-                                                data-telefono="@empresa.Telefono"
-                                                data-email="@empresa.Email"
-                                                data-contacto="@empresa.PersonaContacto">
+                                                data-id="@empresa.Id">
                                             <i class="bi bi-eye me-1"></i>
                                             Ver detalle
                                         </button>
+
                                     </td>
                                 </tr>
                             }
@@ -278,6 +276,101 @@
 
                 <hr />
 
+                
+
+                <!-- Domicilio -->
+                <h6 class="fw-bold mb-3 text-corporate-primary">
+                    <i class="bi bi-geo-alt me-2 text-teal"></i>
+                    Domicilio
+                </h6>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <div class="small text-secondary">Calle y número</div>
+                        <div id="detalleDomicilio" class="fw-semibold">-</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="small text-secondary">Localidad y provincia</div>
+                        <div id="detalleLocalidad" class="fw-semibold">-</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="small text-secondary">Código postal</div>
+                        <div id="detalleCodigoPostal" class="fw-semibold">-</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="small text-secondary">Estado de la cuenta</div>
+                        <span id="detalleEstado" class="badge bg-secondary">-</span>
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <!-- Dashboard de donaciones -->
+                <h6 class="fw-bold mb-3 text-corporate-primary">
+                    <i class="bi bi-graph-up me-2 text-teal"></i>
+                    Actividad de donaciones
+                </h6>
+
+                <div class="row g-3">
+                    <div class="col-6 col-lg-3">
+                        <div class="card h-100 border-0 bg-light">
+                            <div class="card-body">
+                                <div class="small text-secondary mb-2">Total</div>
+                                <div id="detalleTotalDonaciones"
+                                     class="fs-3 fw-bold text-corporate-primary">
+                                    0
+                                </div>
+                                <div class="small text-secondary">Donaciones</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-lg-3">
+                        <div class="card h-100 border-0 bg-light">
+                            <div class="card-body">
+                                <div class="small text-secondary mb-2">Disponibles</div>
+                                <div id="detalleDisponibles"
+                                     class="fs-3 fw-bold text-success">
+                                    0
+                                </div>
+                                <div class="small text-secondary">Sin asignar</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-lg-3">
+                        <div class="card h-100 border-0 bg-light">
+                            <div class="card-body">
+                                <div class="small text-secondary mb-2">Asignadas</div>
+                                <div id="detalleAsignadas"
+                                     class="fs-3 fw-bold text-primary">
+                                    0
+                                </div>
+                                <div class="small text-secondary">En proceso</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-lg-3">
+                        <div class="card h-100 border-0 bg-light">
+                            <div class="card-body">
+                                <div class="small text-secondary mb-2">Entregadas</div>
+                                <div id="detalleEntregadas"
+                                     class="fs-3 fw-bold text-teal">
+                                    0
+                                </div>
+                                <div class="small text-secondary">Completadas</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="detalleEmpresaError"
+                     class="alert alert-danger mt-3 d-none"
+                     role="alert">
+                    No se pudo cargar el detalle de la empresa.
+                </div>
+                <hr class="my-4" />
                 <!-- Contacto -->
                 <h6 class="fw-bold mb-3 text-corporate-primary">
                     <i class="bi bi-person-lines-fill me-2 text-teal"></i>
@@ -328,24 +421,113 @@
 
 @section Scripts {
     <script>
-        document.getElementById('detalleEmpresaModal')
-            .addEventListener('show.bs.modal', function(event) {
-                const boton = event.relatedTarget;
+        const modalEmpresa = document.getElementById('detalleEmpresaModal');
+
+        modalEmpresa.addEventListener('show.bs.modal', async function(event) {
+            const boton = event.relatedTarget;
+            const id = boton?.dataset.id;
+            const error = document.getElementById('detalleEmpresaError');
+
+            const campos = [
+                'detalleRazon',
+                'detalleCuit',
+                'detalleTelefono',
+                'detalleEmail',
+                'detalleContacto',
+                'detalleDomicilio',
+                'detalleLocalidad',
+                'detalleCodigoPostal',
+                'detalleTotalDonaciones',
+                'detalleDisponibles',
+                'detalleAsignadas',
+                'detalleEntregadas'
+            ];
+
+            campos.forEach(campo => {
+                document.getElementById(campo).textContent = '-';
+            });
+
+            document.getElementById('detalleEstado').textContent = 'Cargando...';
+            document.getElementById('detalleEstado').className =
+                'badge bg-secondary';
+
+            error.classList.add('d-none');
+
+            if (!id) {
+                error.textContent = 'No se pudo identificar la empresa seleccionada.';
+                error.classList.remove('d-none');
+                return;
+            }
+
+            try {
+                const url = '@Url.Action("ObtenerDetalleEmpresa", "Administrador")'
+                    + '?id=' + encodeURIComponent(id);
+
+                const respuesta = await fetch(url);
+
+                if (!respuesta.ok) {
+                    throw new Error('Error al consultar el detalle.');
+                }
+
+                const empresa = await respuesta.json();
 
                 document.getElementById('detalleRazon').textContent =
-                    boton.dataset.razon || '-';
+                    empresa.razonSocial || '-';
 
                 document.getElementById('detalleCuit').textContent =
-                    boton.dataset.cuit || '-';
+                    empresa.cuit || '-';
 
                 document.getElementById('detalleTelefono').textContent =
-                    boton.dataset.telefono || '-';
+                    empresa.telefono || '-';
 
                 document.getElementById('detalleEmail').textContent =
-                    boton.dataset.email || '-';
+                    empresa.email || '-';
 
                 document.getElementById('detalleContacto').textContent =
-                    boton.dataset.contacto || '-';
-            });
+                    empresa.personaContacto || '-';
+
+                const domicilio = [empresa.calle, empresa.numero]
+                    .filter(Boolean).join(' ');
+
+                document.getElementById('detalleDomicilio').textContent =
+                    domicilio || '-';
+
+                const localidad = [
+                    empresa.localidad,
+                    empresa.provincia
+                ].filter(Boolean).join(', ');
+
+                document.getElementById('detalleLocalidad').textContent =
+                    localidad || '-';
+
+                document.getElementById('detalleCodigoPostal').textContent =
+                    empresa.codigoPostal || '-';
+
+                const estado = document.getElementById('detalleEstado');
+
+                estado.textContent = empresa.activo ? 'Activa' : 'Inactiva';
+                estado.className = 'badge ' +
+                    (empresa.activo ? 'bg-success' : 'bg-secondary');
+
+                document.getElementById('detalleTotalDonaciones').textContent =
+                    empresa.totalDonaciones;
+
+                document.getElementById('detalleDisponibles').textContent =
+                    empresa.disponibles;
+
+                document.getElementById('detalleAsignadas').textContent =
+                    empresa.asignadas;
+
+                document.getElementById('detalleEntregadas').textContent =
+                    empresa.entregadas;
+            }
+            catch (e) {
+                error.textContent =
+                    'No se pudo cargar el detalle. Intentá cerrar y volver a abrir el modal.';
+                error.classList.remove('d-none');
+
+                console.error(e);
+            }
+        });
     </script>
 }

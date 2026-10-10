@@ -671,6 +671,69 @@ namespace Vinculo.Controllers
         }
 
         // =========================================================
+        // OBTENER DETALLE DE EMPRESA PARA EL MODAL
+        // =========================================================
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerDetalleEmpresa(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var empresa = await _context.Empresas
+                .AsNoTracking()
+                .Include(e => e.Domicilio)
+                .Include(e => e.Usuario)
+                .FirstOrDefaultAsync(e => e.Id == id);
+
+            if (empresa == null)
+            {
+                return NotFound();
+            }
+
+            // Indicadores de donaciones de esta empresa
+            var donaciones = _context.Donaciones
+                .AsNoTracking()
+                .Where(d => d.EmpresaId == empresa.Id);
+
+            var totalDonaciones = await donaciones.CountAsync();
+
+            var disponibles = await donaciones.CountAsync(
+                d => d.Estado == EstadoDonacion.Disponible);
+
+            var asignadas = await donaciones.CountAsync(
+                d => d.Estado == EstadoDonacion.Asignada);
+
+            var entregadas = await donaciones.CountAsync(
+                d => d.Estado == EstadoDonacion.Entregada);
+
+            return Json(new
+            {
+                id = empresa.Id,
+                razonSocial = empresa.RazonSocial,
+                cuit = empresa.Cuit,
+                email = empresa.Email,
+                telefono = empresa.Telefono,
+                personaContacto = empresa.PersonaContacto ?? "",
+                activo = empresa.Usuario.Activo,
+
+                calle = empresa.Domicilio?.Calle ?? "",
+                numero = empresa.Domicilio?.Numero ?? "",
+                localidad = empresa.Domicilio?.Localidad ?? "",
+                provincia = empresa.Domicilio?.Provincia ?? "",
+                codigoPostal = empresa.Domicilio?.CodigoPostal ?? "",
+
+                totalDonaciones,
+                disponibles,
+                asignadas,
+                entregadas
+            });
+        }
+
+
+        // =========================================================
         // ADMINISTRACIÓN DE DONACIONES
         // =========================================================
 
