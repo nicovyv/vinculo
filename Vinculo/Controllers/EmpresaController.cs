@@ -17,8 +17,6 @@ namespace Vinculo.Controllers
         private readonly UserManager<Usuario> _userManager;
         private readonly NominatimService _nominatimService;
 
-
-        // constructor
         public EmpresaController(VinculoDbContext context, UserManager<Usuario> userManager, SignInManager<Usuario> signInManager, NominatimService nominatimService)
         {
             _context = context;
@@ -29,13 +27,11 @@ namespace Vinculo.Controllers
         // GET: Empresa/Index
         public async Task<IActionResult> Index()
         {
-            // Obtener el usuario actualmente logueado
             var user = await _userManager.GetUserAsync(User);
 
             var empresa = await _context.Empresas
                 .Include(e => e.Domicilio)
                 .FirstOrDefaultAsync(e => e.UsuarioId == user.Id);
-
 
             if (empresa == null)
                 return NotFound("No se encontró la empresa asociada a este usuario.");
@@ -45,7 +41,6 @@ namespace Vinculo.Controllers
             var asignadas = await _context.Donaciones.CountAsync(d => d.EmpresaId == empresa.Id && d.Estado == Vinculo.Models.Enums.EstadoDonacion.Asignada);
             var entregadas = await _context.Donaciones.CountAsync(d => d.EmpresaId == empresa.Id && d.Estado == Vinculo.Models.Enums.EstadoDonacion.Entregada);
 
-            // Mapear la entidad al ViewModel para mostrarlo en pantalla
             var model = new PerfilEmpresaViewModel
             {
                 Id = empresa.Id,
@@ -53,6 +48,7 @@ namespace Vinculo.Controllers
                 Cuit = empresa.Cuit,
                 Telefono = empresa.Telefono,
                 Email = empresa.Email,
+                PersonaContacto = empresa.PersonaContacto, 
                 Calle = empresa.Domicilio?.Calle,
                 Numero = empresa.Domicilio?.Numero,
                 Localidad = empresa.Domicilio?.Localidad,
@@ -70,8 +66,6 @@ namespace Vinculo.Controllers
             return View(model);
         }
 
-
-
         [HttpGet]
         public async Task<IActionResult> MisDatos()
         {
@@ -82,7 +76,6 @@ namespace Vinculo.Controllers
                 .Include(e => e.Domicilio)
                 .FirstOrDefaultAsync(e => e.UsuarioId == user.Id);
 
-            // Si es la primera vez que ingresa, le mandamos el formulario vacío
             if (empresa == null)
                 return View(new PerfilEmpresaViewModel());
 
@@ -93,18 +86,19 @@ namespace Vinculo.Controllers
                 Cuit = empresa.Cuit,
                 Telefono = empresa.Telefono,
                 Email = empresa.Email,
+                PersonaContacto = empresa.PersonaContacto, 
                 Calle = empresa.Domicilio?.Calle,
                 Numero = empresa.Domicilio?.Numero,
                 Localidad = empresa.Domicilio?.Localidad,
                 Provincia = empresa.Domicilio?.Provincia,
-                CodigoPostal = empresa.Domicilio?.CodigoPostal
+                CodigoPostal = empresa.Domicilio?.CodigoPostal,
+                Latitud = empresa.Domicilio?.Latitud,
+                Longitud = empresa.Domicilio?.Longitud
             };
 
             return View(model);
         }
 
-        // POST: Empresa/MisDatos
-        // POST: Empresa/MisDatos
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MisDatos(PerfilEmpresaViewModel model)
@@ -126,9 +120,10 @@ namespace Vinculo.Controllers
                 return NotFound("Perfil corporativo no encontrado.");
             }
 
-            // Actualizamos solo los datos permitidos
             empresa.Telefono = model.Telefono;
-            empresa.Email = model.Email;
+            empresa.PersonaContacto = model.PersonaContacto; 
+
+            
 
             if (empresa.Domicilio != null)
             {
@@ -146,7 +141,6 @@ namespace Vinculo.Controllers
 
             return RedirectToAction(nameof(MisDatos));
         }
-
 
         [HttpGet]
         public async Task<IActionResult> BuscarUbicacion(string calle, string numero, string localidad, string provincia, string? codigoPostal)
@@ -171,7 +165,5 @@ namespace Vinculo.Controllers
 
             return Json(new { calle = direccion.Road, numero = direccion.HouseNumber, localidad = localidad, provincia = direccion.State, codigoPostal = direccion.Postcode });
         }
-
-
     }
 }

@@ -14,28 +14,17 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb mb-1 text-secondary" style="font-size: 0.82rem;">
             <li class="breadcrumb-item"><a class="text-decoration-none text-secondary" asp-action="Index">Inicio</a></li>
-            <li aria-current="page" class="breadcrumb-item active text-corporate-primary fw-semibold">Mis Datos Corporativos</li>
+            <li aria-current="page" class="breadcrumb-item active text-corporate-primary fw-semibold">Mis Datos</li>
         </ol>
     </nav>
     <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 pt-1">
         <div>
             <h1 class="h3 fw-bold text-corporate-primary mb-1 d-flex align-items-center gap-2">
-                <span>Mis Datos Corporativos</span>
+                <span>Mis Datos</span>
                 <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-2.5 py-1" style="font-size: 0.72rem;">
                     <i class="bi bi-shield-check me-1"></i>Perfil Activo
                 </span>
             </h1>
-            <p class="text-secondary small mb-0 lh-base" style="max-width: 820px;">
-                Administración de personería jurídica, datos de contacto institucional y domicilio de despacho con geolocalización activa.
-            </p>
-        </div>
-        <div class="d-flex align-items-center gap-2 flex-shrink-0">
-            <button class="btn btn-outline-secondary btn-sm px-3 py-2 fw-medium d-flex align-items-center gap-1.5 shadow-sm" type="button" onclick="window.location.reload();">
-                <i class="bi bi-arrow-counterclockwise"></i><span>Descartar Cambios</span>
-            </button>
-            <button id="btnGuardarFinal" class="btn btn-teal btn-sm px-3.5 py-2 fw-medium d-flex align-items-center gap-2 shadow-sm" type="button" onclick="handleSaveProfile()">
-                <i class="bi bi-check2-circle fs-6"></i><span>Guardar Modificaciones</span>
-            </button>
         </div>
     </div>
 </div>
@@ -52,10 +41,10 @@
         <div class="card-body p-4">
             <div class="row g-3">
                 <div class="col-12 col-lg-8">
-                    <label asp-for="RazonSocial" class="form-label small fw-semibold text-corporate-primary mb-1">Razón Social Declarada <span class="text-danger">*</span></label>
+                    <label asp-for="RazonSocial" class="form-label small fw-semibold text-corporate-primary mb-1">Razón Social <span class="text-danger">*</span></label>
                     <div class="input-group">
                         <span class="input-group-text bg-body-tertiary text-secondary"><i class="bi bi-briefcase"></i></span>
-                        <input asp-for="RazonSocial" class="form-control fw-semibold text-dark" readonly type="text" />
+                        <input asp-for="RazonSocial" class="form-control font-monospace bg-light text-secondary" readonly type="text" />
                     </div>
                 </div>
                 <div class="col-12 col-lg-4">
@@ -65,18 +54,26 @@
                         <input asp-for="Cuit" class="form-control font-monospace bg-light text-secondary" readonly type="text" />
                     </div>
                 </div>
-                <div class="col-12 col-md-6">
-                    <label asp-for="Email" class="form-label small fw-semibold text-corporate-primary mb-1">Correo Electrónico Institucional <span class="text-danger">*</span></label>
+                
+                <div class="col-12 col-md-4">
+                    <label asp-for="PersonaContacto" class="form-label small fw-semibold text-corporate-primary mb-1">Persona a Cargo <span class="text-danger">*</span></label>
                     <div class="input-group">
-                        <span class="input-group-text bg-white text-secondary"><i class="bi bi-envelope text-teal"></i></span>
-                        <input asp-for="Email" class="form-control" type="email" required />
+                        <span class="input-group-text bg-white text-secondary"><i class="bi bi-person-badge text-teal"></i></span>
+                        <input asp-for="PersonaContacto" class="form-control" type="text" required />
                     </div>
                 </div>
-                <div class="col-12 col-md-6">
-                    <label asp-for="Telefono" class="form-label small fw-semibold text-corporate-primary mb-1">Teléfono de Contacto Operativo <span class="text-danger">*</span></label>
+                <div class="col-12 col-md-4">
+                    <label asp-for="Telefono" class="form-label small fw-semibold text-corporate-primary mb-1">Teléfono Operativo <span class="text-danger">*</span></label>
                     <div class="input-group">
                         <span class="input-group-text bg-white text-secondary"><i class="bi bi-telephone text-teal"></i></span>
                         <input asp-for="Telefono" class="form-control font-monospace" type="tel" required />
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <label asp-for="Email" class="form-label small fw-semibold text-corporate-primary mb-1">Correo Institucional <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-body-tertiary text-secondary"><i class="bi bi-envelope"></i></span>
+                        <input asp-for="Email" class="form-control font-monospace bg-light text-secondary" readonly type="email" />
                     </div>
                 </div>
             </div>
@@ -89,7 +86,7 @@
             <div class="rounded-2 bg-teal-subtle-custom text-teal d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
                 <i class="bi bi-geo-alt-fill fs-5"></i>
             </div>
-            <h2 class="h6 fw-bold text-corporate-primary mb-0">2. Domicilio de Retiro y Motor Geográfico</h2>
+            <h2 class="h6 fw-bold text-corporate-primary mb-0">2. Domicilio</h2>
         </div>
         <div class="card-body p-4">
             <div class="row g-4">
@@ -124,7 +121,7 @@
                             <option value="Santa Fe">Santa Fe</option>
                         </select>
                     </div>
-                    
+
                     <div class="d-flex flex-column flex-sm-row gap-2">
                         <button type="button" id="btnBuscarUbicacion" class="btn btn-teal btn-sm px-3 d-flex align-items-center justify-content-center gap-1">
                             <i class="bi bi-search"></i> Validar Ubicación
@@ -135,7 +132,7 @@
                     </div>
                     <div id="mensajeUbicacion" class="alert d-none small mt-3 mb-0" role="alert"></div>
                 </div>
-                
+
                 <!-- Columna Derecha: Mapa -->
                 <div class="col-12 col-xl-7">
                     <div class="bg-body-tertiary rounded-3 p-2 h-100 border border-light-subtle d-flex flex-column">
@@ -144,28 +141,48 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Coordenadas Ocultas para SQL -->
             <input asp-for="Latitud" type="hidden" id="Latitud" />
             <input asp-for="Longitud" type="hidden" id="Longitud" />
         </div>
     </div>
+    
+    <!-- BOTONES DE ACCIÓN MOVIDOS AQUÍ -->
+    <div class="d-flex align-items-center justify-content-end gap-2 mt-4">
+        <button class="btn btn-outline-secondary px-4 py-2 fw-medium d-flex align-items-center gap-1.5 shadow-sm" type="button" onclick="window.location.reload();">
+            <i class="bi bi-arrow-counterclockwise"></i><span>Descartar Cambios</span>
+        </button>
+        <button id="btnGuardarFinal" class="btn btn-teal px-4 py-2 fw-medium d-flex align-items-center gap-2 shadow-sm" type="button" onclick="handleSaveProfile()">
+            <i class="bi bi-check2-circle fs-6"></i><span>Guardar Modificaciones</span>
+        </button>
+    </div>
 </form>
+
+<!-- Pie de Módulo / Certificación Institucional -->
+<div class="mt-5 pt-4 border-top border-light-subtle d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 text-secondary small">
+    <div class="d-flex align-items-center gap-3">
+        <img alt="Eisbaer Logo" class="img-fluid opacity-75" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBo-17XWs1TbXjug6LezZr3BxNSZHwcUWe1RZYB1YMtBEcWqnYQ797BIfPkTtDn5VcYKEA_M8-E7sYwAvDxTqPhQ_q95KZ3D6uSWFuR2pIl0FcaYg8gF5I2ARsk6e1Wu6ShBXzhBL_LHp2HZwgblUxV9EOu0501awblbwqZw-cmPkUXbGUw0Oy8HOKOlsK5EQnczwKstL-0w_7Dfb4hrtvnf3zMPFZqW-M_Qx7XkzC53NM6ht9VWyohnUrNy4wZ_YDIZT4" style="width: 36px; height: 36px; object-fit: contain;" />
+        <div>
+            <div class="fw-semibold text-corporate-primary">Vínculo · Módulo Mis Datos</div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-    
+
     <script>
         let ubicacionValida = false;
-        
+
         document.addEventListener("DOMContentLoaded", function () {
             const latitudInicial = @(Model.Latitud.HasValue ? Model.Latitud.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) : "null");
             const longitudInicial = @(Model.Longitud.HasValue ? Model.Longitud.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) : "null");
-            
+
             const mapa = L.map("mapaDomicilio").setView([-34.6037, -58.3816], 12);
             L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "&copy; OSM" }).addTo(mapa);
-            
+
             let marcador = null;
             ubicacionValida = latitudInicial !== null && longitudInicial !== null;
 
@@ -177,22 +194,21 @@
             }
 
            function actualizarCoordenadas(lat, lng) {
-    // Reemplazamos el punto por coma para que el ModelBinder de C# lo entienda correctamente
-    document.getElementById("Latitud").value = lat.toString().replace('.', ',');
-    document.getElementById("Longitud").value = lng.toString().replace('.', ',');
-}   
+                document.getElementById("Latitud").value = lat.toString().replace('.', ',');
+                document.getElementById("Longitud").value = lng.toString().replace('.', ',');
+           }   
 
             function colocarMarcador(lat, lng, zoom = 16) {
                 if (marcador) mapa.removeLayer(marcador);
                 marcador = L.marker([lat, lng], { draggable: true }).addTo(mapa);
-                
+
                 marcador.on("dragend", async function (e) {
                     const pos = e.target.getLatLng();
                     actualizarCoordenadas(pos.lat, pos.lng);
                     ubicacionValida = false;
                     await actualizarDireccionDesdeMapa(pos.lat, pos.lng);
                 });
-                
+
                 mapa.setView([lat, lng], zoom);
                 actualizarCoordenadas(lat, lng);
             }
@@ -213,7 +229,7 @@
                     if (dir.localidad) document.getElementById("Localidad").value = dir.localidad;
                     if (dir.provincia) document.getElementById("Provincia").value = dir.provincia;
                     if (dir.codigoPostal) document.getElementById("CodigoPostal").value = dir.codigoPostal;
-                    
+
                     ubicacionValida = true;
                     mostrarMensaje("Dirección actualizada y vinculada al motor geográfico.", "success");
                 } catch (error) {
@@ -252,10 +268,10 @@
                 try {
                     const parametros = new URLSearchParams({ calle, numero, localidad, provincia, codigoPostal });
                     const response = await fetch(`@Url.Action("BuscarUbicacion", "Empresa")?${parametros.toString()}`);
-                    
+
                     if (!response.ok) throw new Error("No se pudo geolocalizar este domicilio.");
                     const resultado = await response.json();
-                    
+
                     colocarMarcador(resultado.latitud, resultado.longitud);
                     ubicacionValida = true;
                     mostrarMensaje("Ubicación enlazada correctamente.", "success");
@@ -284,7 +300,7 @@
                 );
             });
 
-            // Ajuste del mapa al cargar la pestaña (por si está oculto inicialmente)
+            // Ajuste del mapa al cargar la pestaña
             setTimeout(() => mapa.invalidateSize(), 500);
         });
 

@@ -20,6 +20,9 @@ namespace Vinculo.Models.ViewModels
         [Required(ErrorMessage = "El email es obligatorio")]
         [EmailAddress]
         public string Email { get; set; }
+        [Required(ErrorMessage = "La persona a cargo es obligatoria")]
+        [Display(Name = "Persona a Cargo")]
+        public string PersonaContacto { get; set; }
 
         // --- Datos del Domicilio ---
         [Required(ErrorMessage = "La calle es obligatoria")]
