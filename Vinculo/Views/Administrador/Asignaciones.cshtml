@@ -1,0 +1,243 @@
+﻿@model Vinculo.Models.ViewModels.AdminAsignacionViewModel
+
+@{
+    ViewData["Title"] = "Asignaciones";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <h2 class="fw-bold mb-1">Asignaciones</h2>
+            <p class="text-muted mb-0">
+                Consulta y seguimiento de las asignaciones registradas.
+            </p>
+        </div>
+
+        <span class="badge bg-secondary fs-6">
+            Total: @Model.Asignaciones.Count
+        </span>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form asp-controller="Administrador"
+                  asp-action="Asignaciones"
+                  method="get"
+                  class="row g-3">
+
+                <div class="col-lg-6">
+                    <label class="form-label">Buscar</label>
+                    <input type="text"
+                           name="busqueda"
+                           value="@Model.Busqueda"
+                           class="form-control"
+                           placeholder="Referencia, empresa o institución..." />
+                </div>
+
+                <div class="col-lg-3">
+                    <label class="form-label">Estado</label>
+                    <select name="estado" class="form-select">
+                        <option value="">Todos los estados</option>
+                        @foreach (var estado in Enum.GetValues<Vinculo.Models.Enums.EstadoAsignacion>())
+                        {
+                            if (Model.EstadoFiltro == estado.ToString())
+                            {
+                                <option value="@estado" selected>@estado</option>
+                            }
+                            else
+                            {
+                                <option value="@estado">@estado</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="col-lg-3 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-primary flex-fill">
+                        <i class="bi bi-search me-1"></i>Buscar
+                    </button>
+
+                    <a asp-controller="Administrador"
+                       asp-action="Asignaciones"
+                       class="btn btn-outline-secondary">
+                        Limpiar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Referencia</th>
+                            <th>Donación</th>
+                            <th>Empresa</th>
+                            <th>Institución</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model.Asignaciones.Any())
+                        {
+                            @foreach (var asignacion in Model.Asignaciones)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">
+                                        @asignacion.NumeroReferencia
+                                    </td>
+                                    <td>
+                                        @asignacion.ReferenciaDonacion
+                                        <div class="small text-muted">
+                                            @asignacion.Tipo
+                                        </div>
+                                    </td>
+                                    <td>@asignacion.Empresa</td>
+                                    <td>@asignacion.Institucion</td>
+                                    <td>@asignacion.Fecha.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        @switch (asignacion.Estado)
+                                        {
+                                            case Vinculo.Models.Enums.EstadoAsignacion.Activa:
+                                                <span class="badge bg-primary">Activa</span>
+                                                break;
+                                            case Vinculo.Models.Enums.EstadoAsignacion.Concretada:
+                                                <span class="badge bg-success">Concretada</span>
+                                                break;
+                                            case Vinculo.Models.Enums.EstadoAsignacion.Cancelada:
+                                                <span class="badge bg-secondary">Cancelada</span>
+                                                break;
+                                            default:
+                                                <span class="badge bg-light text-dark">@asignacion.Estado</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-primary"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#detalleAsignacionModal"
+                                                data-referencia="@asignacion.NumeroReferencia"
+                                                data-donacion="@asignacion.ReferenciaDonacion"
+                                                data-solicitud="@asignacion.ReferenciaSolicitud"
+                                                data-empresa="@asignacion.Empresa"
+                                                data-institucion="@asignacion.Institucion"
+                                                data-tipo="@asignacion.Tipo"
+                                                data-fecha="@asignacion.Fecha.ToString("dd/MM/yyyy")"
+                                                data-estado="@asignacion.Estado">
+                                            <i class="bi bi-eye me-1"></i>Detalle
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-muted">
+                                    No se encontraron asignaciones.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade"
+     id="detalleAsignacionModal"
+     tabindex="-1"
+     aria-labelledby="detalleAsignacionLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="detalleAsignacionLabel">
+                    <i class="bi bi-link-45deg me-2"></i>Detalle de asignación
+                </h5>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body">
+                <dl class="row mb-0">
+                    <dt class="col-5">Referencia</dt>
+                    <dd class="col-7" id="detalleReferencia"></dd>
+
+                    <dt class="col-5">Donación</dt>
+                    <dd class="col-7" id="detalleDonacion"></dd>
+
+                    <dt class="col-5">Solicitud</dt>
+                    <dd class="col-7" id="detalleSolicitud"></dd>
+
+                    <dt class="col-5">Empresa</dt>
+                    <dd class="col-7" id="detalleEmpresa"></dd>
+
+                    <dt class="col-5">Institución</dt>
+                    <dd class="col-7" id="detalleInstitucion"></dd>
+
+                    <dt class="col-5">Equipamiento</dt>
+                    <dd class="col-7" id="detalleTipo"></dd>
+
+                    <dt class="col-5">Fecha</dt>
+                    <dd class="col-7" id="detalleFecha"></dd>
+
+                    <dt class="col-5">Estado</dt>
+                    <dd class="col-7" id="detalleEstado"></dd>
+                </dl>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('detalleAsignacionModal')
+            .addEventListener('show.bs.modal', function(event) {
+                const boton = event.relatedTarget;
+
+                document.getElementById('detalleReferencia').textContent =
+                    boton.dataset.referencia || '-';
+
+                document.getElementById('detalleDonacion').textContent =
+                    boton.dataset.donacion || '-';
+
+                document.getElementById('detalleSolicitud').textContent =
+                    boton.dataset.solicitud || '-';
+
+                document.getElementById('detalleEmpresa').textContent =
+                    boton.dataset.empresa || '-';
+
+                document.getElementById('detalleInstitucion').textContent =
+                    boton.dataset.institucion || '-';
+
+                document.getElementById('detalleTipo').textContent =
+                    boton.dataset.tipo || '-';
+
+                document.getElementById('detalleFecha').textContent =
+                    boton.dataset.fecha || '-';
+
+                document.getElementById('detalleEstado').textContent =
+                    boton.dataset.estado || '-';
+            });
+    </script>
+}

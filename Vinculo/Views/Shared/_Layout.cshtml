@@ -209,28 +209,15 @@
                             </a>
 
 
-                            <!-- Asignaciones - FALTA IMPLEMENTAR -->
-                            <a class="nav-sidebar-link"
-                               href="#">
+                            <!-- Asignaciones - Implementado -->
+                            <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Administrador" && ViewContext.RouteData.Values["Action"]?.ToString() == "Asignaciones" ? "active" : "")"
+                               asp-controller="Administrador"
+                               asp-action="Asignaciones">                             
 
                                 <i class="bi bi-arrow-left-right fs-5"></i>
                                 <span>Asignaciones</span>
 
                             </a>
-
-                            @*
-        Cuando exista la acción:
-
-        <a class="nav-sidebar-link"
-           asp-controller="Administrador"
-           asp-action="Asignaciones">
-
-            <i class="bi bi-arrow-left-right fs-5"></i>
-            <span>Asignaciones</span>
-
-        </a>
-    *@
-
 
                             <!-- Logística y Entregas - FALTA IMPLEMENTAR -->
                             <a class="nav-sidebar-link"

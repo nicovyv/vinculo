@@ -674,6 +674,68 @@ namespace Vinculo.Controllers
             return View(model);
         }
 
-    }
 
+        // =========================================================
+        // DETALLE DE Asignaciones
+        // =========================================================
+
+        [HttpGet]
+        public async Task<IActionResult> Asignaciones(
+            string? busqueda,
+            string? estado)
+        {
+            var query = _context.Asignaciones
+                .AsNoTracking()
+                .Include(a => a.Donacion)
+                    .ThenInclude(d => d.Empresa)
+                .Include(a => a.Solicitud)
+                    .ThenInclude(s => s.Institucion)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(busqueda))
+            {
+                busqueda = busqueda.Trim();
+
+                query = query.Where(a =>
+                    a.NumeroReferencia.Contains(busqueda) ||
+                    a.Donacion.NumeroReferencia.Contains(busqueda) ||
+                    a.Solicitud.NumeroReferencia.Contains(busqueda) ||
+                    a.Donacion.Empresa.RazonSocial.Contains(busqueda) ||
+                    a.Solicitud.Institucion.Nombre.Contains(busqueda));
+            }
+
+            if (!string.IsNullOrWhiteSpace(estado) &&
+                Enum.TryParse<EstadoAsignacion>(
+                    estado, true, out var estadoAsignacion))
+            {
+                query = query.Where(a => a.Estado == estadoAsignacion);
+            }
+
+            var asignaciones = await query
+                .OrderByDescending(a => a.Fecha)
+                .Select(a => new AdminAsignacionItemViewModel
+                {
+                    Id = a.Id,
+                    NumeroReferencia = a.NumeroReferencia,
+                    ReferenciaDonacion = a.Donacion.NumeroReferencia,
+                    ReferenciaSolicitud = a.Solicitud.NumeroReferencia,
+                    Empresa = a.Donacion.Empresa.RazonSocial,
+                    Institucion = a.Solicitud.Institucion.Nombre,
+                    Tipo = a.Donacion.Tipo,
+                    Fecha = a.Fecha,
+                    Estado = a.Estado
+                })
+                .ToListAsync();
+
+            var modelo = new AdminAsignacionViewModel
+            {
+                Asignaciones = asignaciones,
+                Busqueda = busqueda,
+                EstadoFiltro = estado
+            };
+
+            return View(modelo);
+        }
+
+    }
 }
