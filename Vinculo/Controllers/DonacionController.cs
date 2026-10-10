@@ -82,7 +82,7 @@ namespace Vinculo.Controllers
             {
                 NumeroReferencia = GenerarReferenciaDonacion(), 
                 EmpresaId = empresa.Id,
-                Tipo = model.Tipo,
+                Tipo = model.Tipo.Value,
                 Cantidad = model.Cantidad,
                 Descripcion = model.Descripcion,
                 FotoRuta = rutaRelativaBd,

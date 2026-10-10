@@ -8,7 +8,7 @@ namespace Vinculo.Models.ViewModels
     {
         [Required(ErrorMessage = "Seleccione el tipo de equipamiento.")]
         [Display(Name = "Tipo de Equipamiento")]
-        public TipoEquipamiento Tipo { get; set; }
+        public TipoEquipamiento? Tipo { get; set; }
 
         [Required(ErrorMessage = "La cantidad es obligatoria.")]
         [Range(1, int.MaxValue, ErrorMessage = "La cantidad debe ser mayor a 0")]

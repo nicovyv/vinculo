@@ -7,7 +7,6 @@
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb mb-1">
             <li class="breadcrumb-item"><a class="text-decoration-none fw-semibold" asp-controller="Empresa" asp-action="Index" style="color: #0e9aa7;"><i class="bi bi-house-door me-1"></i>Inicio</a></li>
-            <li class="breadcrumb-item"><a class="text-decoration-none text-secondary" href="#">Mis Donaciones</a></li>
             <li aria-current="page" class="breadcrumb-item active text-dark fw-semibold">Registrar Donación</li>
         </ol>
     </nav>
@@ -37,16 +36,13 @@
             <!-- COLUMNA IZQUIERDA: DATOS -->
             <div class="col-lg-8">
 
-                <!-- Tarjeta 1: Empresa (Estática visualmente para el despachante) -->
+                <!-- Tarjeta 1: Empresa -->
                 <div class="card border border-light-subtle shadow-sm mb-4 rounded-3">
                     <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom border-light-subtle">
                         <div class="d-flex align-items-center gap-2">
                             <span class="d-inline-flex align-items-center justify-content-center text-white rounded-circle fw-bold" style="width: 28px; height: 28px; background-color: #0f2a47;">1</span>
-                            <h2 class="h6 fw-bold mb-0 text-dark">Centro de Despacho Logístico</h2>
+                            <h2 class="h6 fw-bold mb-0 text-dark">Ubicación</h2>
                         </div>
-                        <span class="badge bg-success-subtle text-success-emphasis rounded-pill px-2.5 py-1 small">
-                            <i class="bi bi-check2-circle me-1"></i>Verificado
-                        </span>
                     </div>
                     <div class="card-body p-4">
                         <div class="p-3 rounded-3" style="background-color: #f8f9ff; border: 1px solid #d5e3fc;">
@@ -58,12 +54,12 @@
                             <div class="row g-2 align-items-center bg-white p-2 rounded-2 border border-light-subtle">
                                 <div class="col-auto">
                                     <span class="badge py-2 px-3 text-white rounded-2" style="background-color: #0f2a47;">
-                                        <i class="bi bi-radar me-1"></i> Nodo Activo
+                                        <i class="bi bi-radar me-1"></i>
                                     </span>
                                 </div>
                                 <div class="col">
                                     <p class="small text-secondary mb-0">
-                                        Se utilizará el domicilio corporativo registrado en tu perfil para calcular las distancias.
+                                        Se utilizará el domicilio registrado en tu perfil para calcular las distancias.
                                     </p>
                                 </div>
                             </div>
@@ -71,7 +67,7 @@
                     </div>
                 </div>
 
-                <!-- Tarjeta 2: Formulario del Equipo (Conectado al ViewModel) -->
+                <!-- Tarjeta 2: Formulario del Equipo -->
                 <div class="card border border-light-subtle shadow-sm rounded-3">
                     <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom border-light-subtle">
                         <div class="d-flex align-items-center gap-2">
@@ -84,7 +80,7 @@
                             <div class="col-md-6">
                                 <label asp-for="Tipo" class="form-label small fw-semibold text-secondary mb-1">Tipo de Equipamiento *</label>
                                 <select asp-for="Tipo" class="form-select fw-semibold text-dark" asp-items="Html.GetEnumSelectList<Vinculo.Models.Enums.TipoEquipamiento>()">
-                                    <option value="">Seleccione categoría...</option>
+                                    <option value="" selected disabled>Seleccione categoría...</option>
                                 </select>
                                 <span asp-validation-for="Tipo" class="text-danger small mt-1 d-block"></span>
                             </div>
@@ -118,44 +114,28 @@
             <!-- COLUMNA DERECHA: PANELES LATERALES -->
             <div class="col-lg-4">
 
-                <!-- Tarjeta GeoNode -->
-                <div class="card border-0 shadow-sm mb-4 rounded-3 text-white overflow-hidden" style="background: linear-gradient(145deg, #0f2a47 0%, #00181b 100%);">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="badge rounded-pill text-white border border-light-subtle px-3 py-1" style="background-color: rgba(14, 154, 167, 0.35);">
-                                <i class="bi bi-radar me-1"></i> Motor Eisbaer GeoNode
-                            </span>
-                            <span class="spinner-grow spinner-grow-sm text-info" role="status"></span>
-                        </div>
-                        <h3 class="h5 fw-bold mb-2">Matching Preventivo</h3>
-                        <p class="small text-light-emphasis mb-3">
-                            Al publicar, el algoritmo notificará automáticamente a las instituciones educativas dentro del radio operativo.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Tarjeta Protocolos -->
+                <!-- Tarjeta Guía de Preparación -->
                 <div class="card border border-light-subtle shadow-sm mb-4 rounded-3">
                     <div class="card-header bg-white py-3 border-bottom border-light-subtle">
                         <h3 class="h6 fw-bold mb-0 text-dark">
-                            <i class="bi bi-file-earmark-check me-2" style="color: #0e9aa7;"></i>Compromiso Eisbaer
+                            <i class="bi bi-info-circle me-2" style="color: #0e9aa7;"></i>Guía de Preparación
                         </h3>
                     </div>
-                    <div class="card-body p-3">
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" type="checkbox" id="checkDoD" required checked>
-                            <label class="form-check-label small text-dark" for="checkDoD">
-                                <strong>Borrado Seguro de Datos Certificado</strong>
-                                <div class="text-secondary" style="font-size: 11px;">Garantizo que el equipo no posee información confidencial.</div>
-                            </label>
-                        </div>
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" type="checkbox" id="checkTitularidad" required checked>
-                            <label class="form-check-label small text-dark" for="checkTitularidad">
-                                <strong>Titularidad Dominial de Activos</strong>
-                                <div class="text-secondary" style="font-size: 11px;">Baja patrimonial legítima.</div>
-                            </label>
-                        </div>
+                    <div class="card-body p-4">
+                        <ul class="list-unstyled mb-0 d-flex flex-column gap-3 small text-secondary">
+                            <li class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check-circle-fill text-teal mt-1"></i>
+                                <span><strong>Higiene y limpieza:</strong> Entregar el equipo en buenas condiciones físicas.</span>
+                            </li>
+                            <li class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check-circle-fill text-teal mt-1"></i>
+                                <span><strong>Accesibilidad:</strong> Recuerda remover contraseñas o cuentas de usuario.</span>
+                            </li>
+                            <li class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check-circle-fill text-teal mt-1"></i>
+                                <span><strong>Accesorios:</strong> Si es posible, incluye sus respectivos cargadores y cables de alimentación.</span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
 
@@ -177,6 +157,16 @@
             </div>
         </div>
     </form>
+    
+    <!-- Pie de Módulo / Certificación Institucional -->
+    <div class="mt-5 pt-4 border-top border-light-subtle d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 text-secondary small">
+        <div class="d-flex align-items-center gap-3">
+            <img alt="Eisbaer Logo" class="img-fluid opacity-75" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBo-17XWs1TbXjug6LezZr3BxNSZHwcUWe1RZYB1YMtBEcWqnYQ797BIfPkTtDn5VcYKEA_M8-E7sYwAvDxTqPhQ_q95KZ3D6uSWFuR2pIl0FcaYg8gF5I2ARsk6e1Wu6ShBXzhBL_LHp2HZwgblUxV9EOu0501awblbwqZw-cmPkUXbGUw0Oy8HOKOlsK5EQnczwKstL-0w_7Dfb4hrtvnf3zMPFZqW-M_Qx7XkzC53NM6ht9VWyohnUrNy4wZ_YDIZT4" style="width: 36px; height: 36px; object-fit: contain;" />
+            <div>
+                <div class="fw-semibold text-corporate-primary">Vínculo · Módulo Nueva Donación</div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
