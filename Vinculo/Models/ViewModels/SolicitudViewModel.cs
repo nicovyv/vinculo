@@ -15,6 +15,7 @@ namespace Vinculo.Models.ViewModels
         public EstadoSolicitud Estado { get; set; }
 
         public List<DetalleSolicitudViewModel> Detalles { get; set; } = new();
+        public List<ObservacionViewModel> Observaciones { get; set; } = new();
     }
 
     public class DetalleSolicitudViewModel
@@ -27,4 +28,10 @@ namespace Vinculo.Models.ViewModels
         [Range(1, int.MaxValue, ErrorMessage = "La cantidad debe ser mayor a 0")]
         public int Cantidad { get; set; }
     }
+    public class ObservacionViewModel
+    {
+        public string Mensaje { get; set; } = string.Empty;
+
+        public DateTime Fecha { get; set; }
+    }   
 }

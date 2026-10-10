@@ -41,6 +41,7 @@ namespace Vinculo.Controllers
             var solicitudes = await _context.Solicitudes
                 .AsNoTracking()
                 .Include(s => s.Equipamientos)
+                .Include(s => s.Observaciones)
                 .Where(s => s.InstitucionId == institucion.Id)
                 .OrderByDescending(s => s.Fecha)
                 .ToListAsync();
@@ -58,6 +59,14 @@ namespace Vinculo.Controllers
                         {
                             TipoEquipamiento = d.TipoEquipamiento,
                             Cantidad = d.Cantidad
+                        })
+                        .ToList(),
+                    Observaciones = s.Observaciones
+                        .OrderByDescending(o => o.Fecha)
+                        .Select(o => new ObservacionViewModel
+                        {
+                            Mensaje = o.Mensaje,
+                            Fecha = o.Fecha
                         })
                         .ToList()
                 })

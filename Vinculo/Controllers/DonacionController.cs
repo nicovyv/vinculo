@@ -80,7 +80,7 @@ namespace Vinculo.Controllers
 
             var nuevaDonacion = new Donacion
             {
-                NumeroReferencia = GenerarReferenciaDonacion(), 
+                NumeroReferencia = GenerarReferenciaDonacion(),
                 EmpresaId = empresa.Id,
                 Tipo = model.Tipo.Value,
                 Cantidad = model.Cantidad,
@@ -213,13 +213,33 @@ namespace Vinculo.Controllers
                 Estado = EstadoAsignacion.Activa
             };
 
+
             _context.Asignaciones.Add(asignacion);
 
             // Actualizamos los estados relacionados
             donacion.Estado = EstadoDonacion.Asignada;
             solicitud.Estado = EstadoSolicitud.EnCoordinacion;
 
+            // Registramos el movimiento en el historial.
+            // Una sola observación queda vinculada a los tres registros.
+            var observacion = new Observacion
+            {
+                Mensaje = $"Se creó la asignación {asignacion.NumeroReferencia} " +
+                          $"para la donación {donacion.NumeroReferencia} " +
+                          $"y la solicitud {solicitud.NumeroReferencia}.",
+
+                Fecha = DateTime.Now,
+
+                Donacion = donacion,
+                Solicitud = solicitud,
+                Asignacion = asignacion
+            };
+
+            _context.Observaciones.Add(observacion);
+
+            // Guardamos la asignación, los estados y la observación juntos.
             await _context.SaveChangesAsync();
+
 
             TempData["Success"] = "La donación fue asignada correctamente.";
 
