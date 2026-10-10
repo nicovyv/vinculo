@@ -1,7 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Vinculo.Data;
 using Vinculo.Models;
+using Vinculo.Models.Enums;
 using Vinculo.Models.ViewModels;
+
 
 namespace Vinculo.Controllers
 {
@@ -9,12 +13,16 @@ namespace Vinculo.Controllers
     {
         private readonly SignInManager<Usuario> _signInManager;
         private readonly UserManager<Usuario> _userManager;
+        private readonly VinculoDbContext _context;
 
-        public UsuarioController(SignInManager<Usuario> signInManager, UserManager<Usuario> userManager)
+
+        public UsuarioController(SignInManager<Usuario> signInManager, UserManager<Usuario> userManager, VinculoDbContext context)
         {
             _signInManager = signInManager;
             _userManager = userManager;
+            _context = context;
         }
+
         [HttpGet]
         public IActionResult Login()
         {
@@ -79,5 +87,119 @@ namespace Vinculo.Controllers
             await _signInManager.SignOutAsync();
             return RedirectToAction("Login", "Usuario");
         }
+
+
+        // --- REGISTRO ---
+        [HttpGet]
+        public IActionResult Registro()
+        {
+            // Devuelve la vista Registro.cshtml ubicada en Views/Usuario/
+            return View(new RegistroOrganizacionViewModel());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Registro(RegistroOrganizacionViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            // 1. Validar que el correo no exista
+            var existingUser = await _userManager.FindByEmailAsync(model.Email);
+            if (existingUser != null)
+            {
+                ModelState.AddModelError("Email", "El correo electrónico ya se encuentra registrado.");
+                return View(model);
+            }
+
+            // 2. Determinar el Tipo de Usuario
+            var tipoUsuario = model.TipoOrganizacion == "empresa" ? TipoUsuario.Empresa : TipoUsuario.Institucion;
+
+            // 3. Crear Credenciales Identity
+            var newUser = new Usuario
+            {
+                UserName = model.Email,
+                Email = model.Email,
+                TipoUsuario = tipoUsuario,
+                Activo = true,
+                FechaAlta = DateTime.Now,
+                EmailConfirmed = true
+            };
+
+            var result = await _userManager.CreateAsync(newUser, model.Password);
+
+            if (result.Succeeded)
+            {
+                // 4. Asignar el Rol correspondiente
+                await _userManager.AddToRoleAsync(newUser, tipoUsuario.ToString());
+
+                // 5. Crear Entidad de Domicilio
+                var domicilio = new Domicilio
+                {
+                    Calle = model.Calle,
+                    Numero = model.Numero,
+                    Localidad = model.Localidad,
+                    Provincia = model.Provincia,
+                    CodigoPostal = model.CodigoPostal,
+                    Latitud = model.Latitud,
+                    Longitud = model.Longitud
+                };
+
+                // 6. Crear Entidad Institución o Empresa
+                if (tipoUsuario == TipoUsuario.Empresa)
+                {
+                    var empresa = new Empresa
+                    {
+                        UsuarioId = newUser.Id,
+                        RazonSocial = model.NombreRazonSocial,
+                        Cuit = model.Cuit,
+                        Telefono = model.Telefono,
+                        Email = model.Email,
+                        PersonaContacto = model.PersonaContacto,
+                        Domicilio = domicilio
+                    };
+                    _context.Empresas.Add(empresa);
+                }
+                else
+                {
+                    var institucion = new Institucion
+                    {
+                        UsuarioId = newUser.Id,
+                        Nombre = model.NombreRazonSocial,
+                        Cuit = model.Cuit,
+                        Telefono = model.Telefono,
+                        Email = model.Email,
+                        PersonaContacto = model.PersonaContacto,
+                        Domicilio = domicilio
+                    };
+                    _context.Instituciones.Add(institucion);
+                }
+
+                // Guardar las nuevas tablas relacionadas
+                await _context.SaveChangesAsync();
+
+                // 7. Iniciar sesión automáticamente después de registrarse
+                await _signInManager.SignInAsync(newUser, isPersistent: false);
+
+                // 8. Redirigir al panel correspondiente
+                if (tipoUsuario == TipoUsuario.Empresa)
+                    return RedirectToAction("Index", "Empresa");
+                else
+                    return RedirectToAction("Index", "Institucion");
+            }
+
+            // Capturar errores de Identity (ej. contraseñas débiles)
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
+            return View(model);
+        }
+
+
+
     }
 }

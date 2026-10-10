@@ -1,0 +1,326 @@
+﻿@model Vinculo.Models.ViewModels.RegistroOrganizacionViewModel
+@{
+    ViewData["Title"] = "Registro de Organización";
+}
+
+<style>
+    .font-tabular { font-variant-numeric: tabular-nums; }
+    .card-selectable {
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        border: 2px solid transparent;
+    }
+    .card-selectable.active {
+        border-color: var(--bs-primary);
+        background-color: #ffffff;
+        box-shadow: 0 .125rem .25rem rgba(15, 42, 71, 0.08) !important;
+    }
+    .card-selectable:not(.active) {
+        background-color: #eef3fb;
+        opacity: 0.9;
+    }
+    .card-selectable:not(.active):hover {
+        opacity: 1;
+        border-color: #cbd5e1;
+    }
+    .step-circle {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--bs-primary);
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+    .map-preview-container {
+        height: 220px;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+        border-radius: 0.375rem;
+    }
+    .map-badge-overlay {
+        position: absolute;
+        bottom: 12px;
+        left: 12px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(4px);
+    }
+</style>
+
+<div class="container my-4">
+
+    <!-- Columna Centrada para el Formulario -->
+    <div class="col-lg-10 col-xl-8 mx-auto">
+
+        <!-- Breadcrumb & Context Header -->
+        <div class="row align-items-end mb-4 gy-2">
+            <div class="col-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-1 small text-secondary">
+                        <li class="breadcrumb-item">Portal Vínculo</li>
+                        <li aria-current="page" class="breadcrumb-item active text-dark fw-medium">Alta de Organizaciones</li>
+                    </ol>
+                </nav>
+                <h1 class="h2 fw-bold text-dark mb-1">Registro de Organización</h1>
+                <p class="text-secondary mb-0">Conectamos capacidades corporativas IT con instituciones y comedores de impacto social.</p>
+            </div>
+        </div>
+
+        <form asp-action="Registro" method="post" id="registrationForm">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <!-- Selector de Tipo de Entidad -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <span class="text-uppercase text-secondary fw-semibold small" style="letter-spacing: 0.05em;">Paso Inicial</span>
+                            <h2 class="h5 fw-bold text-dark mb-0">Seleccione el Tipo de Entidad</h2>
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <!-- Card Institución Social -->
+                        <div class="col-md-6">
+                            <div class="card card-selectable active p-3 h-100 rounded-3" id="typeOptionOrg" onclick="selectRole('institucion')">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="p-2 rounded bg-light text-primary">
+                                        <i class="bi bi-building fs-4"></i>
+                                    </div>
+                                    <span class="badge rounded-circle bg-primary p-1 text-white" id="checkIconOrg">
+                                        <i class="bi bi-check-lg fs-6"></i>
+                                    </span>
+                                </div>
+                                <div class="mt-3">
+                                    <h5 class="fw-bold text-dark fs-6 mb-1">Institución Social</h5>
+                                    <p class="small text-secondary mb-2">Escuela pública, comedor comunitario, centro de formación o club barrial receptor.</p>
+                                </div>
+                                <input type="radio" asp-for="TipoOrganizacion" value="institucion" class="form-check-input visually-hidden" id="roleInstitucion" checked>
+                            </div>
+                        </div>
+
+                        <!-- Card Empresa Donante -->
+                        <div class="col-md-6">
+                            <div class="card card-selectable p-3 h-100 rounded-3" id="typeOptionCorp" onclick="selectRole('empresa')">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="p-2 rounded bg-white text-secondary">
+                                        <i class="bi bi-briefcase fs-4"></i>
+                                    </div>
+                                    <span class="badge rounded-circle bg-secondary-subtle p-1 text-transparent" id="checkIconCorp">
+                                        <i class="bi bi-check-lg fs-6 text-white opacity-0"></i>
+                                    </span>
+                                </div>
+                                <div class="mt-3">
+                                    <h5 class="fw-bold text-dark fs-6 mb-1">Empresa Donante</h5>
+                                    <p class="small text-secondary mb-2">Corporaciones, pymes y estudios que disponen de parque informático para trazabilidad y cesión.</p>
+                                </div>
+                                <input type="radio" asp-for="TipoOrganizacion" value="empresa" class="form-check-input visually-hidden" id="roleEmpresa">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 1: Datos de la Organización -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="step-circle">1</span>
+                        <div>
+                            <h3 class="h5 fw-bold text-dark mb-0">Datos de la Organización</h3>
+                            <small class="text-secondary">Información fiscal y datos de referencia operativa.</small>
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label asp-for="NombreRazonSocial" class="form-label fw-semibold small">Nombre o Razón Social <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input asp-for="NombreRazonSocial" class="form-control" type="text" placeholder="Ej. Asociación Civil o Empresa S.A." required>
+                                <span class="input-group-text bg-white text-primary"><i class="bi bi-patch-check-fill"></i></span>
+                            </div>
+                            <span asp-validation-for="NombreRazonSocial" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Cuit" class="form-label fw-semibold small mb-1">CUIT <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input asp-for="Cuit" class="form-control font-tabular" type="text" placeholder="Sin guiones" required>
+                                <span class="input-group-text bg-white text-secondary border-start-0"><i class="bi bi-hash"></i></span>
+                            </div>
+                            <span asp-validation-for="Cuit" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="PersonaContacto" class="form-label fw-semibold small">Persona de Contacto Directo <span class="text-danger">*</span></label>
+                            <input asp-for="PersonaContacto" class="form-control" type="text" required>
+                            <span asp-validation-for="PersonaContacto" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Telefono" class="form-label fw-semibold small">Teléfono de Contacto <span class="text-danger">*</span></label>
+                            <input asp-for="Telefono" class="form-control font-tabular" type="tel" required>
+                            <span asp-validation-for="Telefono" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 2: Domicilio y Geolocalización -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="step-circle">2</span>
+                            <div>
+                                <h3 class="h5 fw-bold text-dark mb-0">Domicilio</h3>
+                                <small class="text-secondary">Requerido para cálculo de radio logístico de retiro y entrega.</small>
+                            </div>
+                        </div>
+                        <i class="bi bi-compass text-secondary fs-4"></i>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label asp-for="Calle" class="form-label fw-semibold small">Calle / Avenida <span class="text-danger">*</span></label>
+                            <input asp-for="Calle" class="form-control" type="text" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Numero" class="form-label fw-semibold small">Número <span class="text-danger">*</span></label>
+                            <input asp-for="Numero" class="form-control font-tabular" type="text" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Localidad" class="form-label fw-semibold small">Localidad / Barrio <span class="text-danger">*</span></label>
+                            <input asp-for="Localidad" class="form-control" type="text" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Provincia" class="form-label fw-semibold small">Provincia <span class="text-danger">*</span></label>
+                            <select asp-for="Provincia" class="form-select" required>
+                                <option value="caba">Ciudad Autónoma de Buenos Aires</option>
+                                <option value="pba">Buenos Aires</option>
+                                <option value="cba">Córdoba</option>
+                                <option value="sfe">Santa Fe</option>
+                                <option value="mza">Mendoza</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="CodigoPostal" class="form-label fw-semibold small">Código Postal <span class="text-danger">*</span></label>
+                            <input asp-for="CodigoPostal" class="form-control font-tabular" type="text" required>
+                        </div>
+                    </div>
+
+                    <input type="hidden" asp-for="Latitud" id="Latitud" />
+                    <input type="hidden" asp-for="Longitud" id="Longitud" />
+                </div>
+            </div>
+
+            <!-- SECCIÓN 3: Credenciales de Acceso -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="step-circle">3</span>
+                        <div>
+                            <h3 class="h5 fw-bold text-dark mb-0">Credenciales de Acceso</h3>
+                            <small class="text-secondary">Acceso al panel institucional y trazabilidad de donaciones.</small>
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label asp-for="Email" class="form-label fw-semibold small">Correo Electrónico <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input asp-for="Email" class="form-control" type="email" placeholder="correo@organizacion.org.ar" required>
+                                <span class="input-group-text bg-white text-secondary"><i class="bi bi-at"></i></span>
+                            </div>
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Password" class="form-label fw-semibold small mb-1">Contraseña <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input asp-for="Password" class="form-control font-tabular" id="password" type="password" required>
+                                <button class="btn btn-outline-secondary" onclick="togglePass('password', this)" type="button"><i class="bi bi-eye"></i></button>
+                            </div>
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ConfirmPassword" class="form-label fw-semibold small">Confirmar Contraseña <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input asp-for="ConfirmPassword" class="form-control font-tabular" id="confirmPassword" type="password" required>
+                                <button class="btn btn-outline-secondary" onclick="togglePass('confirmPassword', this)" type="button"><i class="bi bi-eye"></i></button>
+                            </div>
+                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Términos y Envío -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4">
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" id="termsCheck" required>
+                        <label class="form-check-label small text-secondary" for="termsCheck">
+                            Acepto los <a class="text-primary fw-semibold text-decoration-underline" href="#">Términos y Condiciones</a> de la plataforma Vínculo.
+                        </label>
+                    </div>
+                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3">
+                        <button class="btn btn-primary px-4 py-2 fw-semibold" id="submitBtn" type="submit">
+                            <i class="bi bi-person-check-fill me-1"></i> Completar Registro
+                        </button>
+
+                        <div class="small text-secondary text-center text-sm-end">
+                            ¿Ya tenés cuenta? <a class="text-primary fw-bold text-decoration-none" asp-controller="Usuario" asp-action="Login">Iniciar sesión</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function selectRole(type) {
+            const orgCard = document.getElementById('typeOptionOrg');
+            const corpCard = document.getElementById('typeOptionCorp');
+            const checkOrg = document.getElementById('checkIconOrg');
+            const checkCorp = document.getElementById('checkIconCorp');
+            const radioOrg = document.getElementById('roleInstitucion');
+            const radioCorp = document.getElementById('roleEmpresa');
+
+            if (type === 'institucion') {
+                orgCard.classList.add('active');
+                corpCard.classList.remove('active');
+                radioOrg.checked = true;
+
+                checkOrg.className = 'badge rounded-circle bg-primary p-1 text-white';
+                checkCorp.className = 'badge rounded-circle bg-secondary-subtle p-1 text-transparent';
+            } else {
+                corpCard.classList.add('active');
+                orgCard.classList.remove('active');
+                radioCorp.checked = true;
+
+                checkCorp.className = 'badge rounded-circle bg-primary p-1 text-white';
+                checkOrg.className = 'badge rounded-circle bg-secondary-subtle p-1 text-transparent';
+            }
+        }
+
+        function togglePass(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'bi bi-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'bi bi-eye';
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const isEmpresa = document.getElementById('roleEmpresa').checked;
+            selectRole(isEmpresa ? 'empresa' : 'institucion');
+        });
+    </script>
+}
