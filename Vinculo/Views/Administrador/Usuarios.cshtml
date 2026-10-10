@@ -498,48 +498,51 @@
 
                                 </td>
 
-
-                                <!-- ACCIÓN -->
+                                <!-- ACCIONES -->
 
                                 <td class="pe-4 text-end">
+                                    <div class="d-inline-flex align-items-center gap-2">
 
-                                    <form asp-controller="Administrador"
-                                          asp-action="CambiarEstadoUsuario"
-                                          method="post"
-                                          class="d-inline">
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-primary btn-detalle-usuario"
+                                                data-id="@usuario.Id">
+                                            <i class="bi bi-eye me-1"></i>
+                                            Ver detalle
+                                        </button>
 
-                                        @Html.AntiForgeryToken()
+                                        <form asp-controller="Administrador"
+                                              asp-action="CambiarEstadoUsuario"
+                                              method="post"
+                                              class="d-inline">
 
-                                        <input type="hidden"
-                                               name="id"
-                                               value="@usuario.Id" />
+                                            @Html.AntiForgeryToken()
 
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@usuario.Id" />
 
-                                        @if (usuario.Activo)
-                                        {
-                                            <button type="submit"
-                                                    class="btn btn-sm btn-outline-danger">
+                                            @if (usuario.Activo)
+                                            {
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-outline-danger">
+                                                    <i class="bi bi-person-x me-1"></i>
+                                                    Desactivar
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-outline-success">
+                                                    <i class="bi bi-person-check me-1"></i>
+                                                    Activar
+                                                </button>
+                                            }
 
-                                                <i class="bi bi-person-x me-1"></i>
-                                                Desactivar
+                                        </form>
 
-                                            </button>
-                                        }
-                                        else
-                                        {
-                                            <button type="submit"
-                                                    class="btn btn-sm btn-outline-success">
-
-                                                <i class="bi bi-person-check me-1"></i>
-                                                Activar
-
-                                            </button>
-                                        }
-
-                                    </form>
-
+                                    </div>
                                 </td>
-
+                                
                             </tr>
                         }
 
@@ -574,3 +577,236 @@
     </div>
 
 </div>
+
+<!-- MODAL: DETALLE DE USUARIO -->
+
+<div class="modal fade"
+     id="modalDetalleUsuario"
+     tabindex="-1"
+     aria-labelledby="tituloModalUsuario"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title fw-bold"
+                        id="tituloModalUsuario">
+                        <i class="bi bi-person-vcard me-2"></i>
+                        Detalle de usuario
+                    </h5>
+
+                    <small class="text-secondary"
+                           id="detalleUsuarioId"></small>
+                </div>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Cerrar">
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <div id="cargandoDetalleUsuario"
+                     class="text-center py-4">
+                    <div class="spinner-border text-primary"
+                         role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="text-secondary mt-2 mb-0">
+                        Cargando información...
+                    </p>
+                </div>
+
+                <div id="errorDetalleUsuario"
+                     class="alert alert-danger d-none">
+                    No se pudo obtener el detalle del usuario.
+                </div>
+
+                <div id="contenidoDetalleUsuario" class="d-none">
+
+                    <div class="text-center py-3">
+                        <div class="rounded-circle bg-light text-primary
+                            d-inline-flex align-items-center
+                            justify-content-center mb-3"
+                             style="width:72px;height:72px;">
+                            <i class="bi bi-person-fill fs-1"></i>
+                        </div>
+
+                        <h5 class="fw-bold text-break"
+                            id="detalleUsuarioEmail"></h5>
+
+                        <span id="detalleUsuarioEstado"
+                              class="badge rounded-pill"></span>
+                    </div>
+
+                    <hr />
+
+                    <div class="row g-3">
+
+                        <div class="col-12">
+                            <div class="small text-secondary">
+                                Tipo de usuario
+                            </div>
+                            <div class="fw-semibold"
+                                 id="detalleUsuarioTipo"></div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="small text-secondary">Entidad asociada</div>
+                            <div id="detalleUsuarioEntidad" class="fw-semibold"></div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="small text-secondary">
+                                Fecha de alta
+                            </div>
+                            <div class="fw-semibold"
+                                 id="detalleUsuarioFecha"></div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="small text-secondary">
+                                Identificador
+                            </div>
+                            <div class="small text-break"
+                                 id="detalleUsuarioIdentificador"></div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Cerrar
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const modalElemento =
+                document.getElementById("modalDetalleUsuario");
+
+            const modal =
+                bootstrap.Modal.getOrCreateInstance(modalElemento);
+
+            const cargando =
+                document.getElementById("cargandoDetalleUsuario");
+
+            const contenido =
+                document.getElementById("contenidoDetalleUsuario");
+
+            const error =
+                document.getElementById("errorDetalleUsuario");
+
+            const urlDetalle =
+                '@Url.Action("ObtenerDetalleUsuario", "Administrador")';
+
+            function asignarTexto(id, valor) {
+                document.getElementById(id).textContent =
+                    valor === null || valor === undefined || valor === ""
+                        ? "No informado"
+                        : valor;
+            }
+
+            document.querySelectorAll(".btn-detalle-usuario")
+                .forEach(function(boton) {
+
+                    boton.addEventListener("click", async function() {
+                        const id = boton.dataset.id;
+
+                        cargando.classList.remove("d-none");
+                        contenido.classList.add("d-none");
+                        error.classList.add("d-none");
+
+                        modal.show();
+
+                        try {
+                            const respuesta = await fetch(
+                                `${urlDetalle}?id=${encodeURIComponent(id)}`,
+                                {
+                                    headers: {
+                                        "Accept": "application/json"
+                                    }
+                                }
+                            );
+
+                            if (!respuesta.ok) {
+                                throw new Error(
+                                    `Error HTTP ${respuesta.status}`
+                                );
+                            }
+
+                            const datos = await respuesta.json();
+
+                            asignarTexto(
+                                "detalleUsuarioId",
+                                `ID: ${datos.id}`
+                            );
+
+                            asignarTexto(
+                                "detalleUsuarioIdentificador",
+                                datos.id
+                            );
+
+                            asignarTexto(
+                                "detalleUsuarioEmail",
+                                datos.email
+                            );
+
+                            asignarTexto(
+                                "detalleUsuarioTipo",
+                                datos.tipoUsuario
+                            );
+                            document.getElementById("detalleUsuarioEntidad").textContent =
+                                datos.entidadAsociada;
+                            asignarTexto(
+                                "detalleUsuarioFecha",
+                                datos.fechaAltaTexto
+                            );
+
+                            const estado =
+                                document.getElementById(
+                                    "detalleUsuarioEstado"
+                                );
+
+                            estado.textContent = datos.activo
+                                ? "Activo"
+                                : "Inactivo";
+
+                            estado.className = datos.activo
+                                ? "badge rounded-pill bg-success-subtle text-success-emphasis border border-success-subtle"
+                                : "badge rounded-pill bg-secondary-subtle text-secondary border";
+
+                            cargando.classList.add("d-none");
+                            contenido.classList.remove("d-none");
+
+                        } catch (e) {
+                            cargando.classList.add("d-none");
+
+                            error.textContent =
+                                "No se pudo obtener el detalle del usuario. Revisá la consola del navegador para más información.";
+
+                            error.classList.remove("d-none");
+
+                            console.error(
+                                "Error al cargar el detalle del usuario:",
+                                e
+                            );
+                        }
+                    });
+                });
+        });
+    </script>
+}

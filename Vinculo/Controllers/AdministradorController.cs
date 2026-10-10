@@ -335,6 +335,74 @@ namespace Vinculo.Controllers
         }
 
         // =========================================================
+        // OBTENER DETALLE DE USUARIO PARA EL MODAL
+        // =========================================================
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerDetalleUsuario(string? id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return NotFound();
+            }
+
+            var usuario = await _userManager.FindByIdAsync(id);
+
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+
+            string tipoTexto;
+            string entidadAsociada;
+
+            switch (usuario.TipoUsuario)
+            {
+                case TipoUsuario.Empresa:
+                    tipoTexto = "Empresa";
+
+                    entidadAsociada = await _context.Empresas
+                        .AsNoTracking()
+                        .Where(e => e.UsuarioId == usuario.Id)
+                        .Select(e => e.RazonSocial)
+                        .FirstOrDefaultAsync()
+                        ?? "Sin empresa asociada";
+                    break;
+
+                case TipoUsuario.Institucion:
+                    tipoTexto = "Institución";
+
+                    entidadAsociada = await _context.Instituciones
+                        .AsNoTracking()
+                        .Where(i => i.UsuarioId == usuario.Id)
+                        .Select(i => i.Nombre)
+                        .FirstOrDefaultAsync()
+                        ?? "Sin institución asociada";
+                    break;
+
+                case TipoUsuario.Administrador:
+                    tipoTexto = "Administrador";
+                    entidadAsociada = "No corresponde";
+                    break;
+
+                default:
+                    tipoTexto = usuario.TipoUsuario.ToString();
+                    entidadAsociada = "Sin entidad asociada";
+                    break;
+            }
+
+            return Json(new
+            {
+                id = usuario.Id,
+                email = usuario.Email ?? "",
+                tipoUsuario = tipoTexto,
+                entidadAsociada = entidadAsociada,
+                fechaAltaTexto = usuario.FechaAlta.ToString("dd/MM/yyyy HH:mm"),
+                activo = usuario.Activo
+            });
+        }
+
+        // =========================================================
         // ADMINISTRACIÓN DE INSTITUCIONES
         // =========================================================
 
@@ -410,6 +478,58 @@ namespace Vinculo.Controllers
             };
 
             return View(model);
+        }
+
+        // =========================================================
+        // OBTENER DETALLE DE INSTITUCIÓN PARA EL MODAL
+        // =========================================================
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerDetalleInstitucion(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var institucion = await _context.Instituciones
+                .AsNoTracking()
+                .Include(i => i.Domicilio)
+                .Include(i => i.Usuario)
+                .Include(i => i.Solicitudes)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (institucion == null)
+            {
+                return NotFound();
+            }
+
+            return Json(new
+            {
+                id = institucion.Id,
+                nombre = institucion.Nombre,
+                cuit = institucion.Cuit,
+                email = institucion.Email,
+                telefono = institucion.Telefono,
+                personaContacto = institucion.PersonaContacto ?? "",
+                activo = institucion.Usuario.Activo,
+
+                calle = institucion.Domicilio?.Calle ?? "",
+                numero = institucion.Domicilio?.Numero ?? "",
+                localidad = institucion.Domicilio?.Localidad ?? "",
+                provincia = institucion.Domicilio?.Provincia ?? "",
+                codigoPostal = institucion.Domicilio?.CodigoPostal ?? "",
+
+                cantidadSolicitudes = institucion.Solicitudes.Count,
+                solicitudesPendientes = institucion.Solicitudes.Count(
+                    s => s.Estado == EstadoSolicitud.Pendiente),
+                solicitudesEnCoordinacion = institucion.Solicitudes.Count(
+                    s => s.Estado == EstadoSolicitud.EnCoordinacion),
+                solicitudesConcretadas = institucion.Solicitudes.Count(
+                    s => s.Estado == EstadoSolicitud.Concretado),
+                solicitudesCanceladas = institucion.Solicitudes.Count(
+                    s => s.Estado == EstadoSolicitud.Cancelada)
+            });
         }
 
         // =========================================================
@@ -611,11 +731,11 @@ namespace Vinculo.Controllers
             return View(model);
         }
         // =========================================================
-        // DETALLE DE SOLICITUD
+        // OBTENER DETALLE DE SOLICITUD PARA EL MODAL
         // =========================================================
 
         [HttpGet]
-        public async Task<IActionResult> DetailsSolicitud(int? id)
+        public async Task<IActionResult> ObtenerDetalleSolicitud(int? id)
         {
             if (id == null)
             {
@@ -634,44 +754,40 @@ namespace Vinculo.Controllers
                 return NotFound();
             }
 
-            var model = new AdminSolicitudDetalleViewModel
+            var estadoTexto = solicitud.Estado switch
             {
-                Id = solicitud.Id,
-
-                NumeroReferencia = solicitud.NumeroReferencia,
-
-                Institucion = solicitud.Institucion.Nombre,
-
-                Cuit = solicitud.Institucion.Cuit,
-
-                Email = solicitud.Institucion.Email,
-
-                Telefono = solicitud.Institucion.Telefono,
-
-                Fecha = solicitud.Fecha,
-
-                Estado = solicitud.Estado,
-
-                Calle = solicitud.Institucion.Domicilio.Calle,
-
-                Numero = solicitud.Institucion.Domicilio.Numero,
-
-                Localidad = solicitud.Institucion.Domicilio.Localidad,
-
-                Provincia = solicitud.Institucion.Domicilio.Provincia,
-
-                CodigoPostal = solicitud.Institucion.Domicilio.CodigoPostal,
-
-                Equipamientos = solicitud.Equipamientos
-                    .Select(e => new DetalleSolicitudViewModel
-                    {
-                        TipoEquipamiento = e.TipoEquipamiento,
-                        Cantidad = e.Cantidad
-                    })
-                    .ToList()
+                EstadoSolicitud.Pendiente => "Pendiente",
+                EstadoSolicitud.EnCoordinacion => "En coordinación",
+                EstadoSolicitud.Concretado => "Concretada",
+                EstadoSolicitud.Cancelada => "Cancelada",
+                _ => solicitud.Estado.ToString()
             };
 
-            return View(model);
+            return Json(new
+            {
+                id = solicitud.Id,
+                numeroReferencia = solicitud.NumeroReferencia,
+                institucion = solicitud.Institucion.Nombre,
+                cuit = solicitud.Institucion.Cuit,
+                email = solicitud.Institucion.Email,
+                telefono = solicitud.Institucion.Telefono,
+                fechaTexto = solicitud.Fecha.ToString("dd/MM/yyyy"),
+                estadoTexto = estadoTexto,
+
+                calle = solicitud.Institucion.Domicilio?.Calle ?? "",
+                numero = solicitud.Institucion.Domicilio?.Numero ?? "",
+                localidad = solicitud.Institucion.Domicilio?.Localidad ?? "",
+                provincia = solicitud.Institucion.Domicilio?.Provincia ?? "",
+                codigoPostal = solicitud.Institucion.Domicilio?.CodigoPostal ?? "",
+
+                equipamientos = solicitud.Equipamientos
+                    .Select(e => new
+                    {
+                        tipoEquipamiento = e.TipoEquipamiento.ToString(),
+                        cantidad = e.Cantidad
+                    })
+                    .ToList()
+            });
         }
 
 

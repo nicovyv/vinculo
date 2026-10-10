@@ -2,421 +2,492 @@
 
 @{
     ViewData["Title"] = "Solicitudes";
+
+    string NombreEstado(Vinculo.Models.Enums.EstadoSolicitud estado)
+    {
+        return estado switch
+        {
+            Vinculo.Models.Enums.EstadoSolicitud.Pendiente => "Pendiente",
+            Vinculo.Models.Enums.EstadoSolicitud.EnCoordinacion => "En coordinación",
+            Vinculo.Models.Enums.EstadoSolicitud.Concretado => "Concretada",
+            Vinculo.Models.Enums.EstadoSolicitud.Cancelada => "Cancelada",
+            _ => estado.ToString()
+        };
+    }
+
+    string ClaseEstado(Vinculo.Models.Enums.EstadoSolicitud estado)
+    {
+        return estado switch
+        {
+            Vinculo.Models.Enums.EstadoSolicitud.Pendiente => "bg-warning text-dark",
+            Vinculo.Models.Enums.EstadoSolicitud.EnCoordinacion => "bg-info text-dark",
+            Vinculo.Models.Enums.EstadoSolicitud.Concretado => "bg-success",
+            Vinculo.Models.Enums.EstadoSolicitud.Cancelada => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
 }
 
 <div class="container-fluid px-0">
 
-    <!-- Encabezado -->
-    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
-
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
         <div>
-            <h1 class="h3 fw-bold text-corporate-primary mb-1">
-                Solicitudes
-            </h1>
-
-            <p class="text-secondary mb-0">
-                Administración y seguimiento de las solicitudes de equipamiento.
+            <h2 class="fw-bold mb-1">Solicitudes</h2>
+            <p class="text-muted mb-0">
+                Consulta y seguimiento de las solicitudes de las instituciones.
             </p>
         </div>
-
-        <div>
-            <span class="badge bg-primary-subtle text-primary-emphasis px-3 py-2">
-                @Model.Solicitudes.Count solicitud@(Model.Solicitudes.Count == 1 ? "" : "es")
-            </span>
-        </div>
-
     </div>
 
-
-    <!-- Mensajes -->
-    @if (TempData["Success"] != null)
+    @if (TempData["Exito"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-
             <i class="bi bi-check-circle me-2"></i>
-
-            @TempData["Success"]
-
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert"
-                    aria-label="Cerrar">
-            </button>
-
+            @TempData["Exito"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                    aria-label="Cerrar"></button>
         </div>
     }
 
     @if (TempData["Error"] != null)
     {
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-
-            <i class="bi bi-exclamation-triangle me-2"></i>
-
+            <i class="bi bi-exclamation-circle me-2"></i>
             @TempData["Error"]
-
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert"
-                    aria-label="Cerrar">
-            </button>
-
+            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                    aria-label="Cerrar"></button>
         </div>
     }
 
-
-    <!-- Filtros -->
     <div class="card border-0 shadow-sm mb-4">
-
-        <div class="card-body p-3">
-
+        <div class="card-body">
             <form asp-controller="Administrador"
                   asp-action="Solicitudes"
                   method="get">
-
                 <div class="row g-3 align-items-end">
 
-                    <!-- Búsqueda -->
-                    <div class="col-12 col-lg-7">
-
-                        <label for="busqueda"
-                               class="form-label small fw-semibold text-secondary">
-                            Buscar solicitud
-                        </label>
-
+                    <div class="col-lg-6">
+                        <label for="busqueda" class="form-label">Buscar solicitud</label>
                         <div class="input-group">
-
                             <span class="input-group-text bg-white">
                                 <i class="bi bi-search"></i>
                             </span>
-
                             <input type="text"
                                    id="busqueda"
                                    name="busqueda"
-                                   value="@Model.Busqueda"
+                                   value="@Context.Request.Query["busqueda"]"
                                    class="form-control"
-                                   placeholder="Número de referencia o institución..." />
-
+                                   placeholder="Referencia o institución..." />
                         </div>
-
                     </div>
 
-
-                    <!-- Estado -->
-                    <div class="col-12 col-md-6 col-lg-3">
-
-                        <label for="estado"
-                               class="form-label small fw-semibold text-secondary">
-                            Estado
-                        </label>
-
-                        <select id="estado"
-                                name="estado"
-                                class="form-select">
-
+                    <div class="col-lg-4">
+                        <label for="estado" class="form-label">Estado</label>
+                        <select id="estado" name="estado" class="form-select">
                             <option value="">Todos los estados</option>
-
-                            @foreach (var estado in Enum.GetValues<Vinculo.Models.Enums.EstadoSolicitud>())
+                            @foreach (Vinculo.Models.Enums.EstadoSolicitud estadoItem
+                                in Enum.GetValues(typeof(Vinculo.Models.Enums.EstadoSolicitud)))
                             {
-                                <option value="@estado"
-                                        selected="@(Model.EstadoFiltro == estado.ToString() ? "selected" : null)">
-                                    @estado
+                                <option value="@estadoItem"
+                                        selected="@(Context.Request.Query["estado"] == estadoItem.ToString())">
+                                    @NombreEstado(estadoItem)
                                 </option>
                             }
-
                         </select>
-
                     </div>
 
-
-                    <!-- Botones -->
-                    <div class="col-12 col-md-6 col-lg-2 d-flex gap-2">
-
-                        <button type="submit"
-                                class="btn btn-primary flex-grow-1">
-
+                    <div class="col-lg-2 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1">
                             <i class="bi bi-funnel me-1"></i>
                             Filtrar
-
                         </button>
-
                         <a asp-controller="Administrador"
                            asp-action="Solicitudes"
                            class="btn btn-outline-secondary"
                            title="Limpiar filtros">
-
-                            <i class="bi bi-x-lg"></i>
-
+                            <i class="bi bi-arrow-counterclockwise"></i>
                         </a>
-
                     </div>
 
                 </div>
-
             </form>
-
         </div>
-
     </div>
 
-
-    <!-- Tabla -->
     <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0 py-3">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-clipboard-check me-2 text-primary"></i>
+                    Listado de solicitudes
+                </h5>
 
-        <div class="card-header bg-white border-bottom py-3">
-
-            <div class="d-flex align-items-center justify-content-between">
-
-                <div>
-
-                    <h2 class="h6 fw-bold mb-0">
-                        Solicitudes registradas
-                    </h2>
-
-                    <small class="text-secondary">
-                        Solicitudes realizadas por las instituciones.
-                    </small>
-
-                </div>
-
-                <i class="bi bi-card-checklist text-secondary fs-4"></i>
-
+                <span class="text-muted small">
+                    Total: @Model.Solicitudes.Count()
+                </span>
             </div>
-
         </div>
 
-
         <div class="card-body p-0">
-
             @if (Model.Solicitudes.Any())
             {
                 <div class="table-responsive">
-
                     <table class="table table-hover align-middle mb-0">
-
                         <thead class="table-light">
-
                             <tr>
-
-                                <th class="ps-4" style="min-width: 150px;">
-                                    Referencia
-                                </th>
-
-                                <th style="min-width: 220px;">
-                                    Institución
-                                </th>
-
-                                <th style="min-width: 120px;">
-                                    Fecha
-                                </th>
-
-                                <th class="text-center" style="min-width: 160px;">
-                                    Equipamientos
-                                </th>
-
-                                <th class="text-center" style="min-width: 140px;">
-                                    Estado
-                                </th>
-
-                                <th class="text-end pe-4" style="min-width: 130px;">
-                                    Acción
-                                </th>
-
+                                <th class="ps-4">Referencia</th>
+                                <th>Institución</th>
+                                <th>Fecha</th>
+                                <th class="text-center">Unidades</th>
+                                <th class="text-center">Tipos</th>
+                                <th>Estado</th>
+                                <th class="text-end pe-4">Acciones</th>
                             </tr>
-
                         </thead>
 
-
                         <tbody>
-
                             @foreach (var solicitud in Model.Solicitudes)
                             {
                                 <tr>
-
-                                    <!-- Referencia -->
                                     <td class="ps-4">
-
-                                        <div class="fw-semibold text-corporate-primary">
-                                            @solicitud.NumeroReferencia
-                                        </div>
-
-                                        <small class="text-secondary">
-                                            ID #@solicitud.Id
-                                        </small>
-
-                                    </td>
-
-
-                                    <!-- Institución -->
-                                    <td>
-
-                                        <div class="d-flex align-items-center gap-2">
-
-                                            <div class="rounded-circle bg-primary-subtle text-primary
-                                                d-flex align-items-center justify-content-center flex-shrink-0"
-                                                 style="width: 36px; height: 36px;">
-
-                                                <i class="bi bi-building"></i>
-
-                                            </div>
-
-                                            <span class="fw-semibold">
-                                                @solicitud.Institucion
-                                            </span>
-
-                                        </div>
-
-                                    </td>
-
-
-                                    <!-- Fecha -->
-                                    <td>
-
-                                        <span class="small">
-                                            @solicitud.Fecha.ToString("dd/MM/yyyy")
+                                        <span class="fw-semibold">
+                                            @(string.IsNullOrWhiteSpace(solicitud.NumeroReferencia)
+                                                ? $"SOL-{solicitud.Id}"
+                                                : solicitud.NumeroReferencia)
                                         </span>
-
                                     </td>
 
+                                    <td>
+                                        <div class="fw-semibold">@solicitud.Institucion</div>
+                                    </td>
 
-                                    <!-- Equipamientos -->
+                                    <td>
+                                        @solicitud.Fecha.ToString("dd/MM/yyyy")
+                                    </td>
+
                                     <td class="text-center">
-
-                                        <div class="fw-bold text-corporate-primary">
-                                            @solicitud.CantidadEquipamientos
-                                            @(solicitud.CantidadEquipamientos == 1 ? "unidad" : "unidades")
-                                        </div>
-
-                                        <small class="text-secondary">
-                                            @solicitud.CantidadTipos
-                                            @(solicitud.CantidadTipos == 1 ? "tipo" : "tipos")
-                                        </small>
-
+                                        @solicitud.CantidadEquipamientos
                                     </td>
 
-
-                                    <!-- Estado -->
                                     <td class="text-center">
-
-                                        @switch (solicitud.Estado)
-                                        {
-                                            case Vinculo.Models.Enums.EstadoSolicitud.Pendiente:
-
-                                                <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis">
-
-                                                    <i class="bi bi-clock me-1"></i>
-                                                    Pendiente
-
-                                                </span>
-
-                                                break;
-
-
-                                            case Vinculo.Models.Enums.EstadoSolicitud.EnCoordinacion:
-
-                                                <span class="badge rounded-pill bg-info-subtle text-info-emphasis">
-
-                                                    <i class="bi bi-arrow-repeat me-1"></i>
-                                                    En coordinación
-
-                                                </span>
-
-                                                break;
-
-
-                                            case Vinculo.Models.Enums.EstadoSolicitud.Concretado:
-
-                                                <span class="badge rounded-pill bg-success-subtle text-success-emphasis">
-
-                                                    <i class="bi bi-check-circle me-1"></i>
-                                                    Concretada
-
-                                                </span>
-
-                                                break;
-
-
-                                            default:
-
-                                                <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis">
-                                                    @solicitud.Estado
-                                                </span>
-
-                                                break;
-                                        }
-
+                                        @solicitud.CantidadTipos
                                     </td>
 
+                                    <td>
+                                        <span class="badge @ClaseEstado(solicitud.Estado) px-2 py-2">
+                                            @NombreEstado(solicitud.Estado)
+                                        </span>
+                                    </td>
 
-                                    <!-- Acción -->
                                     <td class="text-end pe-4">
-
-                                        <a asp-controller="Administrador"
-                                           asp-action="DetailsSolicitud"
-                                           asp-route-id="@solicitud.Id"
-                                           class="btn btn-sm btn-outline-primary">
-
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-primary btn-detalle-solicitud"
+                                                data-id="@solicitud.Id">
                                             <i class="bi bi-eye me-1"></i>
                                             Ver detalle
-
-                                        </a>
-
+                                        </button>
                                     </td>
-
                                 </tr>
                             }
-
                         </tbody>
-
                     </table>
-
                 </div>
             }
             else
             {
-                <!-- Sin resultados -->
-
-                <div class="text-center py-5 px-3">
-
-                    <div class="rounded-circle bg-primary-subtle text-primary
-                        d-inline-flex align-items-center justify-content-center mb-3"
-                         style="width: 64px; height: 64px;">
-
-                        <i class="bi bi-card-checklist fs-3"></i>
-
-                    </div>
-
-                    <h3 class="h5 fw-bold">
-                        No se encontraron solicitudes
-                    </h3>
-
-                    @if (!string.IsNullOrWhiteSpace(Model.Busqueda) ||
-                         !string.IsNullOrWhiteSpace(Model.EstadoFiltro))
-                    {
-                        <p class="text-secondary mb-3">
-                            No hay solicitudes que coincidan con los filtros seleccionados.
-                        </p>
-
-                        <a asp-controller="Administrador"
-                           asp-action="Solicitudes"
-                           class="btn btn-outline-secondary btn-sm">
-
-                            <i class="bi bi-arrow-counterclockwise me-1"></i>
-                            Ver todas
-
-                        </a>
-                    }
-                    else
-                    {
-                        <p class="text-secondary mb-0">
-                            Todavía no hay solicitudes registradas.
-                        </p>
-                    }
-
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox display-4 text-muted"></i>
+                    <h5 class="mt-3 fw-semibold">No se encontraron solicitudes</h5>
+                    <p class="text-muted mb-0">
+                        Probá modificando los filtros de búsqueda.
+                    </p>
                 </div>
             }
+        </div>
+    </div>
+</div>
+
+<!-- Modal de detalle de solicitud -->
+<div class="modal fade"
+     id="modalDetalleSolicitud"
+     tabindex="-1"
+     aria-labelledby="modalDetalleSolicitudLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content border-0">
+
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title fw-bold" id="modalDetalleSolicitudLabel">
+                        <i class="bi bi-clipboard-check me-2 text-primary"></i>
+                        Detalle de solicitud
+                    </h5>
+                    <div class="text-muted small" id="detalleReferencia"></div>
+                </div>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body" id="contenidoDetalleSolicitud">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="text-muted mt-3 mb-0">Cargando información...</p>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-outline-secondary"
+                        data-bs-dismiss="modal">
+                    Cerrar
+                </button>
+            </div>
 
         </div>
-
     </div>
-
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const modalElement = document.getElementById("modalDetalleSolicitud");
+            const modal = new bootstrap.Modal(modalElement);
+            const contenido = document.getElementById("contenidoDetalleSolicitud");
+            const referencia = document.getElementById("detalleReferencia");
+
+            const urlDetalle = '@Url.Action("ObtenerDetalleSolicitud", "Administrador")';
+
+            function escaparHtml(valor) {
+                return String(valor ?? "").replace(/[&<>"']/g, function(caracter) {
+                    const equivalencias = {
+                        "&": "&amp;",
+                        "<": "&lt;",
+                        ">": "&gt;",
+                        '"': "&quot;",
+                        "'": "&#39;"
+                    };
+
+                    return equivalencias[caracter];
+                });
+            }
+
+            function claseEstado(estado) {
+                switch (estado) {
+                    case "Pendiente":
+                        return "bg-warning text-dark";
+                    case "EnCoordinacion":
+                    case "En coordinación":
+                        return "bg-info text-dark";
+                    case "Concretado":
+                    case "Concretada":
+                        return "bg-success";
+                    case "Cancelada":
+                        return "bg-danger";
+                    default:
+                        return "bg-secondary";
+                }
+            }
+
+            function nombreEstado(estado) {
+                switch (estado) {
+                    case "EnCoordinacion":
+                        return "En coordinación";
+                    case "Concretado":
+                        return "Concretada";
+                    default:
+                        return estado || "Sin estado";
+                }
+            }
+
+            function mostrarError(mensaje) {
+                contenido.innerHTML = `
+                            <div class="alert alert-danger mb-0">
+                                <i class="bi bi-exclamation-circle me-2"></i>
+                                ${escaparHtml(mensaje)}
+                            </div>`;
+            }
+
+            document.querySelectorAll(".btn-detalle-solicitud").forEach(function(boton) {
+                boton.addEventListener("click", async function() {
+                    const id = this.dataset.id;
+
+                    referencia.textContent = "";
+                    contenido.innerHTML = `
+                                <div class="text-center py-5">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Cargando...</span>
+                                    </div>
+                                    <p class="text-muted mt-3 mb-0">Cargando información...</p>
+                                </div>`;
+
+                    modal.show();
+
+                    try {
+                        const respuesta = await fetch(
+                            `${urlDetalle}?id=${encodeURIComponent(id)}`,
+                            {
+                                headers: {
+                                    "Accept": "application/json"
+                                }
+                            }
+                        );
+
+                        if (!respuesta.ok) {
+                            throw new Error("No se pudo obtener el detalle de la solicitud.");
+                        }
+
+                        const datos = await respuesta.json();
+
+                        const ref = datos.numeroReferencia ?? datos.NumeroReferencia ?? "";
+                        const institucion = datos.institucion ?? datos.Institucion ?? "";
+                        const cuit = datos.cuit ?? datos.Cuit ?? "";
+                        const email = datos.email ?? datos.Email ?? "";
+                        const telefono = datos.telefono ?? datos.Telefono ?? "";
+                        const fecha = datos.fechaTexto ?? datos.FechaTexto ??
+                            datos.fecha ?? datos.Fecha ?? "";
+                        const estado = datos.estadoTexto ?? datos.EstadoTexto ??
+                            datos.estado ?? datos.Estado ?? "";
+                        const calle = datos.calle ?? datos.Calle ?? "";
+                        const numero = datos.numero ?? datos.Numero ?? "";
+                        const localidad = datos.localidad ?? datos.Localidad ?? "";
+                        const provincia = datos.provincia ?? datos.Provincia ?? "";
+                        const codigoPostal = datos.codigoPostal ?? datos.CodigoPostal ?? "";
+                        const equipamientos = datos.equipamientos ?? datos.Equipamientos ?? [];
+
+                        referencia.textContent = ref ? `Referencia: ${ref}` : "";
+
+                        const filas = equipamientos.length
+                            ? equipamientos.map(function(equipo) {
+                                const tipo = equipo.tipoEquipamiento ??
+                                    equipo.TipoEquipamiento ?? "";
+                                const cantidad = equipo.cantidad ?? equipo.Cantidad ?? 0;
+
+                                return `
+                                            <tr>
+                                                <td>${escaparHtml(tipo)}</td>
+                                                <td class="text-end fw-semibold">${escaparHtml(cantidad)}</td>
+                                            </tr>`;
+                            }).join("")
+                            : `<tr>
+                                        <td colspan="2" class="text-center text-muted py-3">
+                                            No hay equipamientos registrados.
+                                        </td>
+                                       </tr>`;
+
+                        const totalUnidades = equipamientos.reduce(function(total, equipo) {
+                            return total + Number(equipo.cantidad ?? equipo.Cantidad ?? 0);
+                        }, 0);
+
+                        const direccion = `${calle} ${numero}`.trim();
+
+                        contenido.innerHTML = `
+                                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+                                        <div>
+                                            <div class="text-muted small">Estado actual</div>
+                                            <span class="badge ${claseEstado(estado)} px-3 py-2">
+                                                ${escaparHtml(nombreEstado(estado))}
+                                            </span>
+                                        </div>
+                                        <div class="text-md-end">
+                                            <div class="text-muted small">Fecha de solicitud</div>
+                                            <div class="fw-semibold">${escaparHtml(fecha)}</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-6">
+                                            <div class="card border-0 bg-light h-100">
+                                                <div class="card-body">
+                                                    <h6 class="fw-bold mb-3">
+                                                        <i class="bi bi-building me-2 text-primary"></i>
+                                                        Datos de la institución
+                                                    </h6>
+                                                    <div class="mb-2">
+                                                        <div class="text-muted small">Institución</div>
+                                                        <div class="fw-semibold">${escaparHtml(institucion) || "No informada"}</div>
+                                                    </div>
+                                                    <div class="mb-2">
+                                                        <div class="text-muted small">CUIT</div>
+                                                        <div>${escaparHtml(cuit) || "No informado"}</div>
+                                                    </div>
+                                                    <div class="mb-2">
+                                                        <div class="text-muted small">Correo electrónico</div>
+                                                        <div>${escaparHtml(email) || "No informado"}</div>
+                                                    </div>
+                                                    <div>
+                                                        <div class="text-muted small">Teléfono</div>
+                                                        <div>${escaparHtml(telefono) || "No informado"}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div class="card border-0 bg-light h-100">
+                                                <div class="card-body">
+                                                    <h6 class="fw-bold mb-3">
+                                                        <i class="bi bi-geo-alt me-2 text-danger"></i>
+                                                        Domicilio
+                                                    </h6>
+                                                    <div class="mb-2">
+                                                        <div class="text-muted small">Calle y número</div>
+                                                        <div class="fw-semibold">${escaparHtml(direccion) || "No informado"}</div>
+                                                    </div>
+                                                    <div class="mb-2">
+                                                        <div class="text-muted small">Localidad</div>
+                                                        <div>${escaparHtml(localidad) || "No informada"}</div>
+                                                    </div>
+                                                    <div class="mb-2">
+                                                        <div class="text-muted small">Provincia</div>
+                                                        <div>${escaparHtml(provincia) || "No informada"}</div>
+                                                    </div>
+                                                    <div>
+                                                        <div class="text-muted small">Código postal</div>
+                                                        <div>${escaparHtml(codigoPostal) || "No informado"}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-header bg-white py-3">
+                                            <h6 class="fw-bold mb-0">
+                                                <i class="bi bi-box-seam me-2 text-primary"></i>
+                                                Equipamientos solicitados
+                                            </h6>
+                                        </div>
+                                        <div class="card-body p-0">
+                                            <div class="table-responsive">
+                                                <table class="table table-hover align-middle mb-0">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th class="ps-3">Tipo de equipamiento</th>
+                                                            <th class="text-end pe-3">Cantidad</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>${filas}</tbody>
+                                                    <tfoot class="table-light">
+                                                        <tr>
+                                                            <th class="ps-3">Total de unidades</th>
+                                                            <th class="text-end pe-3">${totalUnidades}</th>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>`;
+                    } catch (error) {
+                        mostrarError(error.message || "Ocurrió un error al cargar el detalle.");
+                    }
+                });
+            });
+        });
+    </script>
+}
