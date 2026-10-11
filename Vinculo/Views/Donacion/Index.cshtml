@@ -19,20 +19,23 @@
         padding-top: 0.75rem;
         padding-bottom: 0.75rem;
     }
+
     .table-custom td {
         vertical-align: middle;
         padding-top: 0.9rem;
         padding-bottom: 0.9rem;
     }
+
     .kpi-card {
         border: 1px solid var(--vinculo-border);
         border-radius: 0.5rem;
         transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
-    .kpi-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(15, 42, 71, 0.08);
-    }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(15, 42, 71, 0.08);
+        }
 </style>
 
 <!-- Breadcrumb -->
@@ -63,6 +66,24 @@
         </a>
     </div>
 </div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+}
 
 <!-- KPI Cards -->
 <div class="row g-3 mb-4">
@@ -150,7 +171,7 @@
         <div class="col-12 col-md-4 col-lg-4">
             <div class="input-group input-group-sm">
                 <span class="input-group-text bg-light text-secondary border-end-0"><i class="bi bi-search"></i></span>
-                <input class="form-control border-start-0" id="filtroBusqueda" placeholder="Buscar por referencia o descripción..." type="text"/>
+                <input class="form-control border-start-0" id="filtroBusqueda" placeholder="Buscar por referencia o descripción..." type="text" />
             </div>
         </div>
         <div class="col-6 col-md-4 col-lg-3">
@@ -246,8 +267,11 @@
                                     {
                                         <button class="btn btn-outline-primary btn-sm btn-ver-detalle" type="button"
                                                 data-bs-toggle="modal" data-bs-target="#modalDetalleAsignacion"
+                                                data-asignacion-id="@asignacion.Id"
+                                                data-asig-estado="@asignacion.Estado"
                                                 data-asig-cod="@asignacion.NumeroReferencia"
                                                 data-don-ref="@item.NumeroReferencia"
+                                                data-don-estado="@item.Estado"
                                                 data-don-tipo="@item.Tipo"
                                                 data-don-cant="@item.Cantidad"
                                                 data-don-desc="@item.Descripcion"
@@ -256,14 +280,14 @@
                                                 data-inst-tel="@asignacion.Solicitud?.Institucion?.Telefono"
                                                 data-inst-persona="@asignacion.Solicitud?.Institucion?.PersonaContacto"
                                                 data-observaciones="@System.Text.Json.JsonSerializer.Serialize(
-                                                item.Observaciones
-                                                    .OrderByDescending(o => o.Fecha)
-                                                    .Select(o => new
-                                                    {
-                                                        fecha = o.Fecha.ToString("dd/MM/yyyy HH:mm"),
-                                                        mensaje = o.Mensaje
-                                                    }))"
-                                                data-inst-dom="@(asignacion.Solicitud?.Institucion?.Domicilio?.Calle) @(asignacion.Solicitud?.Institucion?.Domicilio?.Numero), @(asignacion.Solicitud?.Institucion?.Domicilio?.Localidad)">
+                                                                                            item.Observaciones
+                                                                                                .OrderByDescending(o => o.Fecha)
+                                                                                                .Select(o => new
+                                                                                                {
+                                                                                                    fecha = o.Fecha.ToString("dd/MM/yyyy HH:mm"),
+                                                                                                    mensaje = o.Mensaje
+                                                                                                }))"
+                                                data-inst-dom="@(asignacion.Solicitud?.Institucion?.Domicilio?.Calle) @(asignacion.Solicitud?.Institucion?.Domicilio?.Numero), @(asignacion.Solicitud?.Institucion?.Domicilio?.Localidad)}">
                                             <i class="bi bi-eye"></i> Ver Detalle
                                         </button>
                                     }
@@ -279,7 +303,7 @@
 
 @section Scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const inputBusqueda = document.getElementById('filtroBusqueda');
             const selectEstado = document.getElementById('filtroEstado');
             const btnLimpiar = document.getElementById('btnLimpiar');
@@ -310,20 +334,38 @@
             if (selectEstado) selectEstado.addEventListener('change', filtrarTabla);
 
             if (btnLimpiar) {
-                btnLimpiar.addEventListener('click', function () {
+                btnLimpiar.addEventListener('click', function() {
                     if (inputBusqueda) inputBusqueda.value = '';
                     if (selectEstado) selectEstado.value = '';
                     filtrarTabla();
                 });
             }
         });
-                const modalDetalle = document.getElementById('modalDetalleAsignacion');
+        const modalDetalle = document.getElementById('modalDetalleAsignacion');
         if (modalDetalle) {
-            modalDetalle.addEventListener('show.bs.modal', function (event) {
+            modalDetalle.addEventListener('show.bs.modal', function(event) {
                 const button = event.relatedTarget;
 
                 // Asignación y Donación
                 document.getElementById('modalAsigCode').textContent = button.getAttribute('data-asig-cod');
+                // Datos para confirmar la entrega
+                const asignacionId = button.getAttribute('data-asignacion-id');
+                const estadoAsignacion = button.getAttribute('data-asig-estado');
+                const estadoDonacion = button.getAttribute('data-don-estado');
+
+                document.getElementById('confirmarAsignacionId').value = asignacionId || '';
+
+                const formConfirmar = document.getElementById('formConfirmarEntrega');
+                const badgeEstado = document.getElementById('modalAsigStatus');
+
+                const puedeConfirmar =
+                    estadoAsignacion === 'Activa' &&
+                    estadoDonacion === 'Asignada';
+
+                formConfirmar.classList.toggle('d-none', !puedeConfirmar);
+
+                badgeEstado.textContent =
+                    estadoAsignacion === 'Concretada' ? 'Entregada' : 'En logística';
                 document.getElementById('modalDonRef').textContent = button.getAttribute('data-don-ref');
                 document.getElementById('modalDonTipo').textContent = button.getAttribute('data-don-tipo');
                 document.getElementById('modalDonCant').textContent = button.getAttribute('data-don-cant');
@@ -373,6 +415,19 @@
                     });
                 }
             });
+            const formConfirmar = document.getElementById('formConfirmarEntrega');
+
+            if (formConfirmar) {
+                formConfirmar.addEventListener('submit', function(event) {
+                    const confirmar = window.confirm(
+                        '¿Confirmás que la donación fue entregada a la institución? Esta acción actualizará los estados y registrará el evento en el historial.'
+                    );
+
+                    if (!confirmar) {
+                        event.preventDefault();
+                    }
+                });
+            }
         }
     </script>
 }
@@ -521,13 +576,32 @@
                 </div>
             </div>
             <!-- Pie -->
-            <div class="modal-footer bg-white border-top py-3 px-4 d-flex justify-content-between align-items-center">
+            <div class="modal-footer bg-white border-top py-3 px-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <span class="small text-muted d-flex align-items-center gap-2">
-                    <i class="bi bi-info-circle text-primary"></i> Información de solo lectura
+                    <i class="bi bi-info-circle text-primary"></i>
+                    La confirmación registra la entrega de la donación.
                 </span>
-                <button class="btn btn-outline-secondary px-4 fw-medium" data-bs-dismiss="modal" type="button">
-                    Cerrar
-                </button>
+
+                <div class="d-flex gap-2">
+                    <form id="formConfirmarEntrega"
+                          asp-controller="Donacion"
+                          asp-action="ConfirmarEntrega"
+                          method="post"
+                          class="d-none">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" id="confirmarAsignacionId" name="asignacionId" value="" />
+                        <button type="submit" id="btnConfirmarEntrega"
+                                class="btn btn-success px-3 fw-medium">
+                            <i class="bi bi-check-circle me-1"></i>
+                            Confirmar entrega
+                        </button>
+                    </form>
+
+                    <button class="btn btn-outline-secondary px-4 fw-medium"
+                            data-bs-dismiss="modal" type="button">
+                        Cerrar
+                    </button>
+                </div>
             </div>
 
         </div>

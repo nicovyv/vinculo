@@ -498,6 +498,104 @@ namespace Vinculo.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmarEntrega(int asignacionId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+                return RedirectToAction("Login", "Usuario");
+
+            var empresa = await _context.Empresas
+                .FirstOrDefaultAsync(e => e.UsuarioId == user.Id);
+
+            if (empresa == null)
+                return NotFound("Debe completar su perfil antes de confirmar una entrega.");
+
+            var asignacion = await _context.Asignaciones
+                .Include(a => a.Donacion)
+                .Include(a => a.Solicitud)
+                .FirstOrDefaultAsync(a => a.Id == asignacionId);
+
+            if (asignacion == null)
+                return NotFound("Asignación no encontrada.");
+
+            // Verificar que la donación pertenezca a la empresa autenticada.
+            if (asignacion.Donacion.EmpresaId != empresa.Id)
+                return NotFound("No se encontró la asignación solicitada.");
+
+            // Evitar confirmar dos veces una misma entrega.
+            if (asignacion.Estado != EstadoAsignacion.Activa ||
+                asignacion.Donacion.Estado != EstadoDonacion.Asignada)
+            {
+                TempData["Error"] =
+                    "La entrega no se puede confirmar porque la asignación ya fue procesada.";
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            var fecha = DateTime.Now;
+
+            await using var transaction =
+                await _context.Database.BeginTransactionAsync();
+
+            // Actualizar la donación asignada y su asignación.
+            asignacion.Donacion.Estado = EstadoDonacion.Entregada;
+            asignacion.Estado = EstadoAsignacion.Concretada;
+
+            // Completar la solicitud solamente si no quedan
+            // otras asignaciones activas asociadas.
+            var quedanAsignacionesActivas = await _context.Asignaciones
+                .AnyAsync(a =>
+                    a.SolicitudId == asignacion.SolicitudId &&
+                    a.Id != asignacion.Id &&
+                    a.Estado == EstadoAsignacion.Activa);
+
+            if (!quedanAsignacionesActivas)
+            {
+                asignacion.Solicitud.Estado = EstadoSolicitud.Concretado;
+            }
+
+            // Registrar el evento en el historial de la donación.
+            _context.Observaciones.Add(new Observacion
+            {
+                Mensaje =
+                    $"La empresa confirmó la entrega de la donación " +
+                    $"{asignacion.Donacion.NumeroReferencia}. " +
+                    $"Asignación: {asignacion.NumeroReferencia}.",
+                Fecha = fecha,
+                Donacion = asignacion.Donacion
+            });
+
+            // Registrar el evento en el historial de la asignación.
+            _context.Observaciones.Add(new Observacion
+            {
+                Mensaje =
+                    $"La empresa confirmó la entrega de la asignación " +
+                    $"{asignacion.NumeroReferencia}.",
+                Fecha = fecha,
+                Asignacion = asignacion
+            });
+
+            // Registrar el evento en el historial de la solicitud.
+            _context.Observaciones.Add(new Observacion
+            {
+                Mensaje =
+                    $"Se confirmó la entrega correspondiente a la asignación " +
+                    $"{asignacion.NumeroReferencia}, de la donación " +
+                    $"{asignacion.Donacion.NumeroReferencia}.",
+                Fecha = fecha,
+                Solicitud = asignacion.Solicitud
+            });
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            TempData["Success"] = "La entrega se confirmó correctamente.";
+
+            return RedirectToAction(nameof(Index));
+        }
 
 
 
