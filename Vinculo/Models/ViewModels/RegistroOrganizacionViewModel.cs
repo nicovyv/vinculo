@@ -55,5 +55,9 @@ namespace Vinculo.Models.ViewModels
         [DataType(DataType.Password)]
         [Compare("Password", ErrorMessage = "Las contraseñas no coinciden.")]
         public string ConfirmPassword { get; set; }
+
+        // --- Términos y Condiciones ---
+        [Range(typeof(bool), "true", "true", ErrorMessage = "Debes aceptar los Términos y Condiciones para poder registrar tu organización.")]
+        public bool AceptaTerminos { get; set; }
     }
 }

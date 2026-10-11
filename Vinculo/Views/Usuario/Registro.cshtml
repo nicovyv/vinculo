@@ -16,21 +16,21 @@
         border: 2px solid transparent;
     }
 
-        .card-selectable.active {
-            border-color: var(--bs-primary);
-            background-color: #ffffff;
-            box-shadow: 0 .125rem .25rem rgba(15, 42, 71, 0.08) !important;
-        }
+    .card-selectable.active {
+        border-color: var(--bs-primary);
+        background-color: #ffffff;
+        box-shadow: 0 .125rem .25rem rgba(15, 42, 71, 0.08) !important;
+    }
 
-        .card-selectable:not(.active) {
-            background-color: #eef3fb;
-            opacity: 0.9;
-        }
+    .card-selectable:not(.active) {
+        background-color: #eef3fb;
+        opacity: 0.9;
+    }
 
-            .card-selectable:not(.active):hover {
-                opacity: 1;
-                border-color: #cbd5e1;
-            }
+    .card-selectable:not(.active):hover {
+        opacity: 1;
+        border-color: #cbd5e1;
+    }
 
     .step-circle {
         width: 28px;
@@ -55,6 +55,41 @@
 
     .leaflet-control-attribution {
         font-size: 10px;
+    }
+
+    /* Estilos específicos del Modal de Stitch */
+    .compact-clause {
+        padding: 0.75rem 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+        background: #ffffff;
+    }
+
+    .icon-box {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #eff4ff;
+        color: #0d8b99;
+    }
+
+    .btn-teal-modal {
+        background-color: #0d8b99;
+        color: #ffffff;
+        border: none;
+    }
+    .btn-teal-modal:hover, .btn-teal-modal:focus {
+        background-color: #096874;
+        color: #ffffff;
+    }
+    .btn-teal-modal:disabled {
+        background-color: #8fa3b0;
+        color: #ffffff;
+        opacity: 0.65;
     }
 </style>
 
@@ -289,14 +324,16 @@
             <!-- Términos y Envío -->
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-body p-4">
-                    <div class="form-check mb-4">
-                        <input class="form-check-input" type="checkbox" id="termsCheck" required>
+                    <div class="form-check mb-1">
+                        <input asp-for="AceptaTerminos" class="form-check-input" type="checkbox" id="termsCheck" onchange="syncTermsCheck(this.checked)" required>
                         <label class="form-check-label small text-secondary" for="termsCheck">
-                            Acepto los <a class="text-primary fw-semibold text-decoration-underline" href="#">Términos y Condiciones</a> de la plataforma Vínculo.
+                            He leído y acepto los <a class="text-primary fw-semibold text-decoration-underline" href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Términos de Uso, Compromiso y Descargo de Responsabilidad</a> de la plataforma Vínculo.
                         </label>
                     </div>
-                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3">
-                        <!-- Botón modificado a type="button" para pasar primero por la validación del mapa -->
+                    <span asp-validation-for="AceptaTerminos" class="text-danger small d-block mb-3"></span>
+                    <div id="mensajeTerminos" class="alert alert-danger d-none small py-2 mb-3" role="alert"></div>
+
+                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3 mt-3">
                         <button class="btn btn-primary px-4 py-2 fw-semibold" id="btnSubmitRegistro" type="button" onclick="handleRegistration()">
                             <i class="bi bi-person-check-fill me-1"></i> Completar Registro
                         </button>
@@ -311,6 +348,138 @@
     </div>
 </div>
 
+<!-- MODAL DE TÉRMINOS Y CONDICIONES (Diseño Stitch adaptado a Bootstrap 5) -->
+<div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 760px;">
+        <div class="modal-content rounded-3 overflow-hidden bg-white border-0 shadow-lg">
+            
+            <!-- Modal Header -->
+            <div class="modal-header bg-white border-bottom px-4 py-3 align-items-start">
+                <div class="d-flex align-items-start gap-3">
+                    <div class="rounded-3 p-2 d-flex align-items-center justify-content-center mt-1 text-white" style="width: 42px; height: 42px; background-color: #0f2a47; box-shadow: 0 2px 6px rgba(15,42,71,0.25);">
+                        <i class="bi bi-shield-check fs-5"></i>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                            <h5 class="modal-title fw-bold mb-0 fs-5" id="termsModalLabel" style="color: #0f2a47;">Términos de Uso, Compromiso y Descargo de Responsabilidad</h5>
+                        </div>
+                        <p class="small mb-0 lh-sm" style="color: #475569;">
+                            Condiciones operativas e institucionales de la red solidaria <strong>Vínculo por Eisbaer</strong>.
+                        </p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close ms-2 mt-1" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body px-4 py-3" style="max-height: 68vh; overflow-y: auto;">
+                
+                <!-- Lead notice -->
+                <div class="alert border-0 rounded-2 p-2 px-3 mb-3 d-flex align-items-center gap-2" style="background-color: #eff6ff; border-left: 3px solid #0d8b99 !important;">
+                    <i class="bi bi-info-circle-fill fs-5" style="color: #0d8b99;"></i>
+                    <span class="small fw-medium" style="color: #1e3a5f;">
+                        Al dar de alta su organización en <strong>Vínculo</strong>, usted declara que los datos suministrados son verídicos y acepta las siguientes condiciones operativas de la plataforma:
+                    </span>
+                </div>
+
+                <!-- 4 Puntos de Compromiso -->
+                <div class="d-flex flex-column gap-2 mb-3">
+                    
+                    <!-- 1. Rol de la Plataforma -->
+                    <div class="compact-clause d-flex align-items-start gap-3" style="border-left: 3px solid #0d8b99;">
+                        <div class="icon-box">
+                            <i class="bi bi-diagram-3-fill fs-6"></i>
+                        </div>
+                        <div class="lh-sm">
+                            <h6 class="fw-semibold mb-1" style="font-size: 0.875rem; color: #0f2a47;">1. Rol de la Plataforma (Alcance del Servicio)</h6>
+                            <p class="mb-0" style="font-size: 0.8125rem; color: #475569;">
+                                <strong>Vínculo</strong> (desarrollado por Eisbaer) funciona exclusivamente como un puente tecnológico y directorio de vinculación solidaria para conectar la oferta de equipamiento en desuso con necesidades sociales y educativas. Ni Vínculo ni Eisbaer participan en la entrega física, ni auditan presencialmente el equipamiento.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 2. Compromiso de las Empresas Donantes -->
+                    <div class="compact-clause d-flex align-items-start gap-3" style="border-left: 3px solid #0d8b99;">
+                        <div class="icon-box">
+                            <i class="bi bi-laptop fs-6"></i>
+                        </div>
+                        <div class="lh-sm">
+                            <h6 class="fw-semibold mb-1" style="font-size: 0.875rem; color: #0f2a47;">2. Compromiso de las Empresas Donantes</h6>
+                            <p class="mb-1" style="font-size: 0.8125rem; color: #475569;">
+                                En caso de registrarse como entidad donante, la organización se compromete a:
+                            </p>
+                            <ul class="mb-0 ps-3" style="font-size: 0.8125rem; color: #475569;">
+                                <li class="mb-1">Publicar y entregar equipamiento que se encuentre en condiciones operativas aceptables y seguras para su uso.</li>
+                                <li>Garantizar el borrado total y seguro de datos, asegurando que los dispositivos (computadoras, notebooks, etc.) se entreguen formateados, sin información corporativa o sensible, y libres de contraseñas, bloqueos o cuentas vinculadas.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 3. Compromiso de las Instituciones Solicitantes -->
+                    <div class="compact-clause d-flex align-items-start gap-3" style="border-left: 3px solid #0d8b99;">
+                        <div class="icon-box">
+                            <i class="bi bi-building-check fs-6"></i>
+                        </div>
+                        <div class="lh-sm">
+                            <h6 class="fw-semibold mb-1" style="font-size: 0.875rem; color: #0f2a47;">3. Compromiso de las Instituciones Solicitantes</h6>
+                            <p class="mb-1" style="font-size: 0.8125rem; color: #475569;">
+                                En caso de registrarse como institución receptora (escuelas públicas, comedores, centros comunitarios), la entidad se compromete a:
+                            </p>
+                            <ul class="mb-0 ps-3" style="font-size: 0.8125rem; color: #475569;">
+                                <li class="mb-1">Destinar el equipamiento recibido exclusivamente a los fines educativos, comunitarios o sociales declarados en sus solicitudes, prohibiéndose su comercialización.</li>
+                                <li>Verificar el estado y funcionamiento de los dispositivos al momento de la recepción.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 4. Logística, Traslado y Exención de Responsabilidad -->
+                    <div class="compact-clause d-flex align-items-start gap-3" style="border-left: 3px solid #0d8b99;">
+                        <div class="icon-box">
+                            <i class="bi bi-truck fs-6"></i>
+                        </div>
+                        <div class="lh-sm">
+                            <h6 class="fw-semibold mb-1" style="font-size: 0.875rem; color: #0f2a47;">4. Logística, Traslado y Exención de Responsabilidad</h6>
+                            <p class="mb-0" style="font-size: 0.8125rem; color: #475569;">
+                                Una vez generado el vínculo en el sistema, la coordinación, los costos y la responsabilidad del traslado físico corren por cuenta y mutuo acuerdo entre la Empresa Donante y la Institución Solicitante. <strong>Eisbaer y Vínculo</strong> quedan exentos de toda responsabilidad frente a fallas técnicas de los equipos, incidentes logísticos durante el retiro/entrega, o el uso posterior que se les dé a los bienes.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Casilla de Aceptación dentro del Modal -->
+                <div class="card p-3 rounded-2 shadow-sm" style="background-color: #f0f7ff; border: 1.5px solid #0284c7;">
+                    <div class="form-check m-0 d-flex align-items-center gap-2">
+                        <input class="form-check-input mt-0" id="modalAcceptCheckbox" onchange="document.getElementById('btnConfirmTermsModal').disabled = !this.checked;" style="cursor: pointer; width: 1.15rem; height: 1.15rem;" type="checkbox">
+                        <label class="form-check-label fw-semibold small mb-0" for="modalAcceptCheckbox" style="cursor: pointer; color: #0b1c30;">
+                            Comprendo y acepto estos términos de uso y descargo de responsabilidad.
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer bg-light border-top px-4 py-3 d-flex justify-content-between align-items-center">
+                <div class="text-secondary d-none d-sm-flex align-items-center gap-1" style="font-size: 0.775rem;">
+                    <i class="bi bi-shield-check text-success fs-6"></i>
+                    <span>Plataforma de vinculación auditada</span>
+                </div>
+                <div class="d-flex align-items-center gap-2 ms-auto">
+                    <button type="button" class="btn btn-outline-secondary btn-sm px-3 py-2 fw-medium rounded-2" data-bs-dismiss="modal">
+                        Cerrar
+                    </button>
+                    <button type="button" class="btn btn-teal-modal btn-sm px-3 py-2 fw-semibold d-flex align-items-center gap-2 shadow-sm rounded-2" id="btnConfirmTermsModal" onclick="acceptTermsFromModal()" disabled>
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>Confirmar y Aceptar</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
@@ -318,6 +487,28 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
     <script>
+        // Sincronizar los checkboxes del formulario y del modal
+        function syncTermsCheck(isChecked) {
+            const modalCheck = document.getElementById('modalAcceptCheckbox');
+            const modalBtn = document.getElementById('btnConfirmTermsModal');
+            const msgTerminos = document.getElementById('mensajeTerminos');
+            
+            if (modalCheck) modalCheck.checked = isChecked;
+            if (modalBtn) modalBtn.disabled = !isChecked;
+            if (isChecked && msgTerminos) msgTerminos.classList.add('d-none');
+        }
+
+        function acceptTermsFromModal() {
+            const mainCheck = document.getElementById('termsCheck');
+            mainCheck.checked = true;
+            syncTermsCheck(true);
+
+            // Cerrar el modal usando la instancia de Bootstrap
+            const modalEl = document.getElementById('termsModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (modalInstance) modalInstance.hide();
+        }
+
         // Lógica visual del Tipo de Organización
         function selectRole(type) {
             const orgCard = document.getElementById('typeOptionOrg');
@@ -361,11 +552,13 @@
         let ubicacionValida = false;
 
         document.addEventListener("DOMContentLoaded", function () {
-            // Inicializar opciones
             const isEmpresa = document.getElementById('roleEmpresa').checked;
             selectRole(isEmpresa ? 'empresa' : 'institucion');
 
-            // Inicializar mapa centrado en Buenos Aires por defecto
+            // Sincronizar estado inicial del checkbox por si vuelve de un error del backend
+            const termsCheck = document.getElementById('termsCheck');
+            if (termsCheck) syncTermsCheck(termsCheck.checked);
+
             const mapa = L.map("mapaDomicilio").setView([-34.6037, -58.3816], 12);
             L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "&copy; OSM" }).addTo(mapa);
 
@@ -378,7 +571,6 @@
             }
 
             function actualizarCoordenadas(lat, lng) {
-                // Almacenamos en los inputs ocultos (reemplazando punto por coma si tu cultura lo requiere)
                 document.getElementById("Latitud").value = lat.toString().replace('.', ',');
                 document.getElementById("Longitud").value = lng.toString().replace('.', ',');
             }
@@ -398,7 +590,6 @@
                 actualizarCoordenadas(lat, lng);
             }
 
-            // Llamada al Controller PÚBLICO (Usuario)
             async function obtenerDireccionDesdeCoordenadas(lat, lng) {
                 const url = `@Url.Action("ObtenerDireccion", "Usuario")?latitud=${encodeURIComponent(lat)}&longitud=${encodeURIComponent(lng)}`;
                 const response = await fetch(url);
@@ -423,16 +614,15 @@
                 }
             }
 
-            // Invalidar ubicación si el usuario tipea a mano en los campos
+            // Al escribir en los campos, invalidamos silenciosamente la ubicación y ocultamos alertas previas
             ["Calle", "Numero", "Localidad", "Provincia", "CodigoPostal"].forEach(id => {
                 const campo = document.getElementById(id);
                 if (campo) campo.addEventListener("input", () => {
                     ubicacionValida = false;
-                    mostrarMensaje("Has modificado el domicilio. Presiona 'Validar Ubicación'.", "warning");
+                    mensajeUbicacion.className = "alert d-none small mt-3 mb-0";
                 });
             });
 
-            // Botón Buscar (Llama a UsuarioController)
             document.getElementById("btnBuscarUbicacion").addEventListener("click", async function () {
                 const calle = document.getElementById("Calle").value.trim();
                 const numero = document.getElementById("Numero").value.trim();
@@ -468,7 +658,6 @@
                 }
             });
 
-            // Botón GPS
             document.getElementById("btnMiUbicacion").addEventListener("click", function () {
                 if (!navigator.geolocation) {
                     mostrarMensaje("GPS no soportado en tu navegador.", "danger");
@@ -489,12 +678,21 @@
             setTimeout(() => mapa.invalidateSize(), 500);
         });
 
-        // Interceptamos el evento de guardar para exigir validación del mapa
+        // Interceptamos el evento de guardar para exigir validación del mapa y de los términos
         window.handleRegistration = function() {
             if (!ubicacionValida) {
                 const msg = document.getElementById("mensajeUbicacion");
                 msg.className = "alert alert-danger small mt-3 mb-0";
                 msg.innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i> Por favor, valida la ubicación en el mapa antes de registrarte.';
+                msg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            const termsCheck = document.getElementById("termsCheck");
+            if (!termsCheck.checked) {
+                const msgTerminos = document.getElementById("mensajeTerminos");
+                msgTerminos.className = "alert alert-danger small py-2 mb-3";
+                msgTerminos.innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i> Debes leer y aceptar los Términos y Condiciones para poder continuar.';
                 return;
             }
 
@@ -505,7 +703,6 @@
             }
 
             const btn = document.getElementById("btnSubmitRegistro");
-            const originalHtml = btn.innerHTML;
             btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Procesando...';
             btn.disabled = true;
 
