@@ -264,7 +264,7 @@ namespace Vinculo.Controllers
                 TempData["MensajeError"] =
                     "La solicitud no puede modificarse porque ya no se encuentra pendiente.";
 
-                return RedirectToAction(nameof(Details), new { id });
+                return RedirectToAction(nameof(Index));
             }
 
             var model = new SolicitudViewModel
@@ -386,9 +386,7 @@ namespace Vinculo.Controllers
             TempData["MensajeExito"] =
                 $"La solicitud {solicitud.NumeroReferencia} fue modificada correctamente.";
 
-            return RedirectToAction(
-                nameof(Details),
-                new { id = solicitud.Id });
+            return RedirectToAction(nameof(Index));
         }
 
         // =========================================================
@@ -421,7 +419,7 @@ namespace Vinculo.Controllers
                 TempData["MensajeError"] =
                     "La solicitud ya se encuentra cancelada.";
 
-                return RedirectToAction("Index", "Solicitud");
+                return RedirectToAction(nameof(Index));
             }
 
             // Solo se permite cancelar solicitudes pendientes
@@ -432,7 +430,7 @@ namespace Vinculo.Controllers
                 TempData["MensajeError"] =
                     "La solicitud no puede cancelarse porque ya fue concretada.";
 
-                return RedirectToAction("Index", "Solicitud");
+                return RedirectToAction(nameof(Index));
             }
 
             // No cancelar si existen asignaciones activas.
@@ -467,7 +465,7 @@ namespace Vinculo.Controllers
             TempData["MensajeExito"] =
                 $"La solicitud {solicitud.NumeroReferencia} fue cancelada correctamente.";
 
-            return RedirectToAction("Index", "Solicitud");
+            return RedirectToAction(nameof(Index));
         }
 
         // =========================================================
