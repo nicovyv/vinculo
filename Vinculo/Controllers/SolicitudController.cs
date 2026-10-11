@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +23,6 @@ namespace Vinculo.Controllers
             _context = context;
             _userManager = userManager;
         }
-
 
         // =========================================================
         // INDEX
@@ -61,6 +61,7 @@ namespace Vinculo.Controllers
                             Cantidad = d.Cantidad
                         })
                         .ToList(),
+
                     Observaciones = s.Observaciones
                         .OrderByDescending(o => o.Fecha)
                         .Select(o => new ObservacionViewModel
@@ -74,7 +75,6 @@ namespace Vinculo.Controllers
 
             return View(model);
         }
-
 
         // =========================================================
         // DETAILS
@@ -126,7 +126,6 @@ namespace Vinculo.Controllers
             return View(model);
         }
 
-
         // =========================================================
         // CREATE - GET
         // =========================================================
@@ -152,7 +151,6 @@ namespace Vinculo.Controllers
             return View(model);
         }
 
-
         // =========================================================
         // CREATE - POST
         // =========================================================
@@ -171,13 +169,13 @@ namespace Vinculo.Controllers
             model.Detalles ??= new List<DetalleSolicitudViewModel>();
 
             model.Detalles = model.Detalles
-            .GroupBy(d => d.TipoEquipamiento)
-            .Select(g => new DetalleSolicitudViewModel
-            {
-                TipoEquipamiento = g.Key,
-                Cantidad = g.Sum(d => d.Cantidad)
-            })
-            .ToList();
+                .GroupBy(d => d.TipoEquipamiento)
+                .Select(g => new DetalleSolicitudViewModel
+                {
+                    TipoEquipamiento = g.Key,
+                    Cantidad = g.Sum(d => d.Cantidad)
+                })
+                .ToList();
 
             if (!model.Detalles.Any())
             {
@@ -189,18 +187,14 @@ namespace Vinculo.Controllers
             if (!ModelState.IsValid)
             {
                 ViewBag.Institucion = institucion;
-
                 return View(model);
             }
 
             var solicitud = new Solicitud
             {
                 NumeroReferencia = GenerarNumeroReferencia(),
-
                 InstitucionId = institucion.Id,
-
                 Fecha = DateTime.Now,
-
                 Estado = EstadoSolicitud.Pendiente,
 
                 Equipamientos = model.Detalles
@@ -214,6 +208,17 @@ namespace Vinculo.Controllers
 
             _context.Solicitudes.Add(solicitud);
 
+            // Registrar la creación en el historial.
+            var observacion = new Observacion
+            {
+                Mensaje =
+                    $"La institución creó la solicitud {solicitud.NumeroReferencia}.",
+                Fecha = DateTime.Now,
+                Solicitud = solicitud
+            };
+
+            _context.Observaciones.Add(observacion);
+
             await _context.SaveChangesAsync();
 
             TempData["MensajeExito"] =
@@ -221,7 +226,6 @@ namespace Vinculo.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-
 
         // =========================================================
         // EDIT - GET
@@ -310,10 +314,7 @@ namespace Vinculo.Controllers
                 return NotFound();
             }
 
-            // =========================================================
-            // VALIDAR QUE SIGA PENDIENTE
-            // =========================================================
-
+            // La solicitud debe seguir pendiente.
             if (solicitud.Estado != EstadoSolicitud.Pendiente)
             {
                 TempData["MensajeError"] =
@@ -324,20 +325,12 @@ namespace Vinculo.Controllers
 
             model.Detalles ??= new List<DetalleSolicitudViewModel>();
 
-
-            // =========================================================
-            // ELIMINAR CANTIDADES INVÁLIDAS
-            // =========================================================
-
+            // Eliminar cantidades inválidas.
             model.Detalles = model.Detalles
                 .Where(d => d.Cantidad > 0)
                 .ToList();
 
-
-            // =========================================================
-            // UNIFICAR EQUIPAMIENTOS REPETIDOS
-            // =========================================================
-
+            // Unificar equipamientos repetidos.
             model.Detalles = model.Detalles
                 .GroupBy(d => d.TipoEquipamiento)
                 .Select(g => new DetalleSolicitudViewModel
@@ -347,22 +340,13 @@ namespace Vinculo.Controllers
                 })
                 .ToList();
 
-
-            // =========================================================
-            // VALIDAR QUE EXISTA AL MENOS UN EQUIPAMIENTO
-            // =========================================================
-
+            // Debe quedar al menos un equipamiento.
             if (!model.Detalles.Any())
             {
                 ModelState.AddModelError(
                     nameof(model.Detalles),
                     "Debe existir al menos un equipamiento.");
             }
-
-
-            // =========================================================
-            // SI HAY ERRORES
-            // =========================================================
 
             if (!ModelState.IsValid)
             {
@@ -374,11 +358,7 @@ namespace Vinculo.Controllers
                 return View(model);
             }
 
-
-            // =========================================================
-            // REEMPLAZAR DETALLES
-            // =========================================================
-
+            // Reemplazar los detalles anteriores.
             _context.RemoveRange(solicitud.Equipamientos);
 
             solicitud.Equipamientos = model.Detalles
@@ -390,27 +370,105 @@ namespace Vinculo.Controllers
                 })
                 .ToList();
 
+            // Registrar la modificación en el historial.
+            var observacion = new Observacion
+            {
+                Mensaje =
+                    $"La institución modificó los equipamientos de la solicitud {solicitud.NumeroReferencia}.",
+                Fecha = DateTime.Now,
+                Solicitud = solicitud
+            };
+
+            _context.Observaciones.Add(observacion);
 
             await _context.SaveChangesAsync();
 
-
-            // =========================================================
-            // MENSAJE
-            // =========================================================
-
             TempData["MensajeExito"] =
                 $"La solicitud {solicitud.NumeroReferencia} fue modificada correctamente.";
-
-
-            // =========================================================
-            // VOLVER A DETAILS
-            // =========================================================
 
             return RedirectToAction(
                 nameof(Details),
                 new { id = solicitud.Id });
         }
 
+        // =========================================================
+        // CANCELAR SOLICITUD - POST
+        // =========================================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Cancelar(int id)
+        {
+            var institucion = await ObtenerInstitucionActual();
+
+            if (institucion == null)
+            {
+                return NotFound();
+            }
+
+            var solicitud = await _context.Solicitudes
+                .FirstOrDefaultAsync(s =>
+                    s.Id == id &&
+                    s.InstitucionId == institucion.Id);
+
+            if (solicitud == null)
+            {
+                return NotFound();
+            }
+
+            if (solicitud.Estado == EstadoSolicitud.Cancelada)
+            {
+                TempData["MensajeError"] =
+                    "La solicitud ya se encuentra cancelada.";
+
+                return RedirectToAction("Index", "Solicitud");
+            }
+
+            // Solo se permite cancelar solicitudes pendientes
+            // o que estén en coordinación.
+            if (solicitud.Estado != EstadoSolicitud.Pendiente &&
+                solicitud.Estado != EstadoSolicitud.EnCoordinacion)
+            {
+                TempData["MensajeError"] =
+                    "La solicitud no puede cancelarse porque ya fue concretada.";
+
+                return RedirectToAction("Index", "Solicitud");
+            }
+
+            // No cancelar si existen asignaciones activas.
+            var tieneAsignacionesActivas = await _context.Asignaciones
+                .AnyAsync(a =>
+                    a.SolicitudId == solicitud.Id &&
+                    a.Estado == EstadoAsignacion.Activa);
+
+            if (tieneAsignacionesActivas)
+            {
+                TempData["MensajeError"] =
+                    "No se puede cancelar la solicitud mientras tenga asignaciones activas. Primero deben resolverse esas asignaciones.";
+
+                return RedirectToAction("Index", "Solicitud");
+            }
+
+            solicitud.Estado = EstadoSolicitud.Cancelada;
+
+            // Registrar la cancelación en el historial.
+            var observacion = new Observacion
+            {
+                Mensaje =
+                    $"La institución canceló la solicitud {solicitud.NumeroReferencia}.",
+                Fecha = DateTime.Now,
+                Solicitud = solicitud
+            };
+
+            _context.Observaciones.Add(observacion);
+
+            await _context.SaveChangesAsync();
+
+            TempData["MensajeExito"] =
+                $"La solicitud {solicitud.NumeroReferencia} fue cancelada correctamente.";
+
+            return RedirectToAction("Index", "Solicitud");
+        }
 
         // =========================================================
         // OBTENER INSTITUCIÓN ACTUAL
@@ -429,7 +487,6 @@ namespace Vinculo.Controllers
                 .Include(i => i.Domicilio)
                 .FirstOrDefaultAsync(i => i.UsuarioId == userId);
         }
-
 
         // =========================================================
         // GENERAR NÚMERO DE REFERENCIA

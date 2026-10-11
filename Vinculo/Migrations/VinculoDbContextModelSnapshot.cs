@@ -163,6 +163,9 @@ namespace Vinculo.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("int");
+
                     b.Property<int>("DonacionId")
                         .HasColumnType("int");
 

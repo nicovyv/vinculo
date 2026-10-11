@@ -12,8 +12,10 @@ namespace Vinculo.Models
         public string NumeroReferencia { get; set; } 
 
         public int SolicitudId { get; set; }
-
-
+        [Required]
+        [Range(1, int.MaxValue,
+            ErrorMessage = "La cantidad asignada debe ser mayor a 0")]
+        public int Cantidad { get; set; }
         public Solicitud Solicitud { get; set; } = null!;
 
         public int DonacionId { get; set; }
