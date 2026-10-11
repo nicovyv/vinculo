@@ -106,7 +106,7 @@ namespace Vinculo.Controllers
                 return View(model);
             }
 
-            // 1. Validar que el correo no exista
+            // Validar que el correo no exista
             var existingUser = await _userManager.FindByEmailAsync(model.Email);
             if (existingUser != null)
             {
@@ -114,10 +114,20 @@ namespace Vinculo.Controllers
                 return View(model);
             }
 
-            // 2. Determinar el Tipo de Usuario
+            // Validar que el cuit no exista
+            bool cuitExiste = await _context.Empresas.AnyAsync(e => e.Cuit == model.Cuit) ||
+                      await _context.Instituciones.AnyAsync(i => i.Cuit == model.Cuit);
+
+            if (cuitExiste)
+            {
+                ModelState.AddModelError("Cuit", "El CUIT ingresado ya se encuentra registrado en otra organización.");
+                return View(model);
+            }
+
+            // Determinar el Tipo de Usuario
             var tipoUsuario = model.TipoOrganizacion == "empresa" ? TipoUsuario.Empresa : TipoUsuario.Institucion;
 
-            // 3. Crear Credenciales Identity
+            // Crear Credenciales Identity
             var newUser = new Usuario
             {
                 UserName = model.Email,
@@ -132,10 +142,10 @@ namespace Vinculo.Controllers
 
             if (result.Succeeded)
             {
-                // 4. Asignar el Rol correspondiente
+                //  Asignar el Rol correspondiente
                 await _userManager.AddToRoleAsync(newUser, tipoUsuario.ToString());
 
-                // 5. Crear Entidad de Domicilio
+                // Crear Entidad de Domicilio
                 var domicilio = new Domicilio
                 {
                     Calle = model.Calle,
@@ -147,7 +157,7 @@ namespace Vinculo.Controllers
                     Longitud = model.Longitud
                 };
 
-                // 6. Crear Entidad Institución o Empresa
+                // Crear Entidad Institución o Empresa
                 if (tipoUsuario == TipoUsuario.Empresa)
                 {
                     var empresa = new Empresa
@@ -180,10 +190,10 @@ namespace Vinculo.Controllers
                 // Guardar las nuevas tablas relacionadas
                 await _context.SaveChangesAsync();
 
-                // 7. Iniciar sesión automáticamente después de registrarse
+                //  Iniciar sesión automáticamente después de registrarse
                 await _signInManager.SignInAsync(newUser, isPersistent: false);
 
-                // 8. Redirigir al panel correspondiente
+                // Redirigir al panel correspondiente
                 if (tipoUsuario == TipoUsuario.Empresa)
                     return RedirectToAction("Index", "Empresa");
                 else
