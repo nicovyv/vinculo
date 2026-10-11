@@ -5,6 +5,7 @@ using Vinculo.Data;
 using Vinculo.Models;
 using Vinculo.Models.Enums;
 using Vinculo.Models.ViewModels;
+using Vinculo.Services;
 
 
 namespace Vinculo.Controllers
@@ -14,13 +15,15 @@ namespace Vinculo.Controllers
         private readonly SignInManager<Usuario> _signInManager;
         private readonly UserManager<Usuario> _userManager;
         private readonly VinculoDbContext _context;
+        private readonly NominatimService _nominatimService;
 
 
-        public UsuarioController(SignInManager<Usuario> signInManager, UserManager<Usuario> userManager, VinculoDbContext context)
+        public UsuarioController(SignInManager<Usuario> signInManager, UserManager<Usuario> userManager, VinculoDbContext context, NominatimService nominatimService)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _context = context;
+            _nominatimService = nominatimService;
         }
 
         [HttpGet]
@@ -207,6 +210,32 @@ namespace Vinculo.Controllers
             }
 
             return View(model);
+        }
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> BuscarUbicacion(string calle, string numero, string localidad, string provincia, string? codigoPostal)
+        {
+            if (string.IsNullOrWhiteSpace(calle) || string.IsNullOrWhiteSpace(numero) || string.IsNullOrWhiteSpace(localidad) || string.IsNullOrWhiteSpace(provincia))
+                return BadRequest(new { mensaje = "Completá calle, número, localidad y provincia." });
+
+            var coordenadas = await _nominatimService.BuscarCoordenadasAsync(calle, numero, localidad, provincia, codigoPostal);
+            if (coordenadas == null) return NotFound(new { mensaje = "No se encontró una ubicación para el domicilio ingresado." });
+
+            return Json(new { latitud = coordenadas.Value.Latitud, longitud = coordenadas.Value.Longitud });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerDireccion(double latitud, double longitud)
+        {
+            var resultado = await _nominatimService.ObtenerDireccionAsync(latitud, longitud);
+            if (resultado?.Address == null) return NotFound(new { mensaje = "No se pudo determinar la dirección." });
+
+            var direccion = resultado.Address;
+            var loc = direccion.City ?? direccion.Town ?? direccion.Village ?? direccion.Municipality;
+
+            return Json(new { calle = direccion.Road, numero = direccion.HouseNumber, localidad = loc, provincia = direccion.State, codigoPostal = direccion.Postcode });
         }
 
 

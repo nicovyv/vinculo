@@ -3,26 +3,35 @@
     ViewData["Title"] = "Registro de Organización";
 }
 
+<!-- Carga de Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
 <style>
-    .font-tabular { font-variant-numeric: tabular-nums; }
+    .font-tabular {
+        font-variant-numeric: tabular-nums;
+    }
+
     .card-selectable {
         cursor: pointer;
         transition: all 0.2s ease-in-out;
         border: 2px solid transparent;
     }
-    .card-selectable.active {
-        border-color: var(--bs-primary);
-        background-color: #ffffff;
-        box-shadow: 0 .125rem .25rem rgba(15, 42, 71, 0.08) !important;
-    }
-    .card-selectable:not(.active) {
-        background-color: #eef3fb;
-        opacity: 0.9;
-    }
-    .card-selectable:not(.active):hover {
-        opacity: 1;
-        border-color: #cbd5e1;
-    }
+
+        .card-selectable.active {
+            border-color: var(--bs-primary);
+            background-color: #ffffff;
+            box-shadow: 0 .125rem .25rem rgba(15, 42, 71, 0.08) !important;
+        }
+
+        .card-selectable:not(.active) {
+            background-color: #eef3fb;
+            opacity: 0.9;
+        }
+
+            .card-selectable:not(.active):hover {
+                opacity: 1;
+                border-color: #cbd5e1;
+            }
+
     .step-circle {
         width: 28px;
         height: 28px;
@@ -35,26 +44,23 @@
         font-weight: 600;
         font-size: 0.85rem;
     }
-    .map-preview-container {
-        height: 220px;
-        background-size: cover;
-        background-position: center;
-        position: relative;
-        border-radius: 0.375rem;
+
+    #mapaDomicilio {
+        width: 100%;
+        height: 320px;
+        border-radius: 12px;
+        z-index: 1;
+        border: 1px solid #e3e8f0;
     }
-    .map-badge-overlay {
-        position: absolute;
-        bottom: 12px;
-        left: 12px;
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(4px);
+
+    .leaflet-control-attribution {
+        font-size: 10px;
     }
 </style>
 
 <div class="container my-4">
-
     <!-- Columna Centrada para el Formulario -->
-    <div class="col-lg-10 col-xl-8 mx-auto">
+    <div class="col-lg-10 col-xl-9 mx-auto">
 
         <!-- Breadcrumb & Context Header -->
         <div class="row align-items-end mb-4 gy-2">
@@ -169,44 +175,70 @@
             </div>
 
             <!-- SECCIÓN 2: Domicilio y Geolocalización -->
-            <div class="card shadow-sm border-0 mb-4">
+            <div class="card shadow-sm border-0 mb-4 overflow-hidden">
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div class="d-flex align-items-center gap-2">
                             <span class="step-circle">2</span>
                             <div>
-                                <h3 class="h5 fw-bold text-dark mb-0">Domicilio</h3>
+                                <h3 class="h5 fw-bold text-dark mb-0">Domicilio y Motor Geográfico</h3>
                                 <small class="text-secondary">Requerido para cálculo de radio logístico de retiro y entrega.</small>
                             </div>
                         </div>
                         <i class="bi bi-compass text-secondary fs-4"></i>
                     </div>
-                    <div class="row g-3">
-                        <div class="col-md-8">
-                            <label asp-for="Calle" class="form-label fw-semibold small">Calle / Avenida <span class="text-danger">*</span></label>
-                            <input asp-for="Calle" class="form-control" type="text" required>
+
+                    <div class="row g-4">
+                        <!-- Columna Izquierda: Formulario -->
+                        <div class="col-12 col-xl-5">
+                            <div class="row g-3 mb-3">
+                                <div class="col-12 col-sm-8">
+                                    <label asp-for="Calle" class="form-label small fw-semibold mb-1">Calle / Avenida <span class="text-danger">*</span></label>
+                                    <input asp-for="Calle" id="Calle" class="form-control" type="text" required />
+                                </div>
+                                <div class="col-12 col-sm-4">
+                                    <label asp-for="Numero" class="form-label small fw-semibold mb-1">Número <span class="text-danger">*</span></label>
+                                    <input asp-for="Numero" id="Numero" class="form-control font-tabular" type="text" required />
+                                </div>
+                            </div>
+                            <div class="row g-3 mb-3">
+                                <div class="col-12 col-sm-8">
+                                    <label asp-for="Localidad" class="form-label small fw-semibold mb-1">Localidad <span class="text-danger">*</span></label>
+                                    <input asp-for="Localidad" id="Localidad" class="form-control" type="text" required />
+                                </div>
+                                <div class="col-12 col-sm-4">
+                                    <label asp-for="CodigoPostal" class="form-label small fw-semibold mb-1">Cód. Postal <span class="text-danger">*</span></label>
+                                    <input asp-for="CodigoPostal" id="CodigoPostal" class="form-control font-tabular text-uppercase" type="text" required />
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label asp-for="Provincia" class="form-label small fw-semibold mb-1">Provincia <span class="text-danger">*</span></label>
+                                <select asp-for="Provincia" id="Provincia" class="form-select" required>
+                                    <option value="CABA">Ciudad Autónoma de Buenos Aires</option>
+                                    <option value="Buenos Aires">Buenos Aires</option>
+                                    <option value="Córdoba">Córdoba</option>
+                                    <option value="Santa Fe">Santa Fe</option>
+                                    <option value="Mendoza">Mendoza</option>
+                                </select>
+                            </div>
+
+                            <div class="d-flex flex-column flex-sm-row gap-2">
+                                <button type="button" id="btnBuscarUbicacion" class="btn btn-sm px-3 d-flex align-items-center justify-content-center gap-1 text-white" style="background-color: #0E9AA7; border-color: #0E9AA7;">
+                                    <i class="bi bi-search"></i> Validar Ubicación
+                                </button>
+                                <button type="button" id="btnMiUbicacion" class="btn btn-outline-secondary btn-sm px-3 d-flex align-items-center justify-content-center gap-1">
+                                    <i class="bi bi-crosshair"></i> Usar mi GPS
+                                </button>
+                            </div>
+                            <div id="mensajeUbicacion" class="alert d-none small mt-3 mb-0" role="alert"></div>
                         </div>
-                        <div class="col-md-4">
-                            <label asp-for="Numero" class="form-label fw-semibold small">Número <span class="text-danger">*</span></label>
-                            <input asp-for="Numero" class="form-control font-tabular" type="text" required>
-                        </div>
-                        <div class="col-md-4">
-                            <label asp-for="Localidad" class="form-label fw-semibold small">Localidad / Barrio <span class="text-danger">*</span></label>
-                            <input asp-for="Localidad" class="form-control" type="text" required>
-                        </div>
-                        <div class="col-md-4">
-                            <label asp-for="Provincia" class="form-label fw-semibold small">Provincia <span class="text-danger">*</span></label>
-                            <select asp-for="Provincia" class="form-select" required>
-                                <option value="caba">Ciudad Autónoma de Buenos Aires</option>
-                                <option value="pba">Buenos Aires</option>
-                                <option value="cba">Córdoba</option>
-                                <option value="sfe">Santa Fe</option>
-                                <option value="mza">Mendoza</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label asp-for="CodigoPostal" class="form-label fw-semibold small">Código Postal <span class="text-danger">*</span></label>
-                            <input asp-for="CodigoPostal" class="form-control font-tabular" type="text" required>
+
+                        <!-- Columna Derecha: Mapa -->
+                        <div class="col-12 col-xl-7">
+                            <div class="bg-body-tertiary rounded-3 p-2 h-100 border border-light-subtle d-flex flex-column" style="min-height: 320px;">
+                                <div id="mapaDomicilio" class="flex-grow-1"></div>
+                                <p class="text-secondary small mt-2 mb-1 text-center"><i class="bi bi-arrows-move me-1"></i> Desplaza el marcador rojo para afinar las coordenadas de retiro logístico.</p>
+                            </div>
                         </div>
                     </div>
 
@@ -264,7 +296,8 @@
                         </label>
                     </div>
                     <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3">
-                        <button class="btn btn-primary px-4 py-2 fw-semibold" id="submitBtn" type="submit">
+                        <!-- Botón modificado a type="button" para pasar primero por la validación del mapa -->
+                        <button class="btn btn-primary px-4 py-2 fw-semibold" id="btnSubmitRegistro" type="button" onclick="handleRegistration()">
                             <i class="bi bi-person-check-fill me-1"></i> Completar Registro
                         </button>
 
@@ -279,8 +312,13 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
     <script>
+        // Lógica visual del Tipo de Organización
         function selectRole(type) {
             const orgCard = document.getElementById('typeOptionOrg');
             const corpCard = document.getElementById('typeOptionCorp');
@@ -306,6 +344,7 @@
             }
         }
 
+        // Lógica de Mostrar/Ocultar contraseña
         function togglePass(inputId, btn) {
             const input = document.getElementById(inputId);
             const icon = btn.querySelector('i');
@@ -318,9 +357,159 @@
             }
         }
 
-        document.addEventListener("DOMContentLoaded", () => {
+        // LÓGICA DEL MAPA Y GEOLOCALIZACIÓN
+        let ubicacionValida = false;
+
+        document.addEventListener("DOMContentLoaded", function () {
+            // Inicializar opciones
             const isEmpresa = document.getElementById('roleEmpresa').checked;
             selectRole(isEmpresa ? 'empresa' : 'institucion');
+
+            // Inicializar mapa centrado en Buenos Aires por defecto
+            const mapa = L.map("mapaDomicilio").setView([-34.6037, -58.3816], 12);
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "&copy; OSM" }).addTo(mapa);
+
+            let marcador = null;
+            const mensajeUbicacion = document.getElementById("mensajeUbicacion");
+
+            function mostrarMensaje(texto, tipo) {
+                mensajeUbicacion.className = `alert alert-${tipo} small mt-3 mb-0`;
+                mensajeUbicacion.innerHTML = texto;
+            }
+
+            function actualizarCoordenadas(lat, lng) {
+                // Almacenamos en los inputs ocultos (reemplazando punto por coma si tu cultura lo requiere)
+                document.getElementById("Latitud").value = lat.toString().replace('.', ',');
+                document.getElementById("Longitud").value = lng.toString().replace('.', ',');
+            }
+
+            function colocarMarcador(lat, lng, zoom = 16) {
+                if (marcador) mapa.removeLayer(marcador);
+                marcador = L.marker([lat, lng], { draggable: true }).addTo(mapa);
+
+                marcador.on("dragend", async function (e) {
+                    const pos = e.target.getLatLng();
+                    actualizarCoordenadas(pos.lat, pos.lng);
+                    ubicacionValida = false;
+                    await actualizarDireccionDesdeMapa(pos.lat, pos.lng);
+                });
+
+                mapa.setView([lat, lng], zoom);
+                actualizarCoordenadas(lat, lng);
+            }
+
+            // Llamada al Controller PÚBLICO (Usuario)
+            async function obtenerDireccionDesdeCoordenadas(lat, lng) {
+                const url = `@Url.Action("ObtenerDireccion", "Usuario")?latitud=${encodeURIComponent(lat)}&longitud=${encodeURIComponent(lng)}`;
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("No se pudo determinar la dirección.");
+                return await response.json();
+            }
+
+            async function actualizarDireccionDesdeMapa(lat, lng) {
+                mostrarMensaje('<span class="spinner-border spinner-border-sm me-1"></span>Sincronizando dirección...', "info");
+                try {
+                    const dir = await obtenerDireccionDesdeCoordenadas(lat, lng);
+                    if (dir.calle) document.getElementById("Calle").value = dir.calle;
+                    if (dir.numero) document.getElementById("Numero").value = dir.numero;
+                    if (dir.localidad) document.getElementById("Localidad").value = dir.localidad;
+                    if (dir.provincia) document.getElementById("Provincia").value = dir.provincia;
+                    if (dir.codigoPostal) document.getElementById("CodigoPostal").value = dir.codigoPostal;
+
+                    ubicacionValida = true;
+                    mostrarMensaje("Dirección actualizada y vinculada al motor geográfico.", "success");
+                } catch (error) {
+                    mostrarMensaje(error.message, "warning");
+                }
+            }
+
+            // Invalidar ubicación si el usuario tipea a mano en los campos
+            ["Calle", "Numero", "Localidad", "Provincia", "CodigoPostal"].forEach(id => {
+                const campo = document.getElementById(id);
+                if (campo) campo.addEventListener("input", () => {
+                    ubicacionValida = false;
+                    mostrarMensaje("Has modificado el domicilio. Presiona 'Validar Ubicación'.", "warning");
+                });
+            });
+
+            // Botón Buscar (Llama a UsuarioController)
+            document.getElementById("btnBuscarUbicacion").addEventListener("click", async function () {
+                const calle = document.getElementById("Calle").value.trim();
+                const numero = document.getElementById("Numero").value.trim();
+                const localidad = document.getElementById("Localidad").value.trim();
+                const provincia = document.getElementById("Provincia").value.trim();
+                const codigoPostal = document.getElementById("CodigoPostal").value.trim();
+
+                if (!calle || !numero || !localidad || !provincia) {
+                    mostrarMensaje("Completa los campos principales para geolocalizar.", "danger");
+                    return;
+                }
+
+                const btn = this;
+                const originalHtml = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>...';
+
+                try {
+                    const parametros = new URLSearchParams({ calle, numero, localidad, provincia, codigoPostal });
+                    const response = await fetch(`@Url.Action("BuscarUbicacion", "Usuario")?${parametros.toString()}`);
+
+                    if (!response.ok) throw new Error("No se pudo geolocalizar este domicilio.");
+                    const resultado = await response.json();
+
+                    colocarMarcador(resultado.latitud, resultado.longitud);
+                    ubicacionValida = true;
+                    mostrarMensaje("Ubicación enlazada correctamente.", "success");
+                } catch (error) {
+                    mostrarMensaje(error.message, "danger");
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
+            });
+
+            // Botón GPS
+            document.getElementById("btnMiUbicacion").addEventListener("click", function () {
+                if (!navigator.geolocation) {
+                    mostrarMensaje("GPS no soportado en tu navegador.", "danger");
+                    return;
+                }
+                mostrarMensaje("Obteniendo satélites...", "info");
+                navigator.geolocation.getCurrentPosition(
+                    async pos => {
+                        colocarMarcador(pos.coords.latitude, pos.coords.longitude);
+                        ubicacionValida = false;
+                        await actualizarDireccionDesdeMapa(pos.coords.latitude, pos.coords.longitude);
+                    },
+                    () => mostrarMensaje("Permiso de ubicación denegado.", "danger"),
+                    { enableHighAccuracy: true }
+                );
+            });
+
+            setTimeout(() => mapa.invalidateSize(), 500);
         });
+
+        // Interceptamos el evento de guardar para exigir validación del mapa
+        window.handleRegistration = function() {
+            if (!ubicacionValida) {
+                const msg = document.getElementById("mensajeUbicacion");
+                msg.className = "alert alert-danger small mt-3 mb-0";
+                msg.innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i> Por favor, valida la ubicación en el mapa antes de registrarte.';
+                return;
+            }
+
+            const form = document.getElementById("registrationForm");
+            if(!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const btn = document.getElementById("btnSubmitRegistro");
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Procesando...';
+            btn.disabled = true;
+
+            setTimeout(() => { form.submit(); }, 800);
+        };
     </script>
 }
