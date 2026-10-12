@@ -1,5 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Vinculo.Models.Enums;
 
 namespace Vinculo.Models
@@ -7,19 +8,13 @@ namespace Vinculo.Models
     public class Donacion
     {
         public int Id { get; set; }
+
         [Required]
         public string NumeroReferencia { get; set; }
 
         [Required]
         public int EmpresaId { get; set; }
         public Empresa Empresa { get; set; }
-
-        [Required]
-        public TipoEquipamiento Tipo { get; set; }
-
-        [Required]
-        [Range(1, int.MaxValue, ErrorMessage = "La cantidad debe ser mayor a 0")]
-        public int Cantidad { get; set; }
 
         [Required]
         [StringLength(200)]
@@ -35,9 +30,8 @@ namespace Vinculo.Models
         [Required]
         public EstadoDonacion Estado { get; set; }
 
-
+        public List<DetalleDonacion> Equipamientos { get; set; } = new List<DetalleDonacion>();
         public List<Asignacion>? Asignaciones { get; set; }
         public ICollection<Observacion> Observaciones { get; set; } = new List<Observacion>();
-
     }
 }

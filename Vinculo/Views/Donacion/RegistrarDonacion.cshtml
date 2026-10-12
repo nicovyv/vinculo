@@ -6,7 +6,16 @@
 <div class="d-flex flex-column w-100 pb-5">
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb mb-1">
-            <li class="breadcrumb-item"><a class="text-decoration-none fw-semibold" asp-controller="Empresa" asp-action="Index" style="color: #0e9aa7;"><i class="bi bi-house-door me-1"></i>Inicio</a></li>
+            <li class="breadcrumb-item">
+                <a class="text-decoration-none fw-semibold" asp-controller="Empresa" asp-action="Index" style="color: #0e9aa7;">
+                    <i class="bi bi-house-door me-1"></i>Inicio
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a class="text-decoration-none text-secondary" asp-controller="Donacion" asp-action="Index">
+                    Mis Donaciones
+                </a>
+            </li>
             <li aria-current="page" class="breadcrumb-item active text-dark fw-semibold">Registrar Donación</li>
         </ol>
     </nav>
@@ -31,12 +40,17 @@
 
     <!-- INICIO DEL FORMULARIO -->
     <form asp-action="RegistrarDonacion" method="post" enctype="multipart/form-data" id="formDonacion">
+        @Html.AntiForgeryToken()
+
+        <!-- Contenedor donde JS inyecta Detalles[i].TipoEquipamiento y Detalles[i].Cantidad -->
+        <div id="detallesHidden"></div>
+
         <div class="row g-4">
 
             <!-- COLUMNA IZQUIERDA: DATOS -->
             <div class="col-lg-8">
 
-                <!-- Tarjeta 1: Empresa -->
+                <!-- Tarjeta 1: Ubicación -->
                 <div class="card border border-light-subtle shadow-sm mb-4 rounded-3">
                     <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom border-light-subtle">
                         <div class="d-flex align-items-center gap-2">
@@ -67,7 +81,7 @@
                     </div>
                 </div>
 
-                <!-- Tarjeta 2: Formulario del Equipo -->
+                <!-- Tarjeta 2: Ítems de Equipamiento y Detalles -->
                 <div class="card border border-light-subtle shadow-sm rounded-3">
                     <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom border-light-subtle">
                         <div class="d-flex align-items-center gap-2">
@@ -75,44 +89,134 @@
                             <h2 class="h6 fw-bold mb-0 text-dark">Detalles del Equipamiento a Donar</h2>
                         </div>
                     </div>
+
                     <div class="card-body p-4">
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label asp-for="Tipo" class="form-label small fw-semibold text-secondary mb-1">Tipo de Equipamiento *</label>
-                                <select asp-for="Tipo" class="form-select fw-semibold text-dark" asp-items="Html.GetEnumSelectList<Vinculo.Models.Enums.TipoEquipamiento>()">
-                                    <option value="" selected disabled>Seleccione categoría...</option>
-                                </select>
-                                <span asp-validation-for="Tipo" class="text-danger small mt-1 d-block"></span>
+
+                        <!-- Bloque para añadir equipamientos -->
+                        <div class="card bg-light border-0 p-3 mb-4 rounded-3">
+                            <div class="d-flex align-items-center gap-2 mb-3 text-dark fw-bold small text-uppercase">
+                                <i class="bi bi-plus-circle" style="color: #0e9aa7;"></i>
+                                Añadir equipamiento
                             </div>
 
-                            <div class="col-md-6">
-                                <label asp-for="Cantidad" class="form-label small fw-semibold text-secondary mb-1">Cantidad *</label>
-                                <input asp-for="Cantidad" type="number" class="form-control" min="1" placeholder="Ingrese la cantidad" required />
-                                <span asp-validation-for="Cantidad" class="text-danger small mt-1 d-block"></span>
+                            <div class="row g-2 align-items-end">
+                                <div class="col-md-5">
+                                    <label class="form-label small text-secondary fw-semibold">
+                                        Tipo de equipamiento *
+                                    </label>
+                                    <select id="tipoEquipamiento" class="form-select">
+                                        <option value="">Seleccione categoría...</option>
+                                        @foreach (var tipo in Enum.GetValues<Vinculo.Models.Enums.TipoEquipamiento>())
+                                        {
+                                            <option value="@tipo">@tipo</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="form-label small text-secondary fw-semibold">
+                                        Cantidad *
+                                    </label>
+                                    <input id="cantidadEquipamiento"
+                                           type="number"
+                                           class="form-control"
+                                           min="1"
+                                           value="1" />
+                                </div>
+
+                                <div class="col-md-4">
+                                    <button type="button"
+                                            id="btnAgregarEquipamiento"
+                                            class="btn text-white w-100 d-flex align-items-center justify-content-center gap-2"
+                                            style="background-color: #0f2a47;">
+                                        <i class="bi bi-plus-lg"></i>
+                                        Agregar
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="row g-3">
+                        <!-- Tabla de equipamientos agregados -->
+                        <div class="table-responsive rounded-3 border mb-2">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr class="small text-secondary text-uppercase">
+                                        <th class="ps-3 py-3">Equipamiento</th>
+                                        <th class="text-center py-3">Cantidad</th>
+                                        <th class="text-end pe-3 py-3">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="equipamientosBody">
+                                    <tr>
+                                        <td colspan="3" class="text-center text-secondary py-4">
+                                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                            Todavía no agregó ningún equipamiento.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <span asp-validation-for="Detalles" class="text-danger small d-block mb-2"></span>
+
+                        <!-- Totales de la tabla -->
+                        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                            <span class="small text-secondary">
+                                <span id="totalTipos">0</span> tipo(s) de equipamiento
+                            </span>
+                            <strong class="text-dark">
+                                Total: <span id="totalUnidades">0</span> unidades
+                            </strong>
+                        </div>
+
+                        <!-- Descripción y Fotografía -->
+                        <div class="row g-3 mb-3">
                             <div class="col-12">
                                 <label asp-for="Descripcion" class="form-label small fw-semibold text-secondary mb-1">Descripción y Estado Técnico *</label>
-                                <textarea asp-for="Descripcion" class="form-control" rows="3" placeholder="Ej: Notebook Lenovo T490. Funcional 100%. Incluye cargador original y borrado seguro Blancco OK." required></textarea>
+                                <textarea asp-for="Descripcion" class="form-control" rows="3" placeholder="Ej: Equipos funcionales 100%. Incluyen cargadores originales y borrado seguro certificado." required></textarea>
                                 <span asp-validation-for="Descripcion" class="text-danger small mt-1 d-block"></span>
                             </div>
                         </div>
 
                         <div class="row g-3">
                             <div class="col-md-12">
-                                <label asp-for="FotoArchivo" class="form-label small fw-semibold text-secondary mb-1">Fotografía del equipo (Opcional)</label>
+                                <label asp-for="FotoArchivo" class="form-label small fw-semibold text-secondary mb-1">Fotografía del lote (Opcional)</label>
                                 <input asp-for="FotoArchivo" type="file" class="form-control" accept="image/*" />
                                 <span asp-validation-for="FotoArchivo" class="text-danger small mt-1 d-block"></span>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
 
             <!-- COLUMNA DERECHA: PANELES LATERALES -->
             <div class="col-lg-4">
+
+                <!-- Tarjeta Resumen -->
+                <div class="card border border-light-subtle shadow-sm mb-4 rounded-3">
+                    <div class="card-header bg-white py-3 border-bottom border-light-subtle">
+                        <h3 class="h6 fw-bold mb-0 text-dark">
+                            <i class="bi bi-journal-text me-2" style="color: #0e9aa7;"></i>Resumen de la Donación
+                        </h3>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <div class="p-3 bg-light rounded-3 text-center">
+                                    <small class="text-secondary d-block">Tipos</small>
+                                    <span id="resumenTipos" class="h4 fw-bold text-dark mb-0">0</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-3 bg-light rounded-3 text-center">
+                                    <small class="text-secondary d-block">Unidades</small>
+                                    <span id="resumenUnidades" class="h4 fw-bold text-dark mb-0">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Tarjeta Guía de Preparación -->
                 <div class="card border border-light-subtle shadow-sm mb-4 rounded-3">
@@ -147,7 +251,7 @@
                             <span>Publicar Donación</span>
                         </button>
                         <div class="text-center">
-                            <a class="text-decoration-none small text-danger hover-underline" asp-controller="Empresa" asp-action="Index">
+                            <a class="text-decoration-none small text-danger hover-underline" asp-controller="Donacion" asp-action="Index">
                                 <i class="bi bi-x-circle me-1"></i>Descartar y cancelar
                             </a>
                         </div>
@@ -157,8 +261,8 @@
             </div>
         </div>
     </form>
-    
-    <!-- Pie de Módulo / Certificación Institucional -->
+
+    <!-- Pie de Módulo -->
     <div class="mt-5 pt-4 border-top border-light-subtle d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 text-secondary small">
         <div class="d-flex align-items-center gap-3">
             <img alt="Eisbaer Logo" class="img-fluid opacity-75" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBo-17XWs1TbXjug6LezZr3BxNSZHwcUWe1RZYB1YMtBEcWqnYQ797BIfPkTtDn5VcYKEA_M8-E7sYwAvDxTqPhQ_q95KZ3D6uSWFuR2pIl0FcaYg8gF5I2ARsk6e1Wu6ShBXzhBL_LHp2HZwgblUxV9EOu0501awblbwqZw-cmPkUXbGUw0Oy8HOKOlsK5EQnczwKstL-0w_7Dfb4hrtvnf3zMPFZqW-M_Qx7XkzC53NM6ht9VWyohnUrNy4wZ_YDIZT4" style="width: 36px; height: 36px; object-fit: contain;" />
@@ -175,12 +279,153 @@
     }
 
     <script>
-        document.getElementById('formDonacion').addEventListener('submit', function (e) {
-            if (this.checkValidity()) {
-                const btn = document.getElementById('btnSubmit');
-                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Registrando activo...';
-                btn.classList.add('disabled');
+        document.addEventListener("DOMContentLoaded", function () {
+            const tipoSelect = document.getElementById("tipoEquipamiento");
+            const cantidadInput = document.getElementById("cantidadEquipamiento");
+            const agregarButton = document.getElementById("btnAgregarEquipamiento");
+
+            const tbody = document.getElementById("equipamientosBody");
+            const detallesHidden = document.getElementById("detallesHidden");
+            const form = document.getElementById("formDonacion");
+
+            const totalTipos = document.getElementById("totalTipos");
+            const totalUnidades = document.getElementById("totalUnidades");
+            const resumenTipos = document.getElementById("resumenTipos");
+            const resumenUnidades = document.getElementById("resumenUnidades");
+
+            let detalles = [];
+
+            function actualizarVista() {
+                tbody.innerHTML = "";
+
+                if (detalles.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="3" class="text-center text-secondary py-4">
+                                <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                Todavía no agregó ningún equipamiento.
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    detalles.forEach(function (detalle, indice) {
+                        const fila = document.createElement("tr");
+
+                        fila.innerHTML = `
+                            <td class="ps-3 py-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="bg-light text-primary rounded p-2 d-flex align-items-center justify-content-center" style="width:34px;height:34px;">
+                                        <i class="bi bi-laptop"></i>
+                                    </div>
+                                    <span class="fw-semibold text-dark">${detalle.tipo}</span>
+                                </div>
+                            </td>
+                            <td class="text-center py-3">
+                                <span class="badge bg-light text-dark border px-3 py-2">${detalle.cantidad} u.</span>
+                            </td>
+                            <td class="text-end pe-3 py-3">
+                                <button type="button" class="btn btn-outline-danger btn-sm btn-eliminar" data-indice="${indice}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        `;
+
+                        fila.querySelector(".btn-eliminar").addEventListener("click", function () {
+                            const indiceEliminar = Number(this.dataset.indice);
+                            detalles.splice(indiceEliminar, 1);
+                            actualizarVista();
+                        });
+
+                        tbody.appendChild(fila);
+                    });
+                }
+
+                const cantidadTipos = detalles.length;
+                const cantidadUnidades = detalles.reduce(function (total, d) {
+                    return total + d.cantidad;
+                }, 0);
+
+                totalTipos.textContent = cantidadTipos;
+                totalUnidades.textContent = cantidadUnidades;
+                resumenTipos.textContent = cantidadTipos;
+                resumenUnidades.textContent = cantidadUnidades;
             }
+
+            agregarButton.addEventListener("click", function () {
+                const tipo = tipoSelect.value;
+                const cantidad = parseInt(cantidadInput.value, 10);
+
+                if (!tipo) {
+                    alert("Debe seleccionar un tipo de equipamiento.");
+                    tipoSelect.focus();
+                    return;
+                }
+
+                if (!cantidad || cantidad <= 0) {
+                    alert("La cantidad debe ser mayor a 0.");
+                    cantidadInput.focus();
+                    return;
+                }
+
+                const existente = detalles.find(function (d) {
+                    return d.tipo === tipo;
+                });
+
+                if (existente) {
+                    existente.cantidad += cantidad;
+                } else {
+                    detalles.push({
+                        tipo: tipo,
+                        cantidad: cantidad
+                    });
+                }
+
+                actualizarVista();
+
+                tipoSelect.value = "";
+                cantidadInput.value = "1";
+                tipoSelect.focus();
+            });
+
+            cantidadInput.addEventListener("keydown", function (event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    agregarButton.click();
+                }
+            });
+
+            form.addEventListener("submit", function (event) {
+                if (detalles.length === 0) {
+                    event.preventDefault();
+                    alert("Debe agregar al menos un equipamiento antes de publicar la donación.");
+                    return;
+                }
+
+                detallesHidden.innerHTML = "";
+
+                detalles.forEach(function (detalle, indice) {
+                    const tipoInput = document.createElement("input");
+                    tipoInput.type = "hidden";
+                    tipoInput.name = `Detalles[${indice}].TipoEquipamiento`;
+                    tipoInput.value = detalle.tipo;
+
+                    const cantidadInputHidden = document.createElement("input");
+                    cantidadInputHidden.type = "hidden";
+                    cantidadInputHidden.name = `Detalles[${indice}].Cantidad`;
+                    cantidadInputHidden.value = detalle.cantidad;
+
+                    detallesHidden.appendChild(tipoInput);
+                    detallesHidden.appendChild(cantidadInputHidden);
+                });
+
+                if (this.checkValidity()) {
+                    const btn = document.getElementById("btnSubmit");
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Registrando activo...';
+                    btn.classList.add("disabled");
+                }
+            });
+
+            actualizarVista();
         });
     </script>
 }

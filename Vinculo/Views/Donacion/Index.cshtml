@@ -63,16 +63,7 @@
             <h1 class="h3 fw-bold text-corporate-primary mb-0">
                 Mis Donaciones
             </h1>
-
-            <span class="badge rounded-pill bg-white text-dark border px-2 py-1 small">
-                <i class="bi bi-calendar3 me-1 text-teal"></i>
-                Período Fiscal @DateTime.Now.Year
-            </span>
         </div>
-
-        <p class="text-secondary small mb-0">
-            Administración centralizada, trazabilidad y estado de despacho de parques informáticos corporativos.
-        </p>
     </div>
 
     <div class="d-flex align-items-center gap-2">
@@ -289,6 +280,12 @@
                             ? ""
                             : $"{institucion.Domicilio.Calle} {institucion.Domicilio.Numero}, {institucion.Domicilio.Localidad}";
 
+                        var resumenEquipamientos = item.Equipamientos != null && item.Equipamientos.Any()
+                            ? string.Join(", ", item.Equipamientos.Select(e => $"{e.TipoEquipamiento} ({e.Cantidad})"))
+                            : "Sin detalles";
+
+                        var totalUnidadesLote = item.Equipamientos?.Sum(e => e.Cantidad) ?? 0;
+
                         <tr data-estado="@item.Estado">
                             <td class="ps-3">
                                 <div class="fw-bold text-corporate-primary font-monospace">
@@ -303,9 +300,21 @@
                             </td>
 
                             <td>
-                                <span class="badge bg-light text-dark border">
-                                    @item.Tipo
-                                </span>
+                                @if (item.Equipamientos != null && item.Equipamientos.Any())
+                                {
+                                    <div class="d-flex flex-wrap gap-1">
+                                        @foreach (var eq in item.Equipamientos)
+                                        {
+                                            <span class="badge bg-light text-dark border">
+                                                @eq.TipoEquipamiento: @eq.Cantidad
+                                            </span>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Sin detalles</span>
+                                }
                             </td>
 
                             <td>
@@ -348,8 +357,8 @@
                                         data-asig-cod="@(asignacion?.NumeroReferencia ?? "")"
                                         data-don-ref="@item.NumeroReferencia"
                                         data-don-estado="@item.Estado"
-                                        data-don-tipo="@item.Tipo"
-                                        data-don-cant="@item.Cantidad"
+                                        data-don-tipo="@resumenEquipamientos"
+                                        data-don-cant="@totalUnidadesLote"
                                         data-don-desc="@item.Descripcion"
                                         data-inst-nombre="@(institucion?.Nombre ?? "")"
                                         data-inst-email="@(institucion?.Email ?? "")"
@@ -373,6 +382,16 @@
                 }
             </tbody>
         </table>
+    </div>
+</div>
+
+<!-- Pie de Módulo -->
+<div class="mt-5 pt-4 border-top border-light-subtle d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 text-secondary small">
+    <div class="d-flex align-items-center gap-3">
+        <img alt="Eisbaer Logo" class="img-fluid opacity-75" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBo-17XWs1TbXjug6LezZr3BxNSZHwcUWe1RZYB1YMtBEcWqnYQ797BIfPkTtDn5VcYKEA_M8-E7sYwAvDxTqPhQ_q95KZ3D6uSWFuR2pIl0FcaYg8gF5I2ARsk6e1Wu6ShBXzhBL_LHp2HZwgblUxV9EOu0501awblbwqZw-cmPkUXbGUw0Oy8HOKOlsK5EQnczwKstL-0w_7Dfb4hrtvnf3zMPFZqW-M_Qx7XkzC53NM6ht9VWyohnUrNy4wZ_YDIZT4" style="width: 36px; height: 36px; object-fit: contain;" />
+        <div>
+            <div class="fw-semibold text-corporate-primary">Vínculo · Módulo Mis Donaciones</div>
+        </div>
     </div>
 </div>
 
@@ -450,7 +469,7 @@
 
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <span class="small text-muted text-uppercase fw-semibold">
-                                            Tipo de equipamiento
+                                            Equipamientos del lote
                                         </span>
                                     </div>
 
@@ -461,7 +480,7 @@
 
                                     <div class="d-flex align-items-baseline gap-2">
                                         <span class="display-6 fw-bold text-dark" id="modalDonCant"></span>
-                                        <span class="text-secondary fw-semibold">Unidades</span>
+                                        <span class="text-secondary fw-semibold">Unidades totales</span>
                                     </div>
                                 </div>
 
@@ -622,36 +641,36 @@
             const tabla = document.getElementById('tablaDonaciones');
 
             function filtrarTabla() {
-    if (!tabla) return;
+                if (!tabla) return;
 
-    const termino = inputBusqueda
-        ? inputBusqueda.value.toLowerCase().trim()
-        : '';
+                const termino = inputBusqueda
+                    ? inputBusqueda.value.toLowerCase().trim()
+                    : '';
 
-    const estadoSeleccionado = selectEstado
-        ? selectEstado.value.toLowerCase().trim()
-        : '';
+                const estadoSeleccionado = selectEstado
+                    ? selectEstado.value.toLowerCase().trim()
+                    : '';
 
-    const filas = tabla.querySelectorAll('tbody tr');
+                const filas = tabla.querySelectorAll('tbody tr');
 
-    filas.forEach(function (fila) {
-        // Mantener visible el mensaje cuando no hay donaciones.
-        if (fila.cells.length === 1) return;
+                filas.forEach(function (fila) {
+                    // Mantener visible el mensaje cuando no hay donaciones.
+                    if (fila.cells.length === 1) return;
 
-        const textoFila = fila.innerText.toLowerCase();
-        const estadoFila = (fila.getAttribute('data-estado') || '').toLowerCase().trim();
+                    const textoFila = fila.innerText.toLowerCase();
+                    const estadoFila = (fila.getAttribute('data-estado') || '').toLowerCase().trim();
 
-        const coincideTermino =
-            !termino || textoFila.includes(termino);
+                    const coincideTermino =
+                        !termino || textoFila.includes(termino);
 
-        const coincideEstado =
-            !estadoSeleccionado ||
-            estadoFila === estadoSeleccionado;
+                    const coincideEstado =
+                        !estadoSeleccionado ||
+                        estadoFila === estadoSeleccionado;
 
-        fila.style.display =
-            coincideTermino && coincideEstado ? '' : 'none';
-    });
-}
+                    fila.style.display =
+                        coincideTermino && coincideEstado ? '' : 'none';
+                });
+            }
 
             if (inputBusqueda) {
                 inputBusqueda.addEventListener('input', filtrarTabla);

@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Vinculo.Data;
 using Vinculo.Models;
@@ -19,7 +21,6 @@ namespace Vinculo.Controllers
         private readonly UserManager<Usuario> _userManager;
         private readonly IImagenStorage _imagenStorage;
 
-        // Inyectamos IImagenStorage en lugar de IWebHostEnvironment
         public DonacionController(
             VinculoDbContext context,
             UserManager<Usuario> userManager,
@@ -30,8 +31,6 @@ namespace Vinculo.Controllers
             _imagenStorage = imagenStorage;
         }
 
-
-
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -41,14 +40,13 @@ namespace Vinculo.Controllers
             var empresa = await _context.Empresas.FirstOrDefaultAsync(e => e.UsuarioId == user.Id);
             if (empresa == null) return NotFound("Debe completar su perfil antes de ver sus donaciones.");
 
-            // Consulta con "Eager Loading" para traer toda la cadena de datos hacia el Modal
             var donaciones = await _context.Donaciones
+                .Include(d => d.Equipamientos)
                 .Include(d => d.Observaciones)
                 .Include(d => d.Asignaciones)
-                .ThenInclude(a => a.Solicitud)
-                    .ThenInclude(s => s.Institucion)
+                    .ThenInclude(a => a.Solicitud)
+                        .ThenInclude(s => s.Institucion)
                             .ThenInclude(i => i.Domicilio)
-
                 .Where(d => d.EmpresaId == empresa.Id)
                 .OrderByDescending(d => d.Fecha)
                 .ToListAsync();
@@ -66,6 +64,26 @@ namespace Vinculo.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RegistrarDonacion(RegistrarDonacionViewModel model)
         {
+            model.Detalles ??= new List<DetalleDonacionViewModel>();
+
+            // Filtrar cantidades válidas y unificar tipos de equipamiento repetidos
+            model.Detalles = model.Detalles
+                .Where(d => d.Cantidad > 0)
+                .GroupBy(d => d.TipoEquipamiento)
+                .Select(g => new DetalleDonacionViewModel
+                {
+                    TipoEquipamiento = g.Key,
+                    Cantidad = g.Sum(d => d.Cantidad)
+                })
+                .ToList();
+
+            if (!model.Detalles.Any())
+            {
+                ModelState.AddModelError(
+                    nameof(model.Detalles),
+                    "Debe agregar al menos un equipamiento.");
+            }
+
             if (!ModelState.IsValid) return View(model);
 
             var user = await _userManager.GetUserAsync(User);
@@ -74,46 +92,47 @@ namespace Vinculo.Controllers
             var empresa = await _context.Empresas.FirstOrDefaultAsync(e => e.UsuarioId == user.Id);
             if (empresa == null) return NotFound("Debe completar su perfil antes de donar.");
 
-            string rutaRelativaBd = null;
+            string? rutaRelativaBd = null;
             if (model.FotoArchivo != null)
             {
                 rutaRelativaBd = await _imagenStorage.GuardarImagenAsync(model.FotoArchivo, "donaciones");
             }
 
+            var fecha = DateTime.Now;
+
+            // Se crea 1 sola donación (1 lote) con todos los equipamientos cargados
             var nuevaDonacion = new Donacion
             {
                 NumeroReferencia = GenerarReferenciaDonacion(),
                 EmpresaId = empresa.Id,
-                Tipo = model.Tipo.Value,
-                Cantidad = model.Cantidad,
                 Descripcion = model.Descripcion,
                 FotoRuta = rutaRelativaBd,
-                Fecha = DateTime.Now,
-                Estado = EstadoDonacion.Disponible
+                Fecha = fecha,
+                Estado = EstadoDonacion.Disponible,
+                Equipamientos = model.Detalles
+                    .Select(d => new DetalleDonacion
+                    {
+                        TipoEquipamiento = d.TipoEquipamiento,
+                        Cantidad = d.Cantidad
+                    })
+                    .ToList()
             };
-
 
             _context.Donaciones.Add(nuevaDonacion);
 
-            // Registrar la creación en el historial.
             var observacion = new Observacion
             {
                 Mensaje = $"La empresa creó la donación {nuevaDonacion.NumeroReferencia}.",
-                Fecha = DateTime.Now,
+                Fecha = fecha,
                 Donacion = nuevaDonacion
             };
 
             _context.Observaciones.Add(observacion);
 
-            // Guardar la donación y la observación juntas.
             await _context.SaveChangesAsync();
 
-            // Mantener la redirección original al motor de coincidencias.
             return RedirectToAction(nameof(Coincidencias), new { id = nuevaDonacion.Id });
-
         }
-
-
 
         [HttpGet]
         public async Task<IActionResult> Coincidencias(int id)
@@ -125,21 +144,30 @@ namespace Vinculo.Controllers
                 .Include(e => e.Domicilio)
                 .FirstOrDefaultAsync(e => e.UsuarioId == user.Id);
 
+            if (empresa == null) return NotFound("Empresa no encontrada.");
+
             var donacion = await _context.Donaciones
+                .Include(d => d.Equipamientos)
                 .FirstOrDefaultAsync(d => d.Id == id && d.EmpresaId == empresa.Id);
 
             if (donacion == null) return NotFound("Donación no encontrada.");
 
-            // 1. Buscamos las solicitudes candidatas
+            var tiposDonados = donacion.Equipamientos
+                .Where(e => e.Cantidad > 0)
+                .Select(e => e.TipoEquipamiento)
+                .Distinct()
+                .ToList();
+
+            // 1. Buscamos las solicitudes candidatas que requieran al menos uno de los tipos del lote
             var solicitudesCandidatas = await _context.Solicitudes
                 .Include(s => s.Institucion)
                     .ThenInclude(i => i.Domicilio)
                 .Include(s => s.Equipamientos)
                 .Where(s => s.Estado == EstadoSolicitud.Pendiente &&
-                            s.Equipamientos.Any(e => e.TipoEquipamiento == donacion.Tipo))
+                            s.Equipamientos.Any(e => e.Cantidad > 0 && tiposDonados.Contains(e.TipoEquipamiento)))
                 .ToListAsync();
 
-            // 2. Calculamos distancia y ordenamos (El Core del proyecto)
+            // 2. Calculamos distancia y ordenamos
             var solicitudesConDistancia = solicitudesCandidatas.Select(s => new SolicitudConDistancia
             {
                 Solicitud = s,
@@ -148,7 +176,7 @@ namespace Vinculo.Controllers
                     s.Institucion.Domicilio?.Latitud, s.Institucion.Domicilio?.Longitud
                 )
             })
-            .OrderBy(x => x.DistanciaKm) // Se ordenan de menor a mayor distancia
+            .OrderBy(x => x.DistanciaKm)
             .ToList();
 
             var model = new CoincidenciasViewModel
@@ -161,14 +189,11 @@ namespace Vinculo.Controllers
             return View(model);
         }
 
-        // Metodo Asignar donacion
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Asignar(int donacionId, int solicitudId)
         {
             var user = await _userManager.GetUserAsync(User);
-
             if (user == null)
                 return RedirectToAction("Login", "Usuario");
 
@@ -179,6 +204,7 @@ namespace Vinculo.Controllers
                 return NotFound("Debe completar su perfil antes de asignar una donación.");
 
             var donacion = await _context.Donaciones
+                .Include(d => d.Equipamientos)
                 .FirstOrDefaultAsync(d =>
                     d.Id == donacionId &&
                     d.EmpresaId == empresa.Id);
@@ -187,7 +213,7 @@ namespace Vinculo.Controllers
                 return NotFound("Donación no encontrada.");
 
             if (donacion.Estado != EstadoDonacion.Disponible ||
-                donacion.Cantidad <= 0)
+                !donacion.Equipamientos.Any(e => e.Cantidad > 0))
             {
                 TempData["Error"] = "La donación ya no está disponible para asignación.";
                 return RedirectToAction(nameof(Index));
@@ -206,125 +232,142 @@ namespace Vinculo.Controllers
                 return RedirectToAction(nameof(Coincidencias), new { id = donacion.Id });
             }
 
-            var detalleCompatible = solicitud.Equipamientos
-                .FirstOrDefault(e =>
-                    e.TipoEquipamiento == donacion.Tipo &&
-                    e.Cantidad > 0);
+            // Calculamos las coincidencias entre todos los equipamientos del lote donado y los solicitados
+            var asignacionesPorTipo = new Dictionary<TipoEquipamiento, int>();
 
-            if (detalleCompatible == null)
+            foreach (var detDon in donacion.Equipamientos.Where(e => e.Cantidad > 0))
             {
-                TempData["Error"] =
-                    "La solicitud no requiere unidades pendientes de este equipamiento.";
+                var detSol = solicitud.Equipamientos
+                    .FirstOrDefault(s => s.TipoEquipamiento == detDon.TipoEquipamiento && s.Cantidad > 0);
 
+                if (detSol != null)
+                {
+                    var cantAsignar = Math.Min(detDon.Cantidad, detSol.Cantidad);
+                    if (cantAsignar > 0)
+                    {
+                        asignacionesPorTipo[detDon.TipoEquipamiento] = cantAsignar;
+                    }
+                }
+            }
+
+            if (!asignacionesPorTipo.Any())
+            {
+                TempData["Error"] = "La solicitud no requiere unidades compatibles con este lote de donación.";
                 return RedirectToAction(nameof(Coincidencias), new { id = donacion.Id });
             }
 
             var fecha = DateTime.Now;
+            var cantidadTotalAsignada = asignacionesPorTipo.Values.Sum();
 
-            var cantidadOriginalDonacion = donacion.Cantidad;
-            var cantidadOriginalSolicitada = detalleCompatible.Cantidad;
-
-            var cantidadAsignada = Math.Min(
-                cantidadOriginalDonacion,
-                cantidadOriginalSolicitada);
-
-            var cantidadSobranteDonacion =
-                cantidadOriginalDonacion - cantidadAsignada;
-
-            // Guardamos los faltantes de TODOS los equipamientos
-            // antes de modificar la solicitud original.
-            var detallesPendientes = solicitud.Equipamientos
+            // Guardamos los sobrantes de TODOS los equipamientos de la donación antes de modificarla
+            var detallesSobrantesDonacion = donacion.Equipamientos
                 .Select(e => new
                 {
                     Tipo = e.TipoEquipamiento,
-                    Cantidad = e.Id == detalleCompatible.Id
-                        ? e.Cantidad - cantidadAsignada
+                    Cantidad = asignacionesPorTipo.TryGetValue(e.TipoEquipamiento, out var asig)
+                        ? e.Cantidad - asig
                         : e.Cantidad
                 })
                 .Where(e => e.Cantidad > 0)
                 .ToList();
 
-            await using var transaction =
-                await _context.Database.BeginTransactionAsync();
+            // Guardamos los faltantes de TODOS los equipamientos de la solicitud antes de modificarla
+            var detallesPendientesSolicitud = solicitud.Equipamientos
+                .Select(e => new
+                {
+                    Tipo = e.TipoEquipamiento,
+                    Cantidad = asignacionesPorTipo.TryGetValue(e.TipoEquipamiento, out var asig)
+                        ? e.Cantidad - asig
+                        : e.Cantidad
+                })
+                .Where(e => e.Cantidad > 0)
+                .ToList();
 
-            // 1. La donación original representa solamente
-            // las unidades que se asignaron.
-            donacion.Cantidad = cantidadAsignada;
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            // 1. La donación original representa solamente las unidades que se asignaron
+            var detallesDonacionOriginales = donacion.Equipamientos.ToList();
+            foreach (var det in detallesDonacionOriginales)
+            {
+                if (asignacionesPorTipo.TryGetValue(det.TipoEquipamiento, out var cantAsig))
+                {
+                    det.Cantidad = cantAsig;
+                }
+                else
+                {
+                    _context.Remove(det);
+                    donacion.Equipamientos.Remove(det);
+                }
+            }
             donacion.Estado = EstadoDonacion.Asignada;
 
-            // 2. La solicitud original representa solamente
-            // las unidades asignadas.
-            var detallesOriginales = solicitud.Equipamientos.ToList();
-
-            foreach (var detalle in detallesOriginales)
+            // 2. La solicitud original representa solamente las unidades asignadas
+            var detallesSolicitudOriginales = solicitud.Equipamientos.ToList();
+            foreach (var det in detallesSolicitudOriginales)
             {
-                if (detalle.Id != detalleCompatible.Id)
+                if (asignacionesPorTipo.TryGetValue(det.TipoEquipamiento, out var cantAsig))
                 {
-                    _context.Remove(detalle);
-                    solicitud.Equipamientos.Remove(detalle);
+                    det.Cantidad = cantAsig;
+                }
+                else
+                {
+                    _context.Remove(det);
+                    solicitud.Equipamientos.Remove(det);
                 }
             }
 
-            detalleCompatible.Cantidad = cantidadAsignada;
-
-            // 3. La solicitud original pasa a coordinación.
+            // 3. La solicitud original pasa a coordinación
             solicitud.Estado = EstadoSolicitud.EnCoordinacion;
 
-            // 4. Registramos la asignación.
+            // 4. Registramos la asignación
             var asignacion = new Asignacion
             {
                 NumeroReferencia = GenerarReferenciaAsignacion(),
                 SolicitudId = solicitud.Id,
                 DonacionId = donacion.Id,
-                Cantidad = cantidadAsignada,
+                Cantidad = cantidadTotalAsignada,
                 Fecha = fecha,
                 Estado = EstadoAsignacion.Activa
             };
 
             _context.Asignaciones.Add(asignacion);
 
-            // 5. Observación de la solicitud original.
-
-            // Función local para mostrar correctamente el nombre del equipamiento.
+            // Funciones locales para formatear descripciones
             string NombreEquipamiento(TipoEquipamiento tipo, int cantidad)
             {
                 return tipo switch
                 {
                     TipoEquipamiento.Notebook =>
                         cantidad == 1 ? "notebook" : "notebooks",
-
                     TipoEquipamiento.Monitor =>
                         cantidad == 1 ? "monitor" : "monitores",
-
                     TipoEquipamiento.Estabilizador =>
                         cantidad == 1 ? "estabilizador" : "estabilizadores",
-
                     TipoEquipamiento.AllInOne =>
                         cantidad == 1 ? "equipo All-in-One" : "equipos All-in-One",
-
                     TipoEquipamiento.MiniPC =>
                         cantidad == 1 ? "mini PC" : "mini PC",
-
                     TipoEquipamiento.Desktop =>
                         cantidad == 1 ? "equipo de escritorio" : "equipos de escritorio",
-
                     _ => cantidad == 1
                         ? tipo.ToString()
                         : tipo.ToString() + "s"
                 };
             }
 
-            string DescribirEquipamientos(
-                IEnumerable<(TipoEquipamiento Tipo, int Cantidad)> elementos)
+            string DescribirEquipamientos(IEnumerable<(TipoEquipamiento Tipo, int Cantidad)> elementos)
             {
                 return string.Join(", ", elementos.Select(e =>
                     $"{e.Cantidad} {NombreEquipamiento(e.Tipo, e.Cantidad)}"));
             }
 
-            // 5. Crear la nueva solicitud con TODOS los pendientes.
+            var textoAsignados = DescribirEquipamientos(
+                asignacionesPorTipo.Select(kvp => (kvp.Key, kvp.Value)));
+
+            // 5. Crear la nueva solicitud con TODOS los pendientes
             Solicitud? nuevaSolicitud = null;
 
-            if (detallesPendientes.Any())
+            if (detallesPendientesSolicitud.Any())
             {
                 nuevaSolicitud = new Solicitud
                 {
@@ -333,7 +376,7 @@ namespace Vinculo.Controllers
                     InstitucionId = solicitud.InstitucionId,
                     Fecha = fecha,
                     Estado = EstadoSolicitud.Pendiente,
-                    Equipamientos = detallesPendientes
+                    Equipamientos = detallesPendientesSolicitud
                         .Select(e => new DetalleSolicitud
                         {
                             TipoEquipamiento = e.Tipo,
@@ -345,39 +388,40 @@ namespace Vinculo.Controllers
                 _context.Solicitudes.Add(nuevaSolicitud);
             }
 
-            // 6. Crear la nueva donación si quedaron unidades sin asignar.
+            // 6. Crear la nueva donación si quedaron unidades o ítems sin asignar en el lote
             Donacion? donacionSobrante = null;
 
-            if (cantidadSobranteDonacion > 0)
+            if (detallesSobrantesDonacion.Any())
             {
                 donacionSobrante = new Donacion
                 {
                     NumeroReferencia = GenerarReferenciaDonacion(),
                     EmpresaId = donacion.EmpresaId,
-                    Tipo = donacion.Tipo,
-                    Cantidad = cantidadSobranteDonacion,
                     Descripcion = donacion.Descripcion,
                     FotoRuta = donacion.FotoRuta,
                     Fecha = fecha,
-                    Estado = EstadoDonacion.Disponible
+                    Estado = EstadoDonacion.Disponible,
+                    Equipamientos = detallesSobrantesDonacion
+                        .Select(e => new DetalleDonacion
+                        {
+                            TipoEquipamiento = e.Tipo,
+                            Cantidad = e.Cantidad
+                        })
+                        .ToList()
                 };
 
                 _context.Donaciones.Add(donacionSobrante);
             }
 
-            // 7. Observación exclusiva de la solicitud original.
+            // 7. Observación exclusiva de la solicitud original
             var mensajeSolicitudOriginal =
-                $"Se asignó {cantidadAsignada} " +
-                $"{NombreEquipamiento(donacion.Tipo, cantidadAsignada)} " +
-                $"mediante la asignación {asignacion.NumeroReferencia}, " +
+                $"Se asignó {textoAsignados} mediante la asignación {asignacion.NumeroReferencia}, " +
                 $"utilizando la donación {donacion.NumeroReferencia}.";
 
             if (nuevaSolicitud != null)
             {
-                var pendientes = detallesPendientes
-                    .Select(e => (
-                        Tipo: e.Tipo,
-                        Cantidad: e.Cantidad));
+                var pendientes = detallesPendientesSolicitud
+                    .Select(e => (Tipo: e.Tipo, Cantidad: e.Cantidad));
 
                 mensajeSolicitudOriginal +=
                     $" Se creó la nueva solicitud {nuevaSolicitud.NumeroReferencia} " +
@@ -396,13 +440,11 @@ namespace Vinculo.Controllers
                 Solicitud = solicitud
             });
 
-            // 8. Observación exclusiva de la nueva solicitud.
+            // 8. Observación exclusiva de la nueva solicitud
             if (nuevaSolicitud != null)
             {
-                var pendientes = detallesPendientes
-                    .Select(e => (
-                        Tipo: e.Tipo,
-                        Cantidad: e.Cantidad));
+                var pendientes = detallesPendientesSolicitud
+                    .Select(e => (Tipo: e.Tipo, Cantidad: e.Cantidad));
 
                 _context.Observaciones.Add(new Observacion
                 {
@@ -416,20 +458,19 @@ namespace Vinculo.Controllers
                 });
             }
 
-            // 9. Observación exclusiva de la donación original.
+            // 9. Observación exclusiva de la donación original
             var mensajeDonacionOriginal =
-                $"Se asignó {cantidadAsignada} " +
-                $"{NombreEquipamiento(donacion.Tipo, cantidadAsignada)} " +
-                $"a la solicitud {solicitud.NumeroReferencia}. " +
+                $"Se asignó {textoAsignados} a la solicitud {solicitud.NumeroReferencia}. " +
                 $"Asignación: {asignacion.NumeroReferencia}.";
 
             if (donacionSobrante != null)
             {
+                var sobrantes = detallesSobrantesDonacion
+                    .Select(e => (Tipo: e.Tipo, Cantidad: e.Cantidad));
+
                 mensajeDonacionOriginal +=
-                    $"Quedó sin asignar {cantidadSobranteDonacion} " +
-                    $"{NombreEquipamiento(donacion.Tipo, cantidadSobranteDonacion)} " +
-                    $"sin asignar, se creó la donación disponible " +
-                    $"{donacionSobrante.NumeroReferencia}.";
+                    $" Quedó sin asignar ({DescribirEquipamientos(sobrantes)}), " +
+                    $"se creó la donación disponible {donacionSobrante.NumeroReferencia}.";
             }
             else
             {
@@ -444,29 +485,30 @@ namespace Vinculo.Controllers
                 Donacion = donacion
             });
 
-            // 10. Observación exclusiva de la nueva donación.
+            // 10. Observación exclusiva de la nueva donación
             if (donacionSobrante != null)
             {
+                var sobrantes = detallesSobrantesDonacion
+                    .Select(e => (Tipo: e.Tipo, Cantidad: e.Cantidad));
+
                 _context.Observaciones.Add(new Observacion
                 {
                     Mensaje =
                         $"Donación creada automáticamente a partir de " +
                         $"{donacion.NumeroReferencia} por el sobrante de una asignación. " +
-                        $"Quedó disponible {cantidadSobranteDonacion} " +
-                        $"{NombreEquipamiento(donacion.Tipo, cantidadSobranteDonacion)}. " +
+                        $"Quedó disponible: {DescribirEquipamientos(sobrantes)}. " +
                         $"Asignación relacionada: {asignacion.NumeroReferencia}. " +
-                        $"Solicitud atendida parcialmente: {solicitud.NumeroReferencia}.",
+                        $"Solicitud atendida: {solicitud.NumeroReferencia}.",
                     Fecha = fecha,
                     Donacion = donacionSobrante
                 });
             }
 
-            // 11. Observación exclusiva de la asignación.
+            // 11. Observación exclusiva de la asignación
             _context.Observaciones.Add(new Observacion
             {
                 Mensaje =
-                    $"Asignación registrada: {cantidadAsignada} " +
-                    $"{NombreEquipamiento(donacion.Tipo, cantidadAsignada)}. " +
+                    $"Asignación registrada: {textoAsignados}. " +
                     $"Donación: {donacion.NumeroReferencia}. " +
                     $"Solicitud atendida: {solicitud.NumeroReferencia}." +
                     (nuevaSolicitud != null
@@ -479,21 +521,18 @@ namespace Vinculo.Controllers
                 Asignacion = asignacion
             });
 
-            // 12. Guardar todos los cambios en la misma transacción.
+            // 12. Guardar todos los cambios en la misma transacción
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
             TempData["Success"] =
-                 $"Se asignó {cantidadAsignada} " +
-                 $"{NombreEquipamiento(donacion.Tipo, cantidadAsignada)}. " +
-                 (nuevaSolicitud != null
-                     ? $"Se creó la solicitud pendiente {nuevaSolicitud.NumeroReferencia}. "
-                     : "") +
-                 (donacionSobrante != null
-                     ? $"Se creó la donación disponible {donacionSobrante.NumeroReferencia} " +
-                       $"con {cantidadSobranteDonacion} " +
-                       $"{NombreEquipamiento(donacion.Tipo, cantidadSobranteDonacion)}."
-                     : "");
+                $"Se asignó {textoAsignados}. " +
+                (nuevaSolicitud != null
+                    ? $"Se creó la solicitud pendiente {nuevaSolicitud.NumeroReferencia}. "
+                    : "") +
+                (donacionSobrante != null
+                    ? $"Se creó la donación disponible {donacionSobrante.NumeroReferencia} con el sobrante."
+                    : "");
 
             return RedirectToAction(nameof(Index));
         }
@@ -503,7 +542,6 @@ namespace Vinculo.Controllers
         public async Task<IActionResult> ConfirmarEntrega(int asignacionId)
         {
             var user = await _userManager.GetUserAsync(User);
-
             if (user == null)
                 return RedirectToAction("Login", "Usuario");
 
@@ -521,11 +559,9 @@ namespace Vinculo.Controllers
             if (asignacion == null)
                 return NotFound("Asignación no encontrada.");
 
-            // Verificar que la donación pertenezca a la empresa autenticada.
             if (asignacion.Donacion.EmpresaId != empresa.Id)
                 return NotFound("No se encontró la asignación solicitada.");
 
-            // Evitar confirmar dos veces una misma entrega.
             if (asignacion.Estado != EstadoAsignacion.Activa ||
                 asignacion.Donacion.Estado != EstadoDonacion.Asignada)
             {
@@ -537,15 +573,11 @@ namespace Vinculo.Controllers
 
             var fecha = DateTime.Now;
 
-            await using var transaction =
-                await _context.Database.BeginTransactionAsync();
+            await using var transaction = await _context.Database.BeginTransactionAsync();
 
-            // Actualizar la donación asignada y su asignación.
             asignacion.Donacion.Estado = EstadoDonacion.Entregada;
             asignacion.Estado = EstadoAsignacion.Concretada;
 
-            // Completar la solicitud solamente si no quedan
-            // otras asignaciones activas asociadas.
             var quedanAsignacionesActivas = await _context.Asignaciones
                 .AnyAsync(a =>
                     a.SolicitudId == asignacion.SolicitudId &&
@@ -557,7 +589,6 @@ namespace Vinculo.Controllers
                 asignacion.Solicitud.Estado = EstadoSolicitud.Concretado;
             }
 
-            // Registrar el evento en el historial de la donación.
             _context.Observaciones.Add(new Observacion
             {
                 Mensaje =
@@ -568,7 +599,6 @@ namespace Vinculo.Controllers
                 Donacion = asignacion.Donacion
             });
 
-            // Registrar el evento en el historial de la asignación.
             _context.Observaciones.Add(new Observacion
             {
                 Mensaje =
@@ -578,7 +608,6 @@ namespace Vinculo.Controllers
                 Asignacion = asignacion
             });
 
-            // Registrar el evento en el historial de la solicitud.
             _context.Observaciones.Add(new Observacion
             {
                 Mensaje =
@@ -597,18 +626,15 @@ namespace Vinculo.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-
-
-        //REFERENCIAS
+        // REFERENCIAS
         private string GenerarReferenciaDonacion()
         {
-            return $"DON-{DateTime.Now:yyyyMMddHHmmss}";
+            return $"DON-{DateTime.Now:yyyyMMddHHmmss}-{Guid.NewGuid().ToString("N")[..4].ToUpperInvariant()}";
         }
 
         private string GenerarReferenciaAsignacion()
         {
             return $"ASIG-{DateTime.Now:yyyyMMddHHmmss}";
         }
-
     }
 }

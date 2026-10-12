@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Vinculo.Data;
 using Vinculo.Models;
 using Vinculo.Models.Enums;
@@ -538,8 +541,8 @@ namespace Vinculo.Controllers
 
         [HttpGet]
         public async Task<IActionResult> Solicitudes(
-        string? busqueda,
-        string? estado)
+            string? busqueda,
+            string? estado)
         {
             // =========================
             // OBTENER SOLICITUDES
@@ -626,8 +629,8 @@ namespace Vinculo.Controllers
 
 
             return View(model);
-
         }
+
         // =========================================================
         // ADMINISTRACIÓN DE EMPRESAS
         // =========================================================
@@ -745,6 +748,7 @@ namespace Vinculo.Controllers
             var query = _context.Donaciones
                 .AsNoTracking()
                 .Include(d => d.Empresa)
+                .Include(d => d.Equipamientos)
                 .AsQueryable();
 
             // Búsqueda por referencia o empresa
@@ -775,8 +779,11 @@ namespace Vinculo.Controllers
                     Id = d.Id,
                     NumeroReferencia = d.NumeroReferencia,
                     Empresa = d.Empresa.RazonSocial,
-                    Tipo = d.Tipo,
-                    Cantidad = d.Cantidad,
+                    Tipo = d.Equipamientos
+                        .Select(e => e.TipoEquipamiento)
+                        .FirstOrDefault(),
+                    Cantidad = d.Equipamientos
+                        .Sum(e => e.Cantidad),
                     Descripcion = d.Descripcion,
                     FotoRuta = d.FotoRuta,
                     Fecha = d.Fecha,
@@ -793,6 +800,8 @@ namespace Vinculo.Controllers
 
             return View(model);
         }
+
+
         // =========================================================
         // OBTENER DETALLE DE SOLICITUD PARA EL MODAL
         // =========================================================
@@ -855,7 +864,7 @@ namespace Vinculo.Controllers
 
 
         // =========================================================
-        // DETALLE DE Asignaciones
+        // DETALLE DE ASIGNACIONES
         // =========================================================
 
         [HttpGet]
@@ -867,6 +876,8 @@ namespace Vinculo.Controllers
                 .AsNoTracking()
                 .Include(a => a.Donacion)
                     .ThenInclude(d => d.Empresa)
+                .Include(a => a.Donacion)
+                    .ThenInclude(d => d.Equipamientos)
                 .Include(a => a.Solicitud)
                     .ThenInclude(s => s.Institucion)
                 .AsQueryable();
@@ -900,7 +911,9 @@ namespace Vinculo.Controllers
                     ReferenciaSolicitud = a.Solicitud.NumeroReferencia,
                     Empresa = a.Donacion.Empresa.RazonSocial,
                     Institucion = a.Solicitud.Institucion.Nombre,
-                    Tipo = a.Donacion.Tipo,
+                    Tipo = a.Donacion.Equipamientos
+                        .Select(e => e.TipoEquipamiento)
+                        .FirstOrDefault(),
                     Fecha = a.Fecha,
                     Estado = a.Estado
                 })
@@ -915,6 +928,5 @@ namespace Vinculo.Controllers
 
             return View(modelo);
         }
-
     }
 }

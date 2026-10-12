@@ -4,6 +4,10 @@
 
 @{
     ViewData["Title"] = "Coincidencias Geográficas";
+
+    var resumenDonacion = Model.Donacion.Equipamientos != null && Model.Donacion.Equipamientos.Any()
+        ? string.Join(", ", Model.Donacion.Equipamientos.Select(e => $"{e.Cantidad} {e.TipoEquipamiento}"))
+        : "sin equipamientos";
 }
 
 <style>
@@ -77,12 +81,12 @@
                         </div>
 
                         <h1 class="h4 fw-bold text-primary mb-1">
-                            Coincidencias Geográficas — Donación #DON-@Model.Donacion.Id
+                            Coincidencias Geográficas — Donación @(string.IsNullOrWhiteSpace(Model.Donacion.NumeroReferencia) ? $"#DON-{Model.Donacion.Id}" : Model.Donacion.NumeroReferencia)
                         </h1>
 
                         <p class="text-secondary small mb-0">
                             Se encontraron @Model.SolicitudesCompatibles.Count instituciones compatibles
-                            con tu donación de @Model.Donacion.Cantidad @Model.Donacion.Tipo.
+                            con tu lote de donación (@resumenDonacion).
                         </p>
                     </div>
                 </div>
@@ -105,9 +109,25 @@
                     {
                         var solicitud = item.Solicitud;
 
-                        var detalleCompatible = solicitud.Equipamientos
-                            .FirstOrDefault(e =>
-                                e.TipoEquipamiento == Model.Donacion.Tipo);
+                        var coincidenciasEquipamiento = solicitud.Equipamientos
+                            .Where(solEq => solEq.Cantidad > 0 &&
+                                            Model.Donacion.Equipamientos != null &&
+                                            Model.Donacion.Equipamientos.Any(donEq =>
+                                                donEq.TipoEquipamiento == solEq.TipoEquipamiento &&
+                                                donEq.Cantidad > 0))
+                            .Select(solEq =>
+                            {
+                                var donEq = Model.Donacion.Equipamientos
+                                    .First(d => d.TipoEquipamiento == solEq.TipoEquipamiento);
+
+                                return new
+                                {
+                                    Tipo = solEq.TipoEquipamiento,
+                                    CantidadRequerida = solEq.Cantidad,
+                                    CantidadOfrecida = donEq.Cantidad
+                                };
+                            })
+                            .ToList();
 
                         var distanciaVisual =
                             item.DistanciaKm == double.MaxValue
@@ -160,16 +180,20 @@
                                         </span>
                                     </div>
 
-                                    <div class="p-2 bg-white rounded border d-flex justify-content-between align-items-center small">
-                                        <span>
-                                            <i class="bi bi-check-circle-fill text-teal me-1"></i>
-                                            Requiere: @detalleCompatible?.Cantidad
-                                            @detalleCompatible?.TipoEquipamiento
-                                        </span>
+                                    <div class="d-flex flex-column gap-2">
+                                        @foreach (var match in coincidenciasEquipamiento)
+                                        {
+                                            <div class="p-2 bg-white rounded border d-flex justify-content-between align-items-center small">
+                                                <span>
+                                                    <i class="bi bi-check-circle-fill text-teal me-1"></i>
+                                                    Requiere: @match.CantidadRequerida @match.Tipo
+                                                </span>
 
-                                        <span class="fw-bold text-teal">
-                                            Ofrecés: @Model.Donacion.Cantidad
-                                        </span>
+                                                <span class="fw-bold text-teal">
+                                                    Ofrecés: @match.CantidadOfrecida
+                                                </span>
+                                            </div>
+                                        }
                                     </div>
                                 </div>
 
@@ -467,7 +491,6 @@ document.addEventListener("DOMContentLoaded", function () {
             maxZoom: 13
         });
     } else {
-        // Centro inicial orientativo; no se usa como ubicación real.
         mapa.setView([-34.6037, -58.3816], 11);
 
         if (instituciones.length === 0) {
@@ -479,7 +502,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Leaflet puede necesitar recalcular el tamaño al mostrarse dentro de una columna.
     setTimeout(function () {
         mapa.invalidateSize();
     }, 100);
