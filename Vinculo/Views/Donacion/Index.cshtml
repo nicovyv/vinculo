@@ -61,7 +61,7 @@
     <div>
         <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
             <h1 class="h3 fw-bold text-corporate-primary mb-0">
-                Mis Lotes de Donación
+                Mis Donaciones
             </h1>
 
             <span class="badge rounded-pill bg-white text-dark border px-2 py-1 small">
@@ -289,7 +289,7 @@
                             ? ""
                             : $"{institucion.Domicilio.Calle} {institucion.Domicilio.Numero}, {institucion.Domicilio.Localidad}";
 
-                        <tr>
+                        <tr data-estado="@item.Estado">
                             <td class="ps-3">
                                 <div class="fw-bold text-corporate-primary font-monospace">
                                     @item.NumeroReferencia
@@ -622,34 +622,36 @@
             const tabla = document.getElementById('tablaDonaciones');
 
             function filtrarTabla() {
-                if (!tabla) return;
+    if (!tabla) return;
 
-                const termino = inputBusqueda
-                    ? inputBusqueda.value.toLowerCase().trim()
-                    : '';
+    const termino = inputBusqueda
+        ? inputBusqueda.value.toLowerCase().trim()
+        : '';
 
-                const estadoSeleccionado = selectEstado
-                    ? selectEstado.value.toLowerCase().trim()
-                    : '';
+    const estadoSeleccionado = selectEstado
+        ? selectEstado.value.toLowerCase().trim()
+        : '';
 
-                const filas = tabla.querySelectorAll('tbody tr');
+    const filas = tabla.querySelectorAll('tbody tr');
 
-                filas.forEach(function (fila) {
-                    // Mantener visible el mensaje cuando no hay donaciones.
-                    if (fila.cells.length === 1) return;
+    filas.forEach(function (fila) {
+        // Mantener visible el mensaje cuando no hay donaciones.
+        if (fila.cells.length === 1) return;
 
-                    const textoFila = fila.innerText.toLowerCase();
-                    const coincideTermino =
-                        !termino || textoFila.includes(termino);
+        const textoFila = fila.innerText.toLowerCase();
+        const estadoFila = (fila.getAttribute('data-estado') || '').toLowerCase().trim();
 
-                    const coincideEstado =
-                        !estadoSeleccionado ||
-                        textoFila.includes(estadoSeleccionado);
+        const coincideTermino =
+            !termino || textoFila.includes(termino);
 
-                    fila.style.display =
-                        coincideTermino && coincideEstado ? '' : 'none';
-                });
-            }
+        const coincideEstado =
+            !estadoSeleccionado ||
+            estadoFila === estadoSeleccionado;
+
+        fila.style.display =
+            coincideTermino && coincideEstado ? '' : 'none';
+    });
+}
 
             if (inputBusqueda) {
                 inputBusqueda.addEventListener('input', filtrarTabla);
