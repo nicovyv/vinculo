@@ -1,9 +1,11 @@
 ﻿@model Vinculo.Models.ViewModels.CoincidenciasViewModel
+@using System.Linq
+@using System.Text.Json
+
 @{
     ViewData["Title"] = "Coincidencias Geográficas";
 }
 
-<!-- Estilos específicos del mapa -->
 <style>
     .font-tabular {
         font-variant-numeric: tabular-nums;
@@ -27,99 +29,158 @@
         position: relative;
         width: 100%;
         height: 480px;
-        background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC_F2kMXWi_RrxLb64t5PmoxWryVFBta5wCNElbR2D2LnmnU3uENyoyU1DLLYjqxh9bYEj-acVk2TUPIM96DcuGxcNAIio6A5WZOnb5kfpCMpn9mmjNE_XHO17qukwUzouBVkENL9BlbCR8CNTVeWQTFdhlJGrW4JTolDWRynE3mhV0bX5dDzx7TwLmpxG34NkxINQvh7xSqfda6UONOB3yEHgfnD3Dst12Yt8lBSlYYM7ZUPUEiCm17g');
-        background-size: cover;
-        background-position: center;
+        background-color: #f1f5f9;
         border-radius: 0.5rem;
         overflow: hidden;
     }
 
-    .map-pin {
-        position: absolute;
-        transform: translate(-50%, -50%);
-        cursor: pointer;
-        transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    #mapaCoincidencias {
+        width: 100%;
+        height: 100%;
+        z-index: 1;
     }
 
-        .map-pin:hover {
-            transform: translate(-50%, -50%) scale(1.15);
-            z-index: 30;
-        }
+    .card-coincidencia {
+        cursor: pointer;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .card-coincidencia.seleccionada {
+        border-color: #0E9AA7 !important;
+        box-shadow: 0 0 0 2px rgba(14, 154, 167, 0.2);
+    }
+
+    .mapa-ayuda {
+        font-size: 0.85rem;
+    }
 </style>
 
 <div class="container-fluid p-4">
-    <!-- Header Overview Card -->
+
+    <!-- Encabezado -->
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-body p-4">
             <div class="d-flex flex-column flex-xl-row justify-content-between align-items-xl-center gap-3">
                 <div class="d-flex align-items-start gap-3">
-                    <div class="rounded-3 bg-primary text-white d-flex align-items-center justify-content-center p-3 shadow-sm" style="width: 52px; height: 52px;">
+                    <div class="rounded-3 bg-primary text-white d-flex align-items-center justify-content-center p-3 shadow-sm"
+                         style="width: 52px; height: 52px;">
                         <i class="bi bi-handshake fs-3 text-info"></i>
                     </div>
+
                     <div>
                         <div class="d-flex flex-wrap align-items-center gap-2 text-muted small text-uppercase fw-semibold mb-1">
                             <span>@Model.Empresa.RazonSocial</span>
                             <span>•</span>
-                            <span class="font-tabular fw-bold text-primary">CUIT @Model.Empresa.Cuit</span>
+                            <span class="font-tabular fw-bold text-primary">
+                                CUIT @Model.Empresa.Cuit
+                            </span>
                         </div>
-                        <h1 class="h4 fw-bold text-primary mb-1">Coincidencias Geográficas — Donación #DON-@Model.Donacion.Id</h1>
-                        <p class="text-secondary small mb-0">Se encontraron @Model.SolicitudesCompatibles.Count instituciones compatibles con tu donación de @Model.Donacion.Cantidad @Model.Donacion.Tipo.</p>
+
+                        <h1 class="h4 fw-bold text-primary mb-1">
+                            Coincidencias Geográficas — Donación #DON-@Model.Donacion.Id
+                        </h1>
+
+                        <p class="text-secondary small mb-0">
+                            Se encontraron @Model.SolicitudesCompatibles.Count instituciones compatibles
+                            con tu donación de @Model.Donacion.Cantidad @Model.Donacion.Tipo.
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Resultados -->
+    <!-- Resultados y mapa -->
     <div class="row g-4" id="results-container">
-        <!-- Columna de Tarjetas -->
+
+        <!-- Tarjetas de instituciones -->
         <div class="col-lg-7" id="cards-column">
             <div class="d-flex flex-column gap-3">
+
                 @if (Model.SolicitudesCompatibles.Any())
                 {
                     int index = 1;
+
                     foreach (var item in Model.SolicitudesCompatibles)
                     {
                         var solicitud = item.Solicitud;
-                        var detalleCompatible = solicitud.Equipamientos.FirstOrDefault(e => e.TipoEquipamiento == Model.Donacion.Tipo);
 
-                        // Formateo visual: Si no hay datos de GPS muestra "N/D", sino muestra con 1 decimal
-                        var distanciaVisual = item.DistanciaKm == double.MaxValue ? "N/D" : item.DistanciaKm.ToString("0.0");
+                        var detalleCompatible = solicitud.Equipamientos
+                            .FirstOrDefault(e =>
+                                e.TipoEquipamiento == Model.Donacion.Tipo);
 
-                        <div class="card shadow-sm border-0 border-top border-4 border-info">
+                        var distanciaVisual =
+                            item.DistanciaKm == double.MaxValue
+                                ? "N/D"
+                                : item.DistanciaKm.ToString("0.0");
+
+                        <div class="card shadow-sm border-0 border-top border-4 border-info card-coincidencia"
+                             data-solicitud-id="@solicitud.Id">
+
                             <div class="card-body p-4">
+
                                 <div class="d-flex justify-content-between align-items-start gap-2">
                                     <div class="d-flex gap-3">
-                                        <span class="rounded bg-light border fw-bold fs-5 text-primary d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                                        <span class="rounded bg-light border fw-bold fs-5 text-primary d-flex align-items-center justify-content-center"
+                                              style="width: 44px; height: 44px;">
                                             @index
                                         </span>
+
                                         <div>
-                                            <h2 class="h5 fw-bold text-primary mb-1">@solicitud.Institucion.Nombre</h2>
+                                            <h2 class="h5 fw-bold text-primary mb-1">
+                                                @solicitud.Institucion.Nombre
+                                            </h2>
+
                                             <p class="text-secondary small mb-0">
                                                 <i class="bi bi-geo-alt-fill text-muted me-1"></i>
-                                                @(solicitud.Institucion.Domicilio?.Calle) @(solicitud.Institucion.Domicilio?.Numero), @(solicitud.Institucion.Domicilio?.Localidad)
+                                                @(solicitud.Institucion.Domicilio?.Calle)
+                                                @(solicitud.Institucion.Domicilio?.Numero),
+                                                @(solicitud.Institucion.Domicilio?.Localidad)
                                             </p>
                                         </div>
                                     </div>
-                                    <div class="bg-light p-2 rounded text-end border" style="min-width: 100px;">
-                                        <span class="font-tabular fs-5 fw-bold text-teal d-block">@distanciaVisual km</span>
-                                        <span class="text-muted text-uppercase" style="font-size: 0.65rem;">Distancia Directa</span>
+
+                                    <div class="bg-light p-2 rounded text-end border"
+                                         style="min-width: 100px;">
+                                        <span class="font-tabular fs-5 fw-bold text-teal d-block">
+                                            @distanciaVisual @(distanciaVisual == "N/D" ? "" : "km")
+                                        </span>
+                                        <span class="text-muted text-uppercase"
+                                              style="font-size: 0.65rem;">
+                                            Distancia directa
+                                        </span>
                                     </div>
                                 </div>
 
                                 <div class="p-3 bg-light rounded-3 mt-3 border">
                                     <div class="d-flex justify-content-between align-items-center mb-2 small text-secondary">
                                         <span>Solicitud compatible:</span>
-                                        <span class="font-tabular fw-semibold text-primary">@solicitud.NumeroReferencia</span>
+                                        <span class="font-tabular fw-semibold text-primary">
+                                            @solicitud.NumeroReferencia
+                                        </span>
                                     </div>
+
                                     <div class="p-2 bg-white rounded border d-flex justify-content-between align-items-center small">
-                                        <span><i class="bi bi-check-circle-fill text-teal me-1"></i>Requiere: @detalleCompatible?.Cantidad @detalleCompatible?.TipoEquipamiento</span>
-                                        <span class="fw-bold text-teal">Ofreces: @Model.Donacion.Cantidad</span>
+                                        <span>
+                                            <i class="bi bi-check-circle-fill text-teal me-1"></i>
+                                            Requiere: @detalleCompatible?.Cantidad
+                                            @detalleCompatible?.TipoEquipamiento
+                                        </span>
+
+                                        <span class="fw-bold text-teal">
+                                            Ofrecés: @Model.Donacion.Cantidad
+                                        </span>
                                     </div>
                                 </div>
+
                                 <div class="d-flex justify-content-between align-items-center mt-3 pt-2">
                                     <div class="small text-secondary">
-                                        <span>CUIT: <strong class="text-dark">@solicitud.Institucion.Cuit</strong></span>
+                                        <span>
+                                            CUIT:
+                                            <strong class="text-dark">
+                                                @solicitud.Institucion.Cuit
+                                            </strong>
+                                        </span>
                                     </div>
 
                                     <form asp-controller="Donacion"
@@ -127,45 +188,300 @@
                                           method="post"
                                           class="m-0">
 
-                                        <input type="hidden" name="donacionId" value="@Model.Donacion.Id" />
-                                        <input type="hidden" name="solicitudId" value="@solicitud.Id" />
+                                        @Html.AntiForgeryToken()
 
-                                        <button class="btn btn-primary btn-sm fw-semibold" type="submit">
-                                            <i class="bi bi-check2-all me-1"></i>Asignar
+                                        <input type="hidden"
+                                               name="donacionId"
+                                               value="@Model.Donacion.Id" />
+
+                                        <input type="hidden"
+                                               name="solicitudId"
+                                               value="@solicitud.Id" />
+
+                                        <button class="btn btn-primary btn-sm fw-semibold"
+                                                type="submit">
+                                            <i class="bi bi-check2-all me-1"></i>
+                                            Asignar
                                         </button>
                                     </form>
                                 </div>
+
                             </div>
                         </div>
+
                         index++;
                     }
                 }
                 else
                 {
-                    <div class="alert alert-info">No se encontraron instituciones que requieran este equipamiento en este momento.</div>
+                    <div class="alert alert-info">
+                        No se encontraron instituciones que requieran este equipamiento en este momento.
+                    </div>
                 }
             </div>
         </div>
 
-        <!-- Columna del Mapa (Estático por ahora, como lo hizo Stitch) -->
+        <!-- Mapa interactivo -->
         <div class="col-lg-5" id="map-column">
             <div class="card shadow-sm border-0 mb-3">
+
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
                     <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-map text-primary fs-5"></i>
                         <span class="fw-bold text-primary">Mapa de Distribución</span>
                     </div>
                 </div>
+
                 <div class="card-body p-2">
                     <div class="map-container border">
-                        <div class="map-pin" style="top: 50%; left: 50%;">
-                            <div class="badge rounded-circle bg-primary text-white p-2 shadow d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
-                                <i class="bi bi-building"></i>
-                            </div>
-                        </div>
+                        <div id="mapaCoincidencias"></div>
+                    </div>
+
+                    <div class="mapa-ayuda text-secondary p-2">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Seleccioná una institución en las tarjetas o en el mapa
+                        para ver la conexión con tu empresa.
+                    </div>
+
+                    <div id="mensajeMapa"
+                         class="alert alert-warning small mt-2 mb-0 d-none"
+                         role="status">
                     </div>
                 </div>
             </div>
         </div>
+
     </div>
 </div>
+
+<!-- Leaflet -->
+<link rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin="" />
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const contenedorMapa = document.getElementById("mapaCoincidencias");
+
+    if (!contenedorMapa || typeof L === "undefined") {
+        mostrarMensaje("No se pudo cargar el mapa. Verificá tu conexión a Internet.");
+        return;
+    }
+
+    const empresa = {
+        lat: @Html.Raw(JsonSerializer.Serialize(Model.Empresa.Domicilio?.Latitud)),
+        lon: @Html.Raw(JsonSerializer.Serialize(Model.Empresa.Domicilio?.Longitud)),
+        nombre: @Html.Raw(JsonSerializer.Serialize(Model.Empresa.RazonSocial))
+    };
+
+    const instituciones = @Html.Raw(
+        JsonSerializer.Serialize(
+            Model.SolicitudesCompatibles.Select(x => new
+            {
+                solicitudId = x.Solicitud.Id,
+                nombre = x.Solicitud.Institucion.Nombre,
+                referencia = x.Solicitud.NumeroReferencia,
+                lat = x.Solicitud.Institucion.Domicilio?.Latitud,
+                lon = x.Solicitud.Institucion.Domicilio?.Longitud,
+                distancia = x.DistanciaKm == double.MaxValue
+                    ? (double?)null
+                    : x.DistanciaKm
+            })
+        )
+    );
+
+    function mostrarMensaje(mensaje) {
+        const elemento = document.getElementById("mensajeMapa");
+
+        if (elemento) {
+            elemento.textContent = mensaje;
+            elemento.classList.remove("d-none");
+        }
+    }
+
+    function coordenadasValidas(lat, lon) {
+        return typeof lat === "number" &&
+            typeof lon === "number" &&
+            Number.isFinite(lat) &&
+            Number.isFinite(lon) &&
+            lat >= -90 && lat <= 90 &&
+            lon >= -180 && lon <= 180;
+    }
+
+    const empresaValida = coordenadasValidas(empresa.lat, empresa.lon);
+
+    const mapa = L.map("mapaCoincidencias");
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "&copy; OpenStreetMap contributors",
+        maxZoom: 19
+    }).addTo(mapa);
+
+    const puntos = [];
+    const marcadores = new Map();
+
+    let lineaSeleccionada = null;
+
+    if (empresaValida) {
+        const puntoEmpresa = [empresa.lat, empresa.lon];
+
+        L.marker(puntoEmpresa)
+            .addTo(mapa)
+            .bindPopup("<strong>Empresa:</strong> " + escaparHtml(empresa.nombre));
+
+        puntos.push(puntoEmpresa);
+    } else {
+        mostrarMensaje(
+            "Tu empresa no tiene coordenadas válidas. Completá o corregí la ubicación de tu domicilio para calcular las distancias."
+        );
+    }
+
+    instituciones.forEach(function (institucion) {
+        if (!coordenadasValidas(institucion.lat, institucion.lon)) {
+            return;
+        }
+
+        const punto = [institucion.lat, institucion.lon];
+
+        const marcador = L.marker(punto)
+            .addTo(mapa)
+            .bindPopup(
+                "<strong>" + escaparHtml(institucion.nombre) + "</strong><br>" +
+                escaparHtml(institucion.referencia || "")
+            );
+
+        marcadores.set(institucion.solicitudId, marcador);
+        puntos.push(punto);
+
+        marcador.on("click", function () {
+            seleccionarInstitucion(institucion);
+        });
+    });
+
+    function seleccionarInstitucion(institucion) {
+        document.querySelectorAll(".card-coincidencia").forEach(function (card) {
+            card.classList.toggle(
+                "seleccionada",
+                Number(card.dataset.solicitudId) === institucion.solicitudId
+            );
+        });
+
+        const marcador = marcadores.get(institucion.solicitudId);
+
+        if (marcador) {
+            marcador.openPopup();
+        }
+
+        if (lineaSeleccionada) {
+            mapa.removeLayer(lineaSeleccionada);
+            lineaSeleccionada = null;
+        }
+
+        if (!empresaValida) {
+            mostrarMensaje(
+                "La institución tiene ubicación, pero no se puede dibujar la conexión porque faltan coordenadas válidas de la empresa."
+            );
+
+            if (marcador) {
+                mapa.setView(marcador.getLatLng(), 13);
+            }
+
+            return;
+        }
+
+        if (!coordenadasValidas(institucion.lat, institucion.lon)) {
+            mostrarMensaje(
+                "Esta institución no tiene coordenadas válidas registradas."
+            );
+            return;
+        }
+
+        const puntoEmpresa = [empresa.lat, empresa.lon];
+        const puntoInstitucion = [institucion.lat, institucion.lon];
+
+        lineaSeleccionada = L.polyline(
+            [puntoEmpresa, puntoInstitucion],
+            {
+                color: "#0E9AA7",
+                weight: 4,
+                opacity: 0.85
+            }
+        ).addTo(mapa);
+
+        mapa.fitBounds(lineaSeleccionada.getBounds(), {
+            padding: [35, 35],
+            maxZoom: 14
+        });
+
+        const mensaje = institucion.distancia == null
+            ? "Ubicaciones conectadas. No hay distancia calculada porque faltan coordenadas para el cálculo."
+            : "Distancia directa: " +
+                institucion.distancia.toLocaleString("es-AR", {
+                    minimumFractionDigits: 1,
+                    maximumFractionDigits: 1
+                }) + " km. No representa el recorrido por calles.";
+
+        mostrarMensaje(mensaje);
+    }
+
+    document.querySelectorAll(".card-coincidencia").forEach(function (card) {
+        card.addEventListener("click", function (event) {
+            if (event.target.closest("form, button, a, input")) {
+                return;
+            }
+
+            const id = Number(card.dataset.solicitudId);
+
+            const institucion = instituciones.find(function (item) {
+                return item.solicitudId === id;
+            });
+
+            if (institucion) {
+                seleccionarInstitucion(institucion);
+            }
+        });
+    });
+
+    function escaparHtml(valor) {
+        return String(valor ?? "").replace(/[&<>"']/g, function (caracter) {
+            const entidades = {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+            };
+
+            return entidades[caracter];
+        });
+    }
+
+    if (puntos.length > 0) {
+        mapa.fitBounds(puntos, {
+            padding: [25, 25],
+            maxZoom: 13
+        });
+    } else {
+        // Centro inicial orientativo; no se usa como ubicación real.
+        mapa.setView([-34.6037, -58.3816], 11);
+
+        if (instituciones.length === 0) {
+            mostrarMensaje("No hay instituciones compatibles para mostrar en el mapa.");
+        } else {
+            mostrarMensaje(
+                "No hay coordenadas válidas para las ubicaciones compatibles."
+            );
+        }
+    }
+
+    // Leaflet puede necesitar recalcular el tamaño al mostrarse dentro de una columna.
+    setTimeout(function () {
+        mapa.invalidateSize();
+    }, 100);
+});
+</script>

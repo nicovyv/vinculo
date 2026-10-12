@@ -194,9 +194,9 @@
             }
 
            function actualizarCoordenadas(lat, lng) {
-                document.getElementById("Latitud").value = lat.toString().replace('.', ',');
-                document.getElementById("Longitud").value = lng.toString().replace('.', ',');
-           }   
+                document.getElementById("Latitud").value = String(lat);
+                document.getElementById("Longitud").value = String(lng);
+            } 
 
             function colocarMarcador(lat, lng, zoom = 16) {
                 if (marcador) mapa.removeLayer(marcador);
