@@ -2,8 +2,9 @@
 {
     public enum EstadoDonacion
     {
-        Disponible, 
-        Asignada, 
-        Entregada
+        Disponible,
+        Asignada,
+        Entregada,
+        Cancelada
     }
 }

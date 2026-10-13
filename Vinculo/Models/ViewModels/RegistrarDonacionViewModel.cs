@@ -7,7 +7,10 @@ namespace Vinculo.Models.ViewModels
 {
     public class RegistrarDonacionViewModel
     {
-        public List<DetalleDonacionViewModel> Detalles { get; set; } = new();
+        public int Id { get; set; }
+        public string? NumeroReferencia { get; set; }
+        public DateTime Fecha { get; set; } = DateTime.Today;
+        public EstadoDonacion Estado { get; set; } = EstadoDonacion.Disponible;
 
         [Required(ErrorMessage = "La descripción es obligatoria.")]
         [StringLength(200)]
@@ -15,6 +18,8 @@ namespace Vinculo.Models.ViewModels
 
         [Display(Name = "Fotografía del equipo (Opcional)")]
         public IFormFile? FotoArchivo { get; set; }
+        public string? FotoRutaActual { get; set; }
+        public List<DetalleDonacionViewModel> Detalles { get; set; } = new List<DetalleDonacionViewModel>();
     }
 
     public class DetalleDonacionViewModel

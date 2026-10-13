@@ -31,16 +31,19 @@ namespace Vinculo.Controllers
             _imagenStorage = imagenStorage;
         }
 
+        // =========================================================
+        // INDEX
+        // =========================================================
+
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return RedirectToAction("Login", "Usuario");
-
-            var empresa = await _context.Empresas.FirstOrDefaultAsync(e => e.UsuarioId == user.Id);
-            if (empresa == null) return NotFound("Debe completar su perfil antes de ver sus donaciones.");
+            var empresa = await ObtenerEmpresaActual();
+            if (empresa == null)
+                return NotFound("Debe completar su perfil antes de ver sus donaciones.");
 
             var donaciones = await _context.Donaciones
+                .AsNoTracking()
                 .Include(d => d.Equipamientos)
                 .Include(d => d.Observaciones)
                 .Include(d => d.Asignaciones)
@@ -54,6 +57,10 @@ namespace Vinculo.Controllers
             return View(donaciones);
         }
 
+        // =========================================================
+        // REGISTRAR DONACIÓN - GET & POST
+        // =========================================================
+
         [HttpGet]
         public IActionResult RegistrarDonacion()
         {
@@ -66,7 +73,6 @@ namespace Vinculo.Controllers
         {
             model.Detalles ??= new List<DetalleDonacionViewModel>();
 
-            // Filtrar cantidades válidas y unificar tipos de equipamiento repetidos
             model.Detalles = model.Detalles
                 .Where(d => d.Cantidad > 0)
                 .GroupBy(d => d.TipoEquipamiento)
@@ -86,11 +92,9 @@ namespace Vinculo.Controllers
 
             if (!ModelState.IsValid) return View(model);
 
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return RedirectToAction("Login", "Usuario");
-
-            var empresa = await _context.Empresas.FirstOrDefaultAsync(e => e.UsuarioId == user.Id);
-            if (empresa == null) return NotFound("Debe completar su perfil antes de donar.");
+            var empresa = await ObtenerEmpresaActual();
+            if (empresa == null)
+                return NotFound("Debe completar su perfil antes de donar.");
 
             string? rutaRelativaBd = null;
             if (model.FotoArchivo != null)
@@ -100,7 +104,6 @@ namespace Vinculo.Controllers
 
             var fecha = DateTime.Now;
 
-            // Se crea 1 sola donación (1 lote) con todos los equipamientos cargados
             var nuevaDonacion = new Donacion
             {
                 NumeroReferencia = GenerarReferenciaDonacion(),
@@ -120,30 +123,313 @@ namespace Vinculo.Controllers
 
             _context.Donaciones.Add(nuevaDonacion);
 
-            var observacion = new Observacion
+            _context.Observaciones.Add(new Observacion
             {
                 Mensaje = $"La empresa creó la donación {nuevaDonacion.NumeroReferencia}.",
                 Fecha = fecha,
                 Donacion = nuevaDonacion
-            };
-
-            _context.Observaciones.Add(observacion);
+            });
 
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Coincidencias), new { id = nuevaDonacion.Id });
         }
 
+        // =========================================================
+        // EDIT - GET
+        // =========================================================
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var empresa = await ObtenerEmpresaActual();
+            if (empresa == null) return NotFound();
+
+            var donacion = await _context.Donaciones
+                .AsNoTracking()
+                .Include(d => d.Equipamientos)
+                .FirstOrDefaultAsync(d =>
+                    d.Id == id &&
+                    d.EmpresaId == empresa.Id);
+
+            if (donacion == null) return NotFound();
+
+            if (donacion.Estado != EstadoDonacion.Disponible)
+            {
+                TempData["Error"] =
+                    "La donación no puede modificarse porque ya no se encuentra disponible.";
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            var model = new RegistrarDonacionViewModel
+            {
+                Id = donacion.Id,
+                NumeroReferencia = donacion.NumeroReferencia,
+                Fecha = donacion.Fecha,
+                Estado = donacion.Estado,
+                Descripcion = donacion.Descripcion,
+                FotoRutaActual = donacion.FotoRuta,
+                Detalles = donacion.Equipamientos
+                    .Select(e => new DetalleDonacionViewModel
+                    {
+                        TipoEquipamiento = e.TipoEquipamiento,
+                        Cantidad = e.Cantidad
+                    })
+                    .ToList()
+            };
+
+            return View(model);
+        }
+
+        // =========================================================
+        // EDIT - POST
+        // =========================================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, RegistrarDonacionViewModel model)
+        {
+            var empresa = await ObtenerEmpresaActual();
+            if (empresa == null) return NotFound();
+
+            var donacion = await _context.Donaciones
+                .Include(d => d.Equipamientos)
+                .FirstOrDefaultAsync(d =>
+                    d.Id == id &&
+                    d.EmpresaId == empresa.Id);
+
+            if (donacion == null) return NotFound();
+
+            if (donacion.Estado != EstadoDonacion.Disponible)
+            {
+                TempData["Error"] =
+                    "La donación no puede modificarse porque ya no se encuentra disponible.";
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            model.Detalles ??= new List<DetalleDonacionViewModel>();
+
+            model.Detalles = model.Detalles
+                .Where(d => d.Cantidad > 0)
+                .GroupBy(d => d.TipoEquipamiento)
+                .Select(g => new DetalleDonacionViewModel
+                {
+                    TipoEquipamiento = g.Key,
+                    Cantidad = g.Sum(d => d.Cantidad)
+                })
+                .ToList();
+
+            if (!model.Detalles.Any())
+            {
+                ModelState.AddModelError(
+                    nameof(model.Detalles),
+                    "Debe existir al menos un equipamiento.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                model.Id = donacion.Id;
+                model.NumeroReferencia = donacion.NumeroReferencia;
+                model.Fecha = donacion.Fecha;
+                model.Estado = donacion.Estado;
+                model.FotoRutaActual = donacion.FotoRuta;
+
+                return View(model);
+            }
+
+            donacion.Descripcion = model.Descripcion;
+
+            if (model.FotoArchivo != null)
+            {
+                donacion.FotoRuta = await _imagenStorage.GuardarImagenAsync(model.FotoArchivo, "donaciones");
+            }
+
+            _context.RemoveRange(donacion.Equipamientos);
+
+            donacion.Equipamientos = model.Detalles
+                .Select(d => new DetalleDonacion
+                {
+                    DonacionId = donacion.Id,
+                    TipoEquipamiento = d.TipoEquipamiento,
+                    Cantidad = d.Cantidad
+                })
+                .ToList();
+
+            _context.Observaciones.Add(new Observacion
+            {
+                Mensaje = $"La empresa modificó los equipamientos de la donación {donacion.NumeroReferencia}.",
+                Fecha = DateTime.Now,
+                Donacion = donacion
+            });
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                $"La donación {donacion.NumeroReferencia} fue modificada correctamente.";
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // =========================================================
+        // CANCELAR DONACIÓN - POST
+        // =========================================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Cancelar(int id)
+        {
+            var empresa = await ObtenerEmpresaActual();
+            if (empresa == null) return NotFound();
+
+            var donacion = await _context.Donaciones
+                .FirstOrDefaultAsync(d =>
+                    d.Id == id &&
+                    d.EmpresaId == empresa.Id);
+
+            if (donacion == null) return NotFound();
+
+            if (donacion.Estado == EstadoDonacion.Cancelada)
+            {
+                TempData["Error"] = "La donación ya se encuentra cancelada.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (donacion.Estado != EstadoDonacion.Disponible)
+            {
+                TempData["Error"] =
+                    "Solo se pueden cancelar donaciones que estén disponibles. Si tiene una asignación activa, primero debés cancelar la asignación.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var tieneAsignacionesActivas = await _context.Asignaciones
+                .AnyAsync(a =>
+                    a.DonacionId == donacion.Id &&
+                    a.Estado == EstadoAsignacion.Activa);
+
+            if (tieneAsignacionesActivas)
+            {
+                TempData["Error"] =
+                    "No se puede cancelar la donación mientras tenga asignaciones activas.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            donacion.Estado = EstadoDonacion.Cancelada;
+
+            _context.Observaciones.Add(new Observacion
+            {
+                Mensaje = $"La empresa canceló la donación {donacion.NumeroReferencia}.",
+                Fecha = DateTime.Now,
+                Donacion = donacion
+            });
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                $"La donación {donacion.NumeroReferencia} fue cancelada correctamente.";
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // =========================================================
+        // CANCELAR ASIGNACIÓN - POST
+        // =========================================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CancelarAsignacion(int asignacionId)
+        {
+            var empresa = await ObtenerEmpresaActual();
+            if (empresa == null) return NotFound();
+
+            var asignacion = await _context.Asignaciones
+                .Include(a => a.Donacion)
+                .Include(a => a.Solicitud)
+                .FirstOrDefaultAsync(a => a.Id == asignacionId);
+
+            if (asignacion == null || asignacion.Donacion.EmpresaId != empresa.Id)
+                return NotFound("Asignación no encontrada.");
+
+            if (asignacion.Estado != EstadoAsignacion.Activa ||
+                asignacion.Donacion.Estado != EstadoDonacion.Asignada)
+            {
+                TempData["Error"] =
+                    "La asignación no se puede cancelar porque ya fue procesada o cancelada anteriormente.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var fecha = DateTime.Now;
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            // 1. Cancelar la asignación
+            asignacion.Estado = EstadoAsignacion.Cancelada;
+
+            // 2. Devolver la donación a estado Disponible
+            asignacion.Donacion.Estado = EstadoDonacion.Disponible;
+
+            // 3. Devolver la solicitud de la institución a Pendiente si no tiene otras asignaciones activas
+            var tieneOtraAsignacionActiva = await _context.Asignaciones
+                .AnyAsync(a =>
+                    a.SolicitudId == asignacion.SolicitudId &&
+                    a.Id != asignacion.Id &&
+                    a.Estado == EstadoAsignacion.Activa);
+
+            if (!tieneOtraAsignacionActiva &&
+                asignacion.Solicitud.Estado == EstadoSolicitud.EnCoordinacion)
+            {
+                asignacion.Solicitud.Estado = EstadoSolicitud.Pendiente;
+            }
+
+            // 4. Registrar observaciones en las 3 entidades
+            _context.Observaciones.Add(new Observacion
+            {
+                Mensaje =
+                    $"La empresa canceló la asignación {asignacion.NumeroReferencia} " +
+                    $"(Solicitud {asignacion.Solicitud.NumeroReferencia}). " +
+                    $"La donación volvió a estar disponible.",
+                Fecha = fecha,
+                Donacion = asignacion.Donacion
+            });
+
+            _context.Observaciones.Add(new Observacion
+            {
+                Mensaje =
+                    $"La empresa canceló la asignación {asignacion.NumeroReferencia} " +
+                    $"correspondiente a la donación {asignacion.Donacion.NumeroReferencia}. " +
+                    $"La solicitud volvió a estado pendiente.",
+                Fecha = fecha,
+                Solicitud = asignacion.Solicitud
+            });
+
+            _context.Observaciones.Add(new Observacion
+            {
+                Mensaje =
+                    $"La empresa canceló la asignación {asignacion.NumeroReferencia}.",
+                Fecha = fecha,
+                Asignacion = asignacion
+            });
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            TempData["Success"] =
+                $"La asignación {asignacion.NumeroReferencia} fue cancelada y la donación {asignacion.Donacion.NumeroReferencia} volvió a estar disponible.";
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // =========================================================
+        // COINCIDENCIAS
+        // =========================================================
+
         [HttpGet]
         public async Task<IActionResult> Coincidencias(int id)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return RedirectToAction("Login", "Usuario");
-
-            var empresa = await _context.Empresas
-                .Include(e => e.Domicilio)
-                .FirstOrDefaultAsync(e => e.UsuarioId == user.Id);
-
+            var empresa = await ObtenerEmpresaActual();
             if (empresa == null) return NotFound("Empresa no encontrada.");
 
             var donacion = await _context.Donaciones
@@ -158,7 +444,6 @@ namespace Vinculo.Controllers
                 .Distinct()
                 .ToList();
 
-            // 1. Buscamos las solicitudes candidatas que requieran al menos uno de los tipos del lote
             var solicitudesCandidatas = await _context.Solicitudes
                 .Include(s => s.Institucion)
                     .ThenInclude(i => i.Domicilio)
@@ -167,7 +452,6 @@ namespace Vinculo.Controllers
                             s.Equipamientos.Any(e => e.Cantidad > 0 && tiposDonados.Contains(e.TipoEquipamiento)))
                 .ToListAsync();
 
-            // 2. Calculamos distancia y ordenamos
             var solicitudesConDistancia = solicitudesCandidatas.Select(s => new SolicitudConDistancia
             {
                 Solicitud = s,
@@ -189,17 +473,15 @@ namespace Vinculo.Controllers
             return View(model);
         }
 
+        // =========================================================
+        // ASIGNAR - POST
+        // =========================================================
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Asignar(int donacionId, int solicitudId)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-                return RedirectToAction("Login", "Usuario");
-
-            var empresa = await _context.Empresas
-                .FirstOrDefaultAsync(e => e.UsuarioId == user.Id);
-
+            var empresa = await ObtenerEmpresaActual();
             if (empresa == null)
                 return NotFound("Debe completar su perfil antes de asignar una donación.");
 
@@ -232,7 +514,6 @@ namespace Vinculo.Controllers
                 return RedirectToAction(nameof(Coincidencias), new { id = donacion.Id });
             }
 
-            // Calculamos las coincidencias entre todos los equipamientos del lote donado y los solicitados
             var asignacionesPorTipo = new Dictionary<TipoEquipamiento, int>();
 
             foreach (var detDon in donacion.Equipamientos.Where(e => e.Cantidad > 0))
@@ -259,7 +540,6 @@ namespace Vinculo.Controllers
             var fecha = DateTime.Now;
             var cantidadTotalAsignada = asignacionesPorTipo.Values.Sum();
 
-            // Guardamos los sobrantes de TODOS los equipamientos de la donación antes de modificarla
             var detallesSobrantesDonacion = donacion.Equipamientos
                 .Select(e => new
                 {
@@ -271,7 +551,6 @@ namespace Vinculo.Controllers
                 .Where(e => e.Cantidad > 0)
                 .ToList();
 
-            // Guardamos los faltantes de TODOS los equipamientos de la solicitud antes de modificarla
             var detallesPendientesSolicitud = solicitud.Equipamientos
                 .Select(e => new
                 {
@@ -285,7 +564,6 @@ namespace Vinculo.Controllers
 
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
-            // 1. La donación original representa solamente las unidades que se asignaron
             var detallesDonacionOriginales = donacion.Equipamientos.ToList();
             foreach (var det in detallesDonacionOriginales)
             {
@@ -301,7 +579,6 @@ namespace Vinculo.Controllers
             }
             donacion.Estado = EstadoDonacion.Asignada;
 
-            // 2. La solicitud original representa solamente las unidades asignadas
             var detallesSolicitudOriginales = solicitud.Equipamientos.ToList();
             foreach (var det in detallesSolicitudOriginales)
             {
@@ -316,10 +593,8 @@ namespace Vinculo.Controllers
                 }
             }
 
-            // 3. La solicitud original pasa a coordinación
             solicitud.Estado = EstadoSolicitud.EnCoordinacion;
 
-            // 4. Registramos la asignación
             var asignacion = new Asignacion
             {
                 NumeroReferencia = GenerarReferenciaAsignacion(),
@@ -332,7 +607,6 @@ namespace Vinculo.Controllers
 
             _context.Asignaciones.Add(asignacion);
 
-            // Funciones locales para formatear descripciones
             string NombreEquipamiento(TipoEquipamiento tipo, int cantidad)
             {
                 return tipo switch
@@ -364,7 +638,6 @@ namespace Vinculo.Controllers
             var textoAsignados = DescribirEquipamientos(
                 asignacionesPorTipo.Select(kvp => (kvp.Key, kvp.Value)));
 
-            // 5. Crear la nueva solicitud con TODOS los pendientes
             Solicitud? nuevaSolicitud = null;
 
             if (detallesPendientesSolicitud.Any())
@@ -388,7 +661,6 @@ namespace Vinculo.Controllers
                 _context.Solicitudes.Add(nuevaSolicitud);
             }
 
-            // 6. Crear la nueva donación si quedaron unidades o ítems sin asignar en el lote
             Donacion? donacionSobrante = null;
 
             if (detallesSobrantesDonacion.Any())
@@ -413,7 +685,6 @@ namespace Vinculo.Controllers
                 _context.Donaciones.Add(donacionSobrante);
             }
 
-            // 7. Observación exclusiva de la solicitud original
             var mensajeSolicitudOriginal =
                 $"Se asignó {textoAsignados} mediante la asignación {asignacion.NumeroReferencia}, " +
                 $"utilizando la donación {donacion.NumeroReferencia}.";
@@ -440,7 +711,6 @@ namespace Vinculo.Controllers
                 Solicitud = solicitud
             });
 
-            // 8. Observación exclusiva de la nueva solicitud
             if (nuevaSolicitud != null)
             {
                 var pendientes = detallesPendientesSolicitud
@@ -458,7 +728,6 @@ namespace Vinculo.Controllers
                 });
             }
 
-            // 9. Observación exclusiva de la donación original
             var mensajeDonacionOriginal =
                 $"Se asignó {textoAsignados} a la solicitud {solicitud.NumeroReferencia}. " +
                 $"Asignación: {asignacion.NumeroReferencia}.";
@@ -485,7 +754,6 @@ namespace Vinculo.Controllers
                 Donacion = donacion
             });
 
-            // 10. Observación exclusiva de la nueva donación
             if (donacionSobrante != null)
             {
                 var sobrantes = detallesSobrantesDonacion
@@ -504,7 +772,6 @@ namespace Vinculo.Controllers
                 });
             }
 
-            // 11. Observación exclusiva de la asignación
             _context.Observaciones.Add(new Observacion
             {
                 Mensaje =
@@ -521,7 +788,6 @@ namespace Vinculo.Controllers
                 Asignacion = asignacion
             });
 
-            // 12. Guardar todos los cambios en la misma transacción
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
@@ -537,17 +803,15 @@ namespace Vinculo.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // =========================================================
+        // CONFIRMAR ENTREGA - POST
+        // =========================================================
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmarEntrega(int asignacionId)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-                return RedirectToAction("Login", "Usuario");
-
-            var empresa = await _context.Empresas
-                .FirstOrDefaultAsync(e => e.UsuarioId == user.Id);
-
+            var empresa = await ObtenerEmpresaActual();
             if (empresa == null)
                 return NotFound("Debe completar su perfil antes de confirmar una entrega.");
 
@@ -556,11 +820,8 @@ namespace Vinculo.Controllers
                 .Include(a => a.Solicitud)
                 .FirstOrDefaultAsync(a => a.Id == asignacionId);
 
-            if (asignacion == null)
+            if (asignacion == null || asignacion.Donacion.EmpresaId != empresa.Id)
                 return NotFound("Asignación no encontrada.");
-
-            if (asignacion.Donacion.EmpresaId != empresa.Id)
-                return NotFound("No se encontró la asignación solicitada.");
 
             if (asignacion.Estado != EstadoAsignacion.Activa ||
                 asignacion.Donacion.Estado != EstadoDonacion.Asignada)
@@ -626,7 +887,20 @@ namespace Vinculo.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // REFERENCIAS
+        // =========================================================
+        // AUXILIARES
+        // =========================================================
+
+        private async Task<Empresa?> ObtenerEmpresaActual()
+        {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId)) return null;
+
+            return await _context.Empresas
+                .Include(e => e.Domicilio)
+                .FirstOrDefaultAsync(e => e.UsuarioId == userId);
+        }
+
         private string GenerarReferenciaDonacion()
         {
             return $"DON-{DateTime.Now:yyyyMMddHHmmss}-{Guid.NewGuid().ToString("N")[..4].ToUpperInvariant()}";
