@@ -25,9 +25,11 @@ namespace Vinculo.Controllers
         }
 
         // GET: Empresa/Index
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login", "Usuario");
 
             var empresa = await _context.Empresas
                 .Include(e => e.Domicilio)
@@ -36,10 +38,71 @@ namespace Vinculo.Controllers
             if (empresa == null)
                 return NotFound("No se encontró la empresa asociada a este usuario.");
 
-            var totalDonaciones = await _context.Donaciones.CountAsync(d => d.EmpresaId == empresa.Id);
-            var disponibles = await _context.Donaciones.CountAsync(d => d.EmpresaId == empresa.Id && d.Estado == Vinculo.Models.Enums.EstadoDonacion.Disponible);
-            var asignadas = await _context.Donaciones.CountAsync(d => d.EmpresaId == empresa.Id && d.Estado == Vinculo.Models.Enums.EstadoDonacion.Asignada);
-            var entregadas = await _context.Donaciones.CountAsync(d => d.EmpresaId == empresa.Id && d.Estado == Vinculo.Models.Enums.EstadoDonacion.Entregada);
+            var donaciones = await _context.Donaciones
+                .AsNoTracking()
+                .Include(d => d.Equipamientos)
+                .Where(d => d.EmpresaId == empresa.Id)
+                .ToListAsync();
+
+            var totalDonaciones = donaciones.Count;
+            var disponibles = donaciones.Count(d => d.Estado == Vinculo.Models.Enums.EstadoDonacion.Disponible);
+            var asignadas = donaciones.Count(d => d.Estado == Vinculo.Models.Enums.EstadoDonacion.Asignada);
+            var entregadas = donaciones.Count(d => d.Estado == Vinculo.Models.Enums.EstadoDonacion.Entregada);
+
+            var equipamientosDonados = donaciones
+                .SelectMany(d => d.Equipamientos)
+                .Sum(e => e.Cantidad);
+
+            // Últimos 5 movimientos registrados en las donaciones de la empresa
+            var observacionesRecientes = await _context.Observaciones
+                .AsNoTracking()
+                .Include(o => o.Donacion)
+                .Where(o => o.DonacionId != null && o.Donacion.EmpresaId == empresa.Id)
+                .OrderByDescending(o => o.Fecha)
+                .ThenByDescending(o => o.Id)
+                .Take(5)
+                .ToListAsync();
+
+            static string ClasificarMovimiento(string mensaje)
+            {
+                if (string.IsNullOrWhiteSpace(mensaje))
+                    return "Movimiento";
+
+                if (mensaje.Contains("confirmó la entrega", StringComparison.OrdinalIgnoreCase) ||
+                    mensaje.Contains("entrega", StringComparison.OrdinalIgnoreCase))
+                    return "Entrega concretada";
+
+                if (mensaje.Contains("cancel", StringComparison.OrdinalIgnoreCase) &&
+                    mensaje.Contains("asignación", StringComparison.OrdinalIgnoreCase))
+                    return "Cancelación de asignación";
+
+                if (mensaje.Contains("cancel", StringComparison.OrdinalIgnoreCase))
+                    return "Cancelación de donación";
+
+                if (mensaje.Contains("modificó", StringComparison.OrdinalIgnoreCase) ||
+                    mensaje.Contains("editó", StringComparison.OrdinalIgnoreCase))
+                    return "Edición de donación";
+
+                if (mensaje.Contains("Se asignó", StringComparison.OrdinalIgnoreCase) ||
+                    mensaje.Contains("Asignación registrada", StringComparison.OrdinalIgnoreCase))
+                    return "Nueva asignación";
+
+                if (mensaje.Contains("creó la donación", StringComparison.OrdinalIgnoreCase) ||
+                    mensaje.Contains("Donación creada", StringComparison.OrdinalIgnoreCase))
+                    return "Nueva donación";
+
+                return "Movimiento";
+            }
+
+            var movimientosRecientes = observacionesRecientes
+                .Select(o => new MovimientoEmpresaViewModel
+                {
+                    NumeroReferencia = o.Donacion?.NumeroReferencia ?? "-",
+                    Fecha = o.Fecha,
+                    TipoMovimiento = ClasificarMovimiento(o.Mensaje),
+                    Detalle = o.Mensaje
+                })
+                .ToList();
 
             var model = new PerfilEmpresaViewModel
             {
@@ -48,7 +111,7 @@ namespace Vinculo.Controllers
                 Cuit = empresa.Cuit,
                 Telefono = empresa.Telefono,
                 Email = empresa.Email,
-                PersonaContacto = empresa.PersonaContacto, 
+                PersonaContacto = empresa.PersonaContacto,
                 Calle = empresa.Domicilio?.Calle,
                 Numero = empresa.Domicilio?.Numero,
                 Localidad = empresa.Domicilio?.Localidad,
@@ -60,7 +123,9 @@ namespace Vinculo.Controllers
                 TotalDonaciones = totalDonaciones,
                 Disponibles = disponibles,
                 Asignadas = asignadas,
-                Entregadas = entregadas
+                Entregadas = entregadas,
+                EquipamientosDonados = equipamientosDonados,
+                MovimientosRecientes = movimientosRecientes
             };
 
             return View(model);

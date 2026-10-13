@@ -191,6 +191,30 @@ namespace Vinculo.Migrations
                     b.ToTable("Asignaciones");
                 });
 
+            modelBuilder.Entity("Vinculo.Models.DetalleDonacion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DonacionId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TipoEquipamiento")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DonacionId");
+
+                    b.ToTable("DetalleDonacion");
+                });
+
             modelBuilder.Entity("Vinculo.Models.DetalleSolicitud", b =>
                 {
                     b.Property<int>("Id")
@@ -262,9 +286,6 @@ namespace Vinculo.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Cantidad")
-                        .HasColumnType("int");
-
                     b.Property<string>("Descripcion")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -285,9 +306,6 @@ namespace Vinculo.Migrations
                     b.Property<string>("NumeroReferencia")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Tipo")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -592,6 +610,17 @@ namespace Vinculo.Migrations
                     b.Navigation("Solicitud");
                 });
 
+            modelBuilder.Entity("Vinculo.Models.DetalleDonacion", b =>
+                {
+                    b.HasOne("Vinculo.Models.Donacion", "Donacion")
+                        .WithMany("Equipamientos")
+                        .HasForeignKey("DonacionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Donacion");
+                });
+
             modelBuilder.Entity("Vinculo.Models.DetalleSolicitud", b =>
                 {
                     b.HasOne("Vinculo.Models.Solicitud", "Solicitud")
@@ -695,6 +724,8 @@ namespace Vinculo.Migrations
             modelBuilder.Entity("Vinculo.Models.Donacion", b =>
                 {
                     b.Navigation("Asignaciones");
+
+                    b.Navigation("Equipamientos");
 
                     b.Navigation("Observaciones");
                 });

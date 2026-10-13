@@ -1,281 +1,457 @@
 @model Vinculo.Models.ViewModels.PerfilEmpresaViewModel
 
 @{
-    ViewData["Title"] = "Dashboard Empresa";
+    ViewData["Title"] = "Principal";
 }
 
-<!-- Estilos para el mapa de Leaflet en el Dashboard -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-<link rel="stylesheet" href="~/css/dashboard-responsive.css" />
-
 <div class="container-fluid px-0">
-    <!-- Breadcrumb y Título de Página -->
+    <!-- Encabezado -->
     <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
         <div>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-1 small text-secondary">
-                    <li class="breadcrumb-item"><a class="text-decoration-none text-secondary" href="#">Inicio</a></li>
-                    <li aria-current="page" class="breadcrumb-item active text-dark fw-semibold">Dashboard Empresa</li>
+                    <li class="breadcrumb-item">
+                        <a asp-controller="Empresa"
+                           asp-action="Index"
+                           class="text-decoration-none text-secondary">
+                            Inicio
+                        </a>
+                    </li>
+                    <li aria-current="page"
+                        class="breadcrumb-item active text-dark fw-semibold">
+                        Principal
+                    </li>
                 </ol>
             </nav>
+
             <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
-                <h1 class="h3 fw-bold text-corporate-primary mb-0">Panel Principal</h1>
-                <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-monospace py-1 px-2">
-                    <i class="bi bi-shield-lock me-1"></i>
-                    <strong>@Model?.RazonSocial</strong>
+                <h1 class="h3 fw-bold text-corporate-primary mb-0">
+                    Panel de la Empresa
+                </h1>
+
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle py-1 px-2">
+                    <i class="bi bi-building me-1"></i>
+                    @Model.RazonSocial
                 </span>
-                <span class="badge bg-primary-subtle text-primary border border-info-subtle font-monospace py-1 px-2 ms-2">
-                    <i class="bi bi-shield-lock me-1"></i>
-                    <strong>@Model?.Cuit</strong>
-                </span>
+
+                @if (!string.IsNullOrWhiteSpace(Model.Cuit))
+                {
+                    <span class="badge bg-primary-subtle text-primary border border-info-subtle font-monospace py-1 px-2">
+                        <i class="bi bi-shield-lock me-1"></i>
+                        @Model.Cuit
+                    </span>
+                }
             </div>
-@*             <p class="text-secondary mb-0 small">
-                Supervisión de parque informático en desuso, trazabilidad fiscal, logística inversa y asignación geolocalizada a entidades educativas y comunitarias de la Red Eisbaer.
-            </p> *@
+
+            <p class="text-secondary mb-0 small">
+                Desde este panel podés consultar el estado de tus lotes de donación
+                y realizar el seguimiento de los equipamientos entregados.
+            </p>
         </div>
+
         <div class="text-nowrap">
-            <!-- Botón adaptado al nuevo controlador Donaciones y acción CrearDonacion -->
-            <a class="btn btn-teal d-inline-flex align-items-center gap-2 px-3 py-2 fw-medium shadow-sm" asp-controller="Donacion" asp-action="RegistrarDonacion">
+            <a asp-controller="Donacion"
+               asp-action="RegistrarDonacion"
+               class="btn btn-teal d-inline-flex align-items-center gap-2 px-3 py-2 fw-medium shadow-sm">
                 <i class="bi bi-plus-circle"></i>
-                <span>Registrar Nueva Donación</span>
+                <span>Nueva Donación</span>
             </a>
         </div>
     </div>
 
-    <!-- Fila de 4 KPI Cards Dinámicas -->
+
+    <!-- KPIs -->
     <div class="row g-3 mb-4">
-        <!-- KPI 1: Lotes Totales -->
+
+        <!-- Total donaciones -->
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card border-0 shadow-sm rounded-3 h-100 p-3">
                 <div class="d-flex align-items-start justify-content-between mb-2">
                     <div>
-                        <span class="text-secondary text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Lotes Registrados</span>
-                        <div class="h3 fw-bold text-corporate-primary mb-0 mt-1 font-monospace">@Model.TotalDonaciones <span class="fs-6 text-secondary fw-normal">totales</span></div>
+                        <span class="text-secondary text-uppercase fw-semibold"
+                              style="font-size: 0.72rem; letter-spacing: 0.05em;">
+                            Lotes Registrados
+                        </span>
+
+                        <div class="h3 fw-bold text-corporate-primary mb-0 mt-1 font-monospace">
+                            @Model.TotalDonaciones
+                        </div>
                     </div>
+
                     <div class="kpi-icon-box bg-body-tertiary text-corporate-primary">
                         <i class="bi bi-boxes"></i>
                     </div>
                 </div>
-                <div class="progress mt-2" style="height: 4px;">
-                    <div class="progress-bar bg-corporate-primary" style="width: 100%;"></div>
+
+                <div class="d-flex align-items-center gap-1 text-secondary small pt-2 border-top border-light-subtle">
+                    <i class="bi bi-collection"></i>
+                    <span>Total de donaciones registradas</span>
                 </div>
             </div>
         </div>
 
-        <!-- KPI 2: Disponibles -->
+
+        <!-- Disponibles -->
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card border-0 shadow-sm rounded-3 h-100 p-3">
                 <div class="d-flex align-items-start justify-content-between mb-2">
                     <div>
-                        <span class="text-secondary text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Disponibles para Match</span>
-                        <div class="h3 fw-bold text-success mb-0 mt-1 font-monospace">@Model.Disponibles <span class="fs-6 text-secondary fw-normal">lotes</span></div>
+                        <span class="text-secondary text-uppercase fw-semibold"
+                              style="font-size: 0.72rem; letter-spacing: 0.05em;">
+                            Disponibles
+                        </span>
+
+                        <div class="h3 fw-bold text-corporate-primary mb-0 mt-1 font-monospace">
+                            @Model.Disponibles
+                        </div>
                     </div>
+
                     <div class="kpi-icon-box bg-success-subtle text-success">
                         <i class="bi bi-geo-alt-fill"></i>
                     </div>
                 </div>
-                <div class="progress mt-2" style="height: 4px;">
-                    <div class="progress-bar bg-success" style="width: @(Model.TotalDonaciones > 0 ? (Model.Disponibles * 100 / Model.TotalDonaciones) : 0)%;"></div>
+
+                <div class="d-flex align-items-center gap-1 text-secondary small pt-2 border-top border-light-subtle">
+                    <i class="bi bi-broadcast"></i>
+                    <span>Disponibles para asignación</span>
                 </div>
             </div>
         </div>
 
-        <!-- KPI 3: En Logística -->
+
+        <!-- En logística / Asignadas -->
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card border-0 shadow-sm rounded-3 h-100 p-3">
                 <div class="d-flex align-items-start justify-content-between mb-2">
                     <div>
-                        <span class="text-secondary text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Asignaciones en Curso</span>
-                        <div class="h3 fw-bold text-primary mb-0 mt-1 font-monospace">@Model.Asignadas <span class="fs-6 text-secondary fw-normal">activas</span></div>
+                        <span class="text-secondary text-uppercase fw-semibold"
+                              style="font-size: 0.72rem; letter-spacing: 0.05em;">
+                            En logística
+                        </span>
+
+                        <div class="h3 fw-bold text-corporate-primary mb-0 mt-1 font-monospace">
+                            @Model.Asignadas
+                        </div>
                     </div>
-                    <div class="kpi-icon-box bg-primary-subtle text-primary">
+
+                    <div class="kpi-icon-box bg-info-subtle text-info">
                         <i class="bi bi-truck"></i>
                     </div>
                 </div>
-                <div class="progress mt-2" style="height: 4px;">
-                    <div class="progress-bar bg-primary" style="width: @(Model.TotalDonaciones > 0 ? (Model.Asignadas * 100 / Model.TotalDonaciones) : 0)%;"></div>
+
+                <div class="d-flex align-items-center gap-1 text-secondary small pt-2 border-top border-light-subtle">
+                    <i class="bi bi-arrow-left-right"></i>
+                    <span>Asignaciones en curso</span>
                 </div>
             </div>
         </div>
 
-        <!-- KPI 4: Entregadas -->
+
+        <!-- Entregadas -->
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card border-0 shadow-sm rounded-3 h-100 p-3">
                 <div class="d-flex align-items-start justify-content-between mb-2">
                     <div>
-                        <span class="text-secondary text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Entregas Concretadas</span>
-                        <div class="h3 fw-bold text-teal mb-0 mt-1 font-monospace">@Model.Entregadas <span class="fs-6 text-secondary fw-normal">lotes</span></div>
+                        <span class="text-secondary text-uppercase fw-semibold"
+                              style="font-size: 0.72rem; letter-spacing: 0.05em;">
+                            Entregadas
+                        </span>
+
+                        <div class="h3 fw-bold text-corporate-primary mb-0 mt-1 font-monospace">
+                            @Model.Entregadas
+                        </div>
                     </div>
+
                     <div class="kpi-icon-box bg-teal-subtle-custom text-teal">
                         <i class="bi bi-patch-check-fill"></i>
                     </div>
                 </div>
-                <div class="progress mt-2" style="height: 4px;">
-                    <div class="progress-bar" style="background-color: var(--vinculo-teal); width: @(Model.TotalDonaciones > 0 ? (Model.Entregadas * 100 / Model.TotalDonaciones) : 0)%;"></div>
+
+                <div class="d-flex align-items-center gap-1 text-success small pt-2 border-top border-light-subtle">
+                    <i class="bi bi-check2-circle"></i>
+                    <span>Entregas concretadas</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Resumen + Acciones rápidas -->
+    <div class="row g-4 mb-4">
+
+        <!-- Equipamiento donado -->
+        <div class="col-12 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-3 h-100 p-3">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div>
+                        <h5 class="fw-bold text-corporate-primary mb-1">
+                            Equipamiento donado
+                        </h5>
+                        <small class="text-secondary">
+                            Unidades registradas en total
+                        </small>
+                    </div>
+
+                    <div class="kpi-icon-box bg-teal-subtle-custom text-teal">
+                        <i class="bi bi-pc-display"></i>
+                    </div>
+                </div>
+
+                <div class="display-5 fw-bold text-corporate-primary font-monospace">
+                    @Model.EquipamientosDonados
+                </div>
+
+                <div class="text-secondary small mt-2">
+                    <i class="bi bi-box-seam me-1"></i>
+                    Equipamientos incluidos en tus lotes de donación.
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Acciones rápidas -->
+        <div class="col-12 col-lg-8">
+            <div class="card border-0 shadow-sm rounded-3 h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold text-corporate-primary mb-1">
+                        Acciones rápidas
+                    </h5>
+
+                    <p class="text-secondary small mb-4">
+                        Accedé rápidamente a las operaciones principales de tu empresa.
+                    </p>
+
+                    <div class="row g-3">
+
+                        <div class="col-12 col-md-6">
+                            <a asp-controller="Donacion"
+                               asp-action="RegistrarDonacion"
+                               class="text-decoration-none">
+                                <div class="border rounded-3 p-3 h-100 d-flex align-items-center gap-3 hover-shadow">
+                                    <div class="kpi-icon-box bg-teal-subtle-custom text-teal flex-shrink-0">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </div>
+
+                                    <div>
+                                        <div class="fw-semibold text-corporate-primary">
+                                            Nueva Donación
+                                        </div>
+                                        <div class="small text-secondary">
+                                            Registrar un nuevo lote de equipamiento.
+                                        </div>
+                                    </div>
+
+                                    <i class="bi bi-chevron-right ms-auto text-secondary"></i>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <a asp-controller="Donacion"
+                               asp-action="Index"
+                               class="text-decoration-none">
+                                <div class="border rounded-3 p-3 h-100 d-flex align-items-center gap-3 hover-shadow">
+                                    <div class="kpi-icon-box bg-primary-subtle text-primary flex-shrink-0">
+                                        <i class="bi bi-list-check"></i>
+                                    </div>
+
+                                    <div>
+                                        <div class="fw-semibold text-corporate-primary">
+                                            Mis Donaciones
+                                        </div>
+                                        <div class="small text-secondary">
+                                            Consultar y gestionar tus donaciones.
+                                        </div>
+                                    </div>
+
+                                    <i class="bi bi-chevron-right ms-auto text-secondary"></i>
+                                </div>
+                            </a>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Sección Principal de Dos Columnas -->
-    <div class="row g-4">
-<!-- Columna Izquierda (Línea de Tiempo de Actividad Reciente) -->
-        <div class="col-12 col-lg-8">
-            <div class="card border-0 shadow-sm rounded-3 mb-4 h-100">
-                <div class="card-header bg-white border-0 pt-3 px-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
-                    <div>
-                        <h5 class="fw-bold text-corporate-primary mb-0">Actividad Logística Reciente</h5>
-                        <small class="text-secondary">Trazabilidad en tiempo real de tus lotes asignados</small>
-                    </div>
-                    <div class="btn-group btn-group-sm p-1 bg-body-tertiary rounded-3" role="group">
-                        <button class="btn btn-white fw-semibold bg-white shadow-xs text-corporate-primary rounded-2" type="button">Últimos 7 días</button>
-                    </div>
+
+    <!-- Movimientos recientes -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+
+        <div class="card-header bg-white border-0 pt-3 px-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
+            <div>
+                <h5 class="fw-bold text-corporate-primary mb-0">
+                    Movimientos recientes
+                </h5>
+
+                <small class="text-secondary">
+                    Últimos 5 movimientos de tus donaciones y asignaciones
+                </small>
+            </div>
+
+            <a asp-controller="Donacion"
+               asp-action="Index"
+               class="btn btn-sm btn-outline-teal">
+                Ver todas
+                <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        <div class="card-body p-0">
+
+            @if (Model.MovimientosRecientes != null &&
+                 Model.MovimientosRecientes.Any())
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle mb-0">
+
+                        <thead class="table-light small text-uppercase text-secondary">
+                            <tr>
+                                <th class="ps-3 py-2">Referencia</th>
+                                <th class="py-2">Fecha</th>
+                                <th class="py-2">Movimiento</th>
+                                <th class="pe-3 py-2">Detalle</th>
+                            </tr>
+                        </thead>
+
+                        <tbody class="small">
+
+                            @foreach (var mov in Model.MovimientosRecientes)
+                            {
+                                <tr>
+
+                                    <td class="ps-3 text-nowrap">
+                                        <span class="fw-bold font-monospace text-corporate-primary">
+                                            @mov.NumeroReferencia
+                                        </span>
+                                    </td>
+
+                                    <td class="text-secondary font-monospace text-nowrap">
+                                        @mov.Fecha.ToString("dd/MM/yyyy HH:mm")
+                                    </td>
+
+                                    <td class="text-nowrap">
+                                        @switch (mov.TipoMovimiento)
+                                        {
+                                            case "Nueva donación":
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                                                    <i class="bi bi-plus-circle me-1"></i>
+                                                    Nueva donación
+                                                </span>
+                                                break;
+
+                                            case "Edición de donación":
+                                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1">
+                                                    <i class="bi bi-pencil-square me-1"></i>
+                                                    Edición de donación
+                                                </span>
+                                                break;
+
+                                            case "Cancelación de donación":
+                                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">
+                                                    <i class="bi bi-x-circle me-1"></i>
+                                                    Cancelación de donación
+                                                </span>
+                                                break;
+
+                                            case "Nueva asignación":
+                                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                                                    <i class="bi bi-link-45deg me-1"></i>
+                                                    Nueva asignación
+                                                </span>
+                                                break;
+
+                                            case "Cancelación de asignación":
+                                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">
+                                                    <i class="bi bi-slash-circle me-1"></i>
+                                                    Cancelación de asignación
+                                                </span>
+                                                break;
+
+                                            case "Entrega concretada":
+                                                <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-2 py-1">
+                                                    <i class="bi bi-check-circle-fill me-1"></i>
+                                                    Entrega concretada
+                                                </span>
+                                                break;
+
+                                            default:
+                                                <span class="badge bg-light text-secondary border px-2 py-1">
+                                                    <i class="bi bi-clock-history me-1"></i>
+                                                    @mov.TipoMovimiento
+                                                </span>
+                                                break;
+                                        }
+                                    </td>
+
+                                    <td class="pe-3 text-secondary">
+                                        @mov.Detalle
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
                 </div>
-                
-                <div class="card-body p-4 pt-2">
-                    <!-- Contenedor del Timeline -->
-                    <div class="position-relative ms-2 mt-3">
-                        <!-- Línea vertical del timeline -->
-                        <div class="position-absolute border-start border-2 border-light-subtle h-100" style="left: 15px; top: 10px; z-index: 0;"></div>
-
-                        <!-- Evento 1: En tránsito -->
-                        <div class="position-relative d-flex align-items-start mb-4" style="z-index: 1;">
-                            <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px; box-shadow: 0 0 0 6px #fff;">
-                                <i class="bi bi-truck small"></i>
-                            </div>
-                            <div class="ms-3 bg-light rounded-3 p-3 w-100 border border-light-subtle shadow-sm">
-                                <div class="d-flex justify-content-between align-items-start mb-1">
-                                    <span class="fw-bold text-dark small">Lote #DON-2026-089 en tránsito logístico</span>
-                                    <span class="badge bg-white text-secondary border small fw-normal font-monospace"><i class="bi bi-clock me-1"></i>Hace 2 horas</span>
-                                </div>
-                                <p class="text-secondary small mb-0 lh-sm mt-1">El transporte retiró los equipos Lenovo T480 de tu sede central. Dirigiéndose a <strong>Escuela Técnica N° 12</strong>.</p>
-                            </div>
-                        </div>
-
-                        <!-- Evento 2: Entrega Confirmada -->
-                        <div class="position-relative d-flex align-items-start mb-4" style="z-index: 1;">
-                            <div class="bg-teal-subtle-custom text-teal rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px; box-shadow: 0 0 0 6px #fff;">
-                                <i class="bi bi-patch-check-fill small"></i>
-                            </div>
-                            <div class="ms-3 bg-white rounded-3 p-3 w-100 border border-success-subtle shadow-sm">
-                                <div class="d-flex justify-content-between align-items-start mb-1">
-                                    <span class="fw-bold text-dark small">Entrega Exitosa: Lote #DON-2026-077</span>
-                                    <span class="badge bg-white text-secondary border small fw-normal font-monospace"><i class="bi bi-calendar me-1"></i>Ayer, 15:30</span>
-                                </div>
-                                <p class="text-secondary small mb-0 lh-sm mt-1">El <strong>Centro Comunitario La Boca</strong> confirmó la recepción de 15 PC Dell OptiPlex. Se emitió el remito digital.</p>
-                            </div>
-                        </div>
-
-                        <!-- Evento 3: Asignación Inicial -->
-                        <div class="position-relative d-flex align-items-start mb-2" style="z-index: 1;">
-                            <div class="bg-warning-subtle text-warning-emphasis rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px; box-shadow: 0 0 0 6px #fff;">
-                                <i class="bi bi-link-45deg fs-5"></i>
-                            </div>
-                            <div class="ms-3 bg-white rounded-3 p-3 w-100 border border-light-subtle">
-                                <div class="d-flex justify-content-between align-items-start mb-1">
-                                    <span class="fw-bold text-dark small">Match Comunitario Realizado</span>
-                                    <span class="badge bg-white text-secondary border small fw-normal font-monospace"><i class="bi bi-calendar me-1"></i>Lun 05/10</span>
-                                </div>
-                                <p class="text-secondary small mb-0 lh-sm mt-1">El algoritmo de Vínculo asignó tus monitores sobrantes a la <strong>Fundación Equidad</strong>. Esperando confirmación de retiro.</p>
-                            </div>
-                        </div>
+            }
+            else
+            {
+                <div class="text-center py-5 px-3">
+                    <div class="kpi-icon-box bg-body-tertiary text-secondary mx-auto mb-3">
+                        <i class="bi bi-inbox"></i>
                     </div>
-                </div>
-                
-                <!-- Footer para ir a la vista completa de la tabla de donaciones -->
-                <div class="card-footer bg-white border-top border-light-subtle d-flex justify-content-center py-3 px-3 mt-auto">
-                    <a class="small fw-semibold text-teal text-decoration-none d-inline-flex align-items-center gap-1" asp-controller="Donaciones" asp-action="Index">
-                        <span>Ver registro completo y remitos</span>
-                        <i class="bi bi-arrow-right"></i>
+
+                    <h6 class="fw-semibold text-corporate-primary">
+                        Todavía no tenés movimientos registrados
+                    </h6>
+
+                    <p class="text-secondary small mb-3">
+                        Cuando registres o asignes una donación de equipamiento,
+                        aparecerán aquí los últimos movimientos.
+                    </p>
+
+                    <a asp-controller="Donacion"
+                       asp-action="RegistrarDonacion"
+                       class="btn btn-teal btn-sm">
+                        <i class="bi bi-plus-circle me-1"></i>
+                        Registrar primera donación
                     </a>
                 </div>
-            </div>
-        </div>
-<!-- Columna Derecha (Centro de Despacho con Mapa Dinámico) -->
-        <div class="col-12 col-lg-4">
-            <div class="card border-0 shadow-sm rounded-3 p-3 h-100">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <h6 class="fw-bold text-corporate-primary mb-0">Domicilio Registrado</h6>
-                    <i class="bi bi-building text-secondary fs-5"></i>
-                </div>
-                
-                <div class="mb-3">
-                    @if (!string.IsNullOrEmpty(Model.Calle) && !string.IsNullOrEmpty(Model.Numero))
-                    {
-                        <div class="text-secondary small">@Model.Calle @Model.Numero, @Model.Localidad</div>
-                        <div class="text-muted font-monospace mt-1" style="font-size: 0.75rem;">@Model.Provincia · CP: @Model.CodigoPostal</div>
-                    }
-                    else
-                    {
-                        <div class="alert alert-warning py-2 mb-0 d-flex align-items-center gap-2 small border-warning-subtle">
-                            <i class="bi bi-exclamation-triangle-fill text-warning"></i>
-                            <div>Falta configurar domicilio de retiro. <a asp-action="MisDatos" class="alert-link text-decoration-none">Completar aquí</a>.</div>
-                        </div>
-                    }
-                </div>
+            }
 
-                <!-- IMPORTANTE: El contenedor padre debe tener una altura fija (ej. 280px) -->
-                <div class="map-preview-box rounded-3 position-relative overflow-hidden mb-3 border border-light-subtle" style="width: 100%; height: 280px; background-color: #f8f9fa;">
-                    @if (Model.Latitud.HasValue && Model.Longitud.HasValue)
-                    {
-                        <!-- z-index: 1 evita conflictos con otras capas de Bootstrap -->
-                        <div id="mapaDashboard" style="width: 100%; height: 100%; z-index: 1;"></div>
-                        <div class="position-absolute bottom-0 start-0 m-2 bg-white bg-opacity-90 rounded p-1 d-inline-flex align-items-center gap-1 shadow-sm font-monospace small" style="font-size: 0.72rem; z-index: 1000;">
-                            <i class="bi bi-geo-alt-fill text-danger"></i>
-                            <span>@Model.Latitud?.ToString("0.000")° S, @Model.Longitud?.ToString("0.000")° W</span>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="d-flex flex-column h-100 align-items-center justify-content-center text-muted w-100">
-                            <i class="bi bi-map fs-1 opacity-25 mb-2"></i>
-                            <span class="small fw-medium">Motor Geográfico Inactivo</span>
-                        </div>
-                    }
-                </div>
-
-            </div>
         </div>
 
-    @* <!-- Pie de Módulo --> *@
+    </div>
+
+
+    <!-- Pie de Módulo -->
     <div class="mt-5 pt-4 border-top border-light-subtle d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 text-secondary small">
         <div class="d-flex align-items-center gap-3">
-            <img alt="Eisbaer Logo" class="img-fluid opacity-75" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBo-17XWs1TbXjug6LezZr3BxNSZHwcUWe1RZYB1YMtBEcWqnYQ797BIfPkTtDn5VcYKEA_M8-E7sYwAvDxTqPhQ_q95KZ3D6uSWFuR2pIl0FcaYg8gF5I2ARsk6e1Wu6ShBXzhBL_LHp2HZwgblUxV9EOu0501awblbwqZw-cmPkUXbGUw0Oy8HOKOlsK5EQnczwKstL-0w_7Dfb4hrtvnf3zMPFZqW-M_Qx7XkzC53NM6ht9VWyohnUrNy4wZ_YDIZT4" style="width: 36px; height: 36px; object-fit: contain;" />
+            <img alt="Eisbaer Logo"
+                 class="img-fluid opacity-75"
+                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuBo-17XWs1TbXjug6LezZr3BxNSZHwcUWe1RZYB1YMtBEcWqnYQ797BIfPkTtDn5VcYKEA_M8-E7sYwAvDxTqPhQ_q95KZ3D6uSWFuR2pIl0FcaYg8gF5I2ARsk6e1Wu6ShBXzhBL_LHp2HZwgblUxV9EOu0501awblbwqZw-cmPkUXbGUw0Oy8HOKOlsK5EQnczwKstL-0w_7Dfb4hrtvnf3zMPFZqW-M_Qx7XkzC53NM6ht9VWyohnUrNy4wZ_YDIZT4"
+                 style="width: 36px; height: 36px; object-fit: contain;" />
             <div>
                 <div class="fw-semibold text-corporate-primary">Vínculo · Módulo Principal</div>
             </div>
         </div>
     </div>
 </div>
-@section Scripts {
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // Leer como strings primero evita errores de sintaxis en JS si el valor viene vacío de ASP.NET
-            const latStr = "@(Model.Latitud?.ToString(System.Globalization.CultureInfo.InvariantCulture))";
-            const lngStr = "@(Model.Longitud?.ToString(System.Globalization.CultureInfo.InvariantCulture))";
 
-            if (latStr && lngStr) {
-                const lat = parseFloat(latStr);
-                const lng = parseFloat(lngStr);
+<style>
+    .hover-shadow {
+        transition: all 0.15s ease-in-out;
+    }
 
-                // Instanciamos el mapa con controles nativos activos (zoom, paneo)
-                const mapaDashboard = L.map("mapaDashboard").setView([lat, lng], 15);
-
-                L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-                    maxZoom: 19,
-                    attribution: '&copy; OSM'
-                }).addTo(mapaDashboard);
-
-                // Dibujamos el marcador
-                L.marker([lat, lng]).addTo(mapaDashboard)
-                    .bindPopup("<b>@(Model.RazonSocial ?? "Empresa")</b><br>Centro de Despacho Logístico");
-
-                // El timeout asegura que el mapa tome la dimensión correcta si el contenedor se carga dinámicamente
-                setTimeout(() => {
-                    mapaDashboard.invalidateSize();
-                }, 500);
-            }
-        });
-    </script>
-}
+    .hover-shadow:hover {
+        background-color: #f8f9fa;
+        border-color: #0e9aa7 !important;
+        box-shadow: 0 0.25rem 0.75rem rgba(15, 42, 71, 0.08);
+    }
+</style>
