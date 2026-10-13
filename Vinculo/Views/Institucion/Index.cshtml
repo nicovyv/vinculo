@@ -269,17 +269,17 @@
     </div>
 
 
-    <!-- Solicitudes recientes -->
+    <!-- Movimientos recientes -->
     <div class="card border-0 shadow-sm rounded-3 mb-4">
 
         <div class="card-header bg-white border-0 pt-3 px-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
             <div>
                 <h5 class="fw-bold text-corporate-primary mb-0">
-                    Solicitudes recientes
+                    Movimientos recientes
                 </h5>
 
                 <small class="text-secondary">
-                    Últimas solicitudes realizadas por la institución
+                    Últimos 5 movimientos de tus solicitudes y asignaciones
                 </small>
             </div>
 
@@ -293,8 +293,8 @@
 
         <div class="card-body p-0">
 
-            @if (Model.SolicitudesRecientes != null &&
-                 Model.SolicitudesRecientes.Any())
+            @if (Model.MovimientosRecientes != null &&
+                 Model.MovimientosRecientes.Any())
             {
                 <div class="table-responsive">
 
@@ -304,81 +304,83 @@
                             <tr>
                                 <th class="ps-3 py-2">Referencia</th>
                                 <th class="py-2">Fecha</th>
-                                <th class="py-2">Equipamiento</th>
-                                <th class="py-2">Cantidad</th>
-                                <th class="py-2">Estado</th>
+                                <th class="py-2">Movimiento</th>
+                                <th class="pe-3 py-2">Detalle</th>
                             </tr>
                         </thead>
 
                         <tbody class="small">
 
-                            @foreach (var solicitud in Model.SolicitudesRecientes)
+                            @foreach (var mov in Model.MovimientosRecientes)
                             {
-                                var cantidadTotal = solicitud.Detalles?
-                                    .Sum(d => d.Cantidad) ?? 0;
-
                                 <tr>
 
-                                    <td class="ps-3">
+                                    <td class="ps-3 text-nowrap">
                                         <span class="fw-bold font-monospace text-corporate-primary">
-                                            @solicitud.NumeroReferencia
+                                            @mov.NumeroReferencia
                                         </span>
                                     </td>
 
-                                    <td class="text-secondary font-monospace">
-                                        @solicitud.Fecha.ToString("dd/MM/yyyy")
+                                    <td class="text-secondary font-monospace text-nowrap">
+                                        @mov.Fecha.ToString("dd/MM/yyyy HH:mm")
                                     </td>
 
-                                    <td>
-                                        @if (solicitud.Detalles != null &&
-                                             solicitud.Detalles.Any())
+                                    <td class="text-nowrap">
+                                        @switch (mov.TipoMovimiento)
                                         {
-                                            <div class="fw-medium text-dark">
-                                                @solicitud.Detalles.Count tipo(s)
-                                            </div>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-secondary">
-                                                Sin detalle
-                                            </span>
-                                        }
-                                    </td>
-
-                                    <td class="font-monospace fw-semibold">
-                                        @cantidadTotal
-                                    </td>
-
-                                    <td>
-                                        @switch (solicitud.Estado)
-                                        {
-                                            case Vinculo.Models.Enums.EstadoSolicitud.Pendiente:
-                                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1">
-                                                    <i class="bi bi-clock me-1"></i>
-                                                    Pendiente
-                                                </span>
-                                                break;
-
-                                            case Vinculo.Models.Enums.EstadoSolicitud.EnCoordinacion:
-                                                <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-2 py-1">
-                                                    <i class="bi bi-arrow-left-right me-1"></i>
-                                                    En coordinación
-                                                </span>
-                                                break;
-
-                                            case Vinculo.Models.Enums.EstadoSolicitud.Concretado:
+                                            case "Nueva solicitud":
                                                 <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
-                                                    <i class="bi bi-check-circle me-1"></i>
-                                                    Concretado
+                                                    <i class="bi bi-plus-circle me-1"></i>
+                                                    Nueva solicitud
                                                 </span>
                                                 break;
-                                            case Vinculo.Models.Enums.EstadoSolicitud.Cancelada:
+
+                                            case "Edición de solicitud":
+                                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1">
+                                                    <i class="bi bi-pencil-square me-1"></i>
+                                                    Edición de solicitud
+                                                </span>
+                                                break;
+
+                                            case "Cancelación de solicitud":
                                                 <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">
                                                     <i class="bi bi-x-circle me-1"></i>
-                                                    Cancelada
+                                                    Cancelación de solicitud
+                                                </span>
+                                                break;
+
+                                            case "Nueva asignación":
+                                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                                                    <i class="bi bi-link-45deg me-1"></i>
+                                                    Nueva asignación
+                                                </span>
+                                                break;
+
+                                            case "Cancelación de asignación":
+                                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">
+                                                    <i class="bi bi-slash-circle me-1"></i>
+                                                    Cancelación de asignación
+                                                </span>
+                                                break;
+
+                                            case "Entrega concretada":
+                                                <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-2 py-1">
+                                                    <i class="bi bi-check-circle-fill me-1"></i>
+                                                    Entrega concretada
+                                                </span>
+                                                break;
+
+                                            default:
+                                                <span class="badge bg-light text-secondary border px-2 py-1">
+                                                    <i class="bi bi-clock-history me-1"></i>
+                                                    @mov.TipoMovimiento
                                                 </span>
                                                 break;
                                         }
+                                    </td>
+
+                                    <td class="pe-3 text-secondary">
+                                        @mov.Detalle
                                     </td>
 
                                 </tr>
@@ -398,12 +400,12 @@
                     </div>
 
                     <h6 class="fw-semibold text-corporate-primary">
-                        Todavía no tenés solicitudes
+                        Todavía no tenés movimientos registrados
                     </h6>
 
                     <p class="text-secondary small mb-3">
-                        Cuando realices una solicitud de equipamiento,
-                        aparecerá aquí su estado y seguimiento.
+                        Cuando realices una solicitud de equipamiento o recibas una asignación,
+                        aparecerán aquí los últimos movimientos.
                     </p>
 
                     <a asp-controller="Solicitud"
@@ -452,9 +454,9 @@
         transition: all 0.15s ease-in-out;
     }
 
-        .hover-shadow:hover {
-            background-color: #f8f9fa;
-            border-color: #0e9aa7 !important;
-            box-shadow: 0 0.25rem 0.75rem rgba(15, 42, 71, 0.08);
-        }
+    .hover-shadow:hover {
+        background-color: #f8f9fa;
+        border-color: #0e9aa7 !important;
+        box-shadow: 0 0.25rem 0.75rem rgba(15, 42, 71, 0.08);
+    }
 </style>

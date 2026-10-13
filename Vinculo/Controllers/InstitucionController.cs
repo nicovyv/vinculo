@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Vinculo.Data;
 using Vinculo.Models;
 using Vinculo.Models.Enums;
@@ -18,9 +21,9 @@ namespace Vinculo.Controllers
         private readonly NominatimService _nominatimService;
 
         public InstitucionController(
-         VinculoDbContext context,
-         UserManager<Usuario> userManager,
-         NominatimService nominatimService)
+            VinculoDbContext context,
+            UserManager<Usuario> userManager,
+            NominatimService nominatimService)
         {
             _context = context;
             _userManager = userManager;
@@ -46,6 +49,57 @@ namespace Vinculo.Controllers
                 .OrderByDescending(s => s.Fecha)
                 .ToListAsync();
 
+            // Últimos 5 movimientos registrados en las solicitudes y asignaciones de la institución
+            var observacionesRecientes = await _context.Observaciones
+                .AsNoTracking()
+                .Include(o => o.Solicitud)
+                .Where(o => o.SolicitudId != null && o.Solicitud.InstitucionId == institucion.Id)
+                .OrderByDescending(o => o.Fecha)
+                .ThenByDescending(o => o.Id)
+                .Take(5)
+                .ToListAsync();
+
+            static string ClasificarMovimiento(string mensaje)
+            {
+                if (string.IsNullOrWhiteSpace(mensaje))
+                    return "Movimiento";
+
+                if (mensaje.Contains("confirmó la entrega", StringComparison.OrdinalIgnoreCase) ||
+                    mensaje.Contains("entrega", StringComparison.OrdinalIgnoreCase))
+                    return "Entrega concretada";
+
+                if (mensaje.Contains("cancel", StringComparison.OrdinalIgnoreCase) &&
+                    mensaje.Contains("asignación", StringComparison.OrdinalIgnoreCase))
+                    return "Cancelación de asignación";
+
+                if (mensaje.Contains("cancel", StringComparison.OrdinalIgnoreCase))
+                    return "Cancelación de solicitud";
+
+                if (mensaje.Contains("modificó", StringComparison.OrdinalIgnoreCase) ||
+                    mensaje.Contains("editó", StringComparison.OrdinalIgnoreCase))
+                    return "Edición de solicitud";
+
+                if (mensaje.Contains("creó la solicitud", StringComparison.OrdinalIgnoreCase) ||
+                    mensaje.Contains("Solicitud creada", StringComparison.OrdinalIgnoreCase))
+                    return "Nueva solicitud";
+
+                if (mensaje.Contains("Se asignó", StringComparison.OrdinalIgnoreCase) ||
+                    mensaje.Contains("asignación", StringComparison.OrdinalIgnoreCase))
+                    return "Nueva asignación";
+
+                return "Movimiento";
+            }
+
+            var movimientosRecientes = observacionesRecientes
+                .Select(o => new MovimientoInstitucionViewModel
+                {
+                    NumeroReferencia = o.Solicitud?.NumeroReferencia ?? "-",
+                    Fecha = o.Fecha,
+                    TipoMovimiento = ClasificarMovimiento(o.Mensaje),
+                    Detalle = o.Mensaje
+                })
+                .ToList();
+
             var model = new InstitucionDashboardViewModel
             {
                 InstitucionId = institucion.Id,
@@ -62,6 +116,7 @@ namespace Vinculo.Controllers
 
                 SolicitudesConcretadas = solicitudes.Count(
                     s => s.Estado == EstadoSolicitud.Concretado),
+
                 SolicitudesCanceladas = solicitudes.Count(
                     s => s.Estado == EstadoSolicitud.Cancelada),
 
@@ -69,7 +124,6 @@ namespace Vinculo.Controllers
                     .Where(s => s.Estado != EstadoSolicitud.Cancelada)
                     .SelectMany(s => s.Equipamientos)
                     .Sum(d => d.Cantidad),
-
 
                 SolicitudesRecientes = solicitudes
                     .Take(5)
@@ -88,7 +142,9 @@ namespace Vinculo.Controllers
                             })
                             .ToList()
                     })
-                    .ToList()
+                    .ToList(),
+
+                MovimientosRecientes = movimientosRecientes
             };
 
             return View(model);

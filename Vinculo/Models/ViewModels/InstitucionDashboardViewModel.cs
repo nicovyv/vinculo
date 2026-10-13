@@ -22,5 +22,15 @@ namespace Vinculo.Models.ViewModels
 
         public List<SolicitudViewModel> SolicitudesRecientes { get; set; }
             = new List<SolicitudViewModel>();
+        public List<MovimientoInstitucionViewModel> MovimientosRecientes { get; set; } = new();
     }
+
+    public class MovimientoInstitucionViewModel
+    {
+        public string NumeroReferencia { get; set; } = string.Empty;
+        public DateTime Fecha { get; set; }
+        public string TipoMovimiento { get; set; } = string.Empty;
+        public string Detalle { get; set; } = string.Empty;
+    }
+
 }
