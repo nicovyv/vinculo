@@ -4,82 +4,447 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Vínculo</title>
-    
-    <link href="https://fonts.googleapis.com" rel="preconnect"/>
-    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-    <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
-    
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+          rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+          rel="stylesheet" />
+
     <style>
-        :root {
-          --bs-primary: #0f2a47;
-          --bs-primary-rgb: 15, 42, 71;
-          --vinculo-teal: #0e9aa7;
-          --vinculo-teal-dark: #09757f;
-          --vinculo-teal-bg: #eaf8fa;
-          --vinculo-surface: #f8f9ff;
-          --vinculo-surface-card: #ffffff;
-          --vinculo-navy-soft: #e9eff7;
-          --vinculo-border: #e3e8f0;
-        }
-        body {
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-          background-color: var(--vinculo-surface);
-          color: #0b1c30;
-          min-height: 100vh;
-        }
-        .bg-corporate-primary { background-color: #0f2a47 !important; }
-        .text-corporate-primary { color: #0f2a47 !important; }
-        .btn-teal { background-color: var(--vinculo-teal); border-color: var(--vinculo-teal); color: #ffffff; }
-        .btn-teal:hover, .btn-teal:focus { background-color: var(--vinculo-teal-dark); border-color: var(--vinculo-teal-dark); color: #ffffff; }
-        .btn-outline-teal { color: var(--vinculo-teal); border-color: var(--vinculo-teal); }
-        .btn-outline-teal:hover { background-color: var(--vinculo-teal); color: #ffffff; }
-        .text-teal { color: var(--vinculo-teal) !important; }
-        .bg-teal-subtle-custom { background-color: #eaf8fa !important; color: #086b75 !important; }
-        .sidebar { width: 260px; min-height: calc(100vh - 64px); }
-        .nav-sidebar-link {
-          color: #495057; font-weight: 500; font-size: 0.9rem; border-radius: 0.5rem;
-          padding: 0.6rem 0.85rem; transition: all 0.15s ease-in-out; text-decoration: none;
-          display: flex; align-items: center; gap: 0.65rem;
-        }
-        .nav-sidebar-link:hover { background-color: #f1f4fa; color: #0f2a47; }
-        .nav-sidebar-link.active { background-color: #dce7f5; color: #0f2a47; font-weight: 600; }
-        .kpi-icon-box { width: 46px; height: 46px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.35rem; }
-        .map-preview-box { background: radial-gradient(circle at 50% 50%, #d4e7f5 0%, #c1d9ec 100%); border: 1px dashed #99bad5; min-height: 200px; position: relative; }
-        .breadcrumb-item + .breadcrumb-item::before { content: "›"; font-size: 1.1rem; line-height: 1; vertical-align: -1px; }
+            :root {
+                --bs-primary: #0f2a47;
+                --bs-primary-rgb: 15, 42, 71;
+                --vinculo-teal: #0e9aa7;
+                --vinculo-teal-dark: #09757f;
+                --vinculo-teal-bg: #eaf8fa;
+                --vinculo-surface: #f8f9ff;
+                --vinculo-surface-card: #ffffff;
+                --vinculo-navy-soft: #e9eff7;
+                --vinculo-border: #e3e8f0;
+            }
+
+            body {
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                background-color: var(--vinculo-surface);
+                color: #0b1c30;
+                min-height: 100vh;
+            }
+
+            .bg-corporate-primary {
+                background-color: #0f2a47 !important;
+            }
+
+            .text-corporate-primary {
+                color: #0f2a47 !important;
+            }
+
+            .btn-teal {
+                background-color: var(--vinculo-teal);
+                border-color: var(--vinculo-teal);
+                color: #fff;
+            }
+
+                .btn-teal:hover,
+                .btn-teal:focus {
+                    background-color: var(--vinculo-teal-dark);
+                    border-color: var(--vinculo-teal-dark);
+                    color: #fff;
+                }
+
+            .btn-outline-teal {
+                color: var(--vinculo-teal);
+                border-color: var(--vinculo-teal);
+            }
+
+                .btn-outline-teal:hover {
+                    background-color: var(--vinculo-teal);
+                    color: #fff;
+                }
+
+            .text-teal {
+                color: var(--vinculo-teal) !important;
+            }
+
+            .bg-teal-subtle-custom {
+                background-color: #eaf8fa !important;
+                color: #086b75 !important;
+            }
+
+            .sidebar {
+                width: 260px;
+                min-height: calc(100vh - 64px);
+            }
+
+            .nav-sidebar-link {
+                color: #495057;
+                font-weight: 500;
+                font-size: 0.9rem;
+                border-radius: 0.5rem;
+                padding: 0.6rem 0.85rem;
+                transition: all 0.15s ease-in-out;
+                text-decoration: none;
+                display: flex;
+                align-items: center;
+                gap: 0.65rem;
+            }
+
+                .nav-sidebar-link:hover {
+                    background-color: #f1f4fa;
+                    color: #0f2a47;
+                }
+
+                .nav-sidebar-link.active {
+                    background-color: #dce7f5;
+                    color: #0f2a47;
+                    font-weight: 600;
+                }
+
+            .kpi-icon-box {
+                width: 46px;
+                height: 46px;
+                border-radius: 12px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.35rem;
+            }
+
+            .map-preview-box {
+                background: radial-gradient(circle at 50% 50%, #d4e7f5 0%, #c1d9ec 100%);
+                border: 1px dashed #99bad5;
+                min-height: 200px;
+                position: relative;
+            }
+
+            .breadcrumb-item + .breadcrumb-item::before {
+                content: "›";
+                font-size: 1.1rem;
+                line-height: 1;
+                vertical-align: -1px;
+            }
+
+            /* =========================================
+                       PANEL DE ACCESIBILIDAD
+                       ========================================= */
+
+            .btn-accesibilidad {
+                position: fixed;
+                right: 20px;
+                bottom: 60px;
+                z-index: 1050;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 9px;
+                padding: 12px 17px;
+                border: 2px solid #0f2a47;
+                border-radius: 30px;
+                background-color: #0f2a47;
+                color: #fff;
+                font-weight: 600;
+                cursor: pointer;
+                box-shadow: 0 3px 12px rgba(0, 0, 0, 0.22);
+            }
+
+                .btn-accesibilidad:hover {
+                    background-color: #17466f;
+                    color: #fff;
+                }
+
+                .btn-accesibilidad i {
+                    font-size: 1.35rem;
+                }
+
+            .panel-accesibilidad {
+                position: fixed;
+                right: 20px;
+                bottom: 122px;
+                z-index: 1051;
+                width: min(370px, calc(100vw - 24px));
+                max-height: min(78vh, 760px);
+                overflow-y: auto;
+                padding: 20px;
+                border: 1px solid #adb5bd;
+                border-radius: 14px;
+                background: #fff;
+                color: #212529;
+                box-shadow: 0 6px 28px rgba(0, 0, 0, 0.25);
+            }
+
+                .panel-accesibilidad[hidden] {
+                    display: none !important;
+                }
+
+            .panel-accesibilidad-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                margin-bottom: 18px;
+                padding-bottom: 12px;
+                border-bottom: 1px solid #dee2e6;
+            }
+
+                .panel-accesibilidad-header h2 {
+                    margin: 0;
+                    font-size: 1.3rem;
+                    font-weight: 700;
+                }
+
+            .cerrar-accesibilidad {
+                border: 0;
+                background: transparent;
+                color: inherit;
+                font-size: 1.8rem;
+                cursor: pointer;
+                line-height: 1;
+            }
+
+            .opcion-accesibilidad {
+                display: grid;
+                grid-template-columns: 1fr auto;
+                gap: 8px 12px;
+                align-items: center;
+                margin-bottom: 17px;
+            }
+
+                .opcion-accesibilidad label {
+                    font-weight: 600;
+                    font-size: 0.92rem;
+                }
+
+                .opcion-accesibilidad select {
+                    grid-column: 1 / -1;
+                    width: 100%;
+                    min-height: 40px;
+                    padding: 7px 9px;
+                    border: 1px solid #adb5bd;
+                    border-radius: 6px;
+                    background: #fff;
+                    color: #212529;
+                }
+
+                .opcion-accesibilidad input[type="range"] {
+                    grid-column: 1 / -1;
+                    width: 100%;
+                    min-height: 26px;
+                    accent-color: #0f2a47;
+                    cursor: pointer;
+                }
+
+                .opcion-accesibilidad input[type="checkbox"] {
+                    width: 20px;
+                    height: 20px;
+                    accent-color: #0f2a47;
+                    cursor: pointer;
+                }
+
+                .opcion-accesibilidad output {
+                    font-size: 0.85rem;
+                    font-weight: 500;
+                    white-space: nowrap;
+                }
+
+            .btn-restablecer-accesibilidad {
+                width: 100%;
+                padding: 10px 14px;
+                border: 2px solid #0f2a47;
+                border-radius: 7px;
+                background: #fff;
+                color: #0f2a47;
+                font-weight: 600;
+                cursor: pointer;
+            }
+
+                .btn-restablecer-accesibilidad:hover {
+                    background: #e9eff7;
+                }
+
+            /* Foco visible para navegación por teclado */
+            button:focus-visible,
+            a:focus-visible,
+            select:focus-visible,
+            input:focus-visible,
+            textarea:focus-visible {
+                outline: 3px solid #ffbf00 !important;
+                outline-offset: 3px;
+            }
+
+            /* =========================================
+                       OPCIONES DE LECTURA
+                       ========================================= */
+
+            html.accesibilidad-fuente-sans body {
+                font-family: Arial, Helvetica, sans-serif !important;
+            }
+
+            html.accesibilidad-fuente-legible body {
+                font-family: Verdana, Arial, sans-serif !important;
+            }
+
+            html.accesibilidad-kerning body {
+                font-kerning: normal;
+                font-variant-ligatures: none;
+            }
+
+            html.accesibilidad-letras body {
+                letter-spacing: var(--accesibilidad-letras, 0);
+            }
+
+            html.accesibilidad-linea body {
+                line-height: var(--accesibilidad-linea, 1.4);
+            }
+
+            html.accesibilidad-imagenes-ocultas img:not(.logo-accesibilidad),
+            html.accesibilidad-imagenes-ocultas picture,
+            html.accesibilidad-imagenes-ocultas video {
+                visibility: hidden !important;
+            }
+
+            html.accesibilidad-enlaces a {
+                text-decoration: underline !important;
+                text-decoration-thickness: 2px !important;
+                text-underline-offset: 3px !important;
+                outline: 1px solid currentColor;
+            }
+
+            html.accesibilidad-ancho main {
+                max-width: 1000px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            html.accesibilidad-izquierda main {
+                text-align: left !important;
+            }
+
+            html.accesibilidad-justificado main {
+                text-align: justify !important;
+            }
+
+            /* =========================================
+                       COLOR DEL TEXTO
+                       ========================================= */
+
+            html.accesibilidad-texto-negro body,
+            html.accesibilidad-texto-negro body * {
+                color: #000 !important;
+            }
+
+            html.accesibilidad-texto-azul body,
+            html.accesibilidad-texto-azul body * {
+                color: #123b65 !important;
+            }
+
+            /* =========================================
+                       ESPACIADO ENTRE CARACTERES
+                       ========================================= */
+
+            html.accesibilidad-kerning body,
+            html.accesibilidad-kerning body p,
+            html.accesibilidad-kerning body li,
+            html.accesibilidad-kerning body label,
+            html.accesibilidad-kerning body h1,
+            html.accesibilidad-kerning body h2,
+            html.accesibilidad-kerning body h3,
+            html.accesibilidad-kerning body h4,
+            html.accesibilidad-kerning body h5,
+            html.accesibilidad-kerning body h6,
+            html.accesibilidad-kerning body td,
+            html.accesibilidad-kerning body th,
+            html.accesibilidad-kerning body a,
+            html.accesibilidad-kerning body span {
+                letter-spacing: 0.12em !important;
+                font-kerning: normal;
+            }
+
+                html.accesibilidad-kerning body input,
+                html.accesibilidad-kerning body textarea,
+                html.accesibilidad-kerning body select,
+                html.accesibilidad-kerning body button {
+                    letter-spacing: 0.08em !important;
+                }
+
+            @@media (max-width: 767.98px) {
+                .sidebar {
+                    width: 100%;
+                    min-height: auto;
+                }
+            }
+
+            @@media (max-width: 480px) {
+                .btn-accesibilidad {
+                    right: 12px;
+                    bottom: 48px;
+                    padding: 10px 13px;
+                }
+
+                    .btn-accesibilidad .texto-boton-accesibilidad {
+                        display: none;
+                    }
+
+                .panel-accesibilidad {
+                    right: 12px;
+                    bottom: 106px;
+                    max-height: 75vh;
+                }
+            }
     </style>
 </head>
-<body class="d-flex flex-column min-h-screen">
-    
-    <!-- Barra Superior -->
-    <header class="navbar navbar-expand-lg bg-white border-bottom border-light-subtle shadow-sm sticky-top py-2 px-3 px-lg-4" style="height: 64px;">
+
+<body class="d-flex flex-column min-vh-100">
+
+    <!-- Barra superior -->
+    <header class="navbar navbar-expand-lg bg-white border-bottom border-light-subtle shadow-sm sticky-top py-2 px-3 px-lg-4"
+            style="min-height: 64px;">
         <div class="container-fluid px-0 d-flex align-items-center justify-content-between">
+
             <div class="d-flex align-items-center gap-3">
-                <a class="navbar-brand d-flex align-items-center gap-2 m-0" href="/">
-                    @* <img alt="Eisbaer Logo" class="img-fluid" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0WB7iOtogyORIIfu37hVUTR9rgkUyNnIYBCr9AUGC0qpVwEJDhn6sJK140_0gGIR33Gc-Nb_wjDCxwE97yq60q2N4EhI8075uuZ3Cci_H2vLU8aUlb7ns99WBh2nlSBGyOwdQ90goVNKrOTVH1bb95aMEfjJ8sggy1itfBiNCBWPvv9jTiNvd0AZiVysocWfn-VHidbAjaUa7hXxkdCPTwYCOtcnuGdcwGzYS0eNGqNjPiaYkVK42_dUBeDbdH5oO208" style="height: 34px; width: auto; object-fit: contain;"/> *@
+                <a class="navbar-brand d-flex align-items-center gap-2 m-0"
+                   asp-controller="Home" asp-action="Index">
                     <div class="d-flex align-items-baseline gap-1">
-                        <span class="fs-4 fw-bold text-corporate-primary lh-1 tracking-tight">Vínculo</span>
+                        <span class="fs-4 fw-bold text-corporate-primary lh-1">Vínculo</span>
                         <span class="text-secondary small d-none d-sm-inline">por Eisbaer</span>
                     </div>
                 </a>
             </div>
-            
+
             <div class="d-flex align-items-center gap-3">
-                @if (User.Identity!.IsAuthenticated) 
+                @if (User.Identity?.IsAuthenticated == true)
                 {
                     <div class="d-none d-lg-block text-end lh-sm">
                         <div class="fw-semibold text-dark small">Mi Sesión</div>
-                        <small class="text-muted font-monospace" style="font-size: 0.78rem;">@(User.Identity.IsAuthenticated ? User.Identity.Name : "empresa@vinculo.com")</small>
+                        <small class="text-muted font-monospace"
+                               style="font-size: 0.78rem;">
+                            @User.Identity.Name
+                        </small>
                     </div>
+
                     <div class="dropdown">
-                        <button aria-expanded="false" class="btn btn-light p-1 rounded-circle border-0 d-flex align-items-center" data-bs-toggle="dropdown" type="button">
-                            <span class="rounded-circle bg-corporate-primary text-white d-inline-flex align-items-center justify-content-center" style="width: 34px; height: 34px;">
+                        <button aria-expanded="false"
+                                class="btn btn-light p-1 rounded-circle border-0 d-flex align-items-center"
+                                data-bs-toggle="dropdown"
+                                type="button"
+                                aria-label="Abrir menú de usuario">
+                            <span class="rounded-circle bg-corporate-primary text-white d-inline-flex align-items-center justify-content-center"
+                                  style="width: 34px; height: 34px;">
                                 <i class="bi bi-person-fill fs-5"></i>
                             </span>
                         </button>
+
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm border-light-subtle">
-                           <li><a class="dropdown-item small text-danger" asp-controller="Usuario" asp-action="Logout"><i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión</a></li>
+                            <li>
+                                <a class="dropdown-item small text-danger"
+                                   asp-controller="Usuario"
+                                   asp-action="Logout">
+                                    <i class="bi bi-box-arrow-right me-2"></i>
+                                    Cerrar sesión
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 }
@@ -87,230 +452,526 @@
         </div>
     </header>
 
+    <!-- Contenido principal y menú -->
     <div class="container-fluid flex-grow-1 px-0">
         <div class="row g-0">
-            <!-- Menú Lateral -->
+
+            <!-- Menú lateral -->
             <aside class="col-12 col-md-3 col-xl-2 bg-white border-end border-light-subtle d-flex flex-column justify-content-between p-3 sidebar">
                 <div>
-                    <div class="text-uppercase text-secondary fw-bold px-2 mb-3" style="font-size: 0.72rem; letter-spacing: 0.05em;">
+                    <div class="text-uppercase text-secondary fw-bold px-2 mb-3"
+                         style="font-size: 0.72rem; letter-spacing: 0.05em;">
                         Portal Principal
                     </div>
-                    
-                    <nav class="nav flex-column gap-1">
+
+                    <nav class="nav flex-column gap-1" aria-label="Navegación principal">
+
                         @if (User.IsInRole("Empresa"))
                         {
-                            <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Empresa" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" href="/Empresa/Index">
+                            <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Empresa" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")"
+                               asp-controller="Empresa" asp-action="Index">
                                 <i class="bi bi-speedometer2 fs-5"></i>
                                 <span>Principal</span>
                             </a>
-                            <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Empresa" && ViewContext.RouteData.Values["Action"]?.ToString() == "MisDatos" ? "active" : "")" href="/Empresa/MisDatos">
+
+                            <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Empresa" && ViewContext.RouteData.Values["Action"]?.ToString() == "MisDatos" ? "active" : "")"
+                               asp-controller="Empresa" asp-action="MisDatos">
                                 <i class="bi bi-building fs-5"></i>
                                 <span>Mis Datos</span>
                             </a>
-                            <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Donacion" && ViewContext.RouteData.Values["Action"]?.ToString() == "RegistrarDonacion" ? "active" : "")" href="/Donacion/RegistrarDonacion">
+
+                            <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Donacion" && ViewContext.RouteData.Values["Action"]?.ToString() == "RegistrarDonacion" ? "active" : "")"
+                               asp-controller="Donacion" asp-action="RegistrarDonacion">
                                 <i class="bi bi-plus-circle fs-5"></i>
                                 <span>Nueva Donación</span>
                             </a>
-                            <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Donacion" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" href="/Donacion/Index">
+
+                            <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Donacion" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")"
+                               asp-controller="Donacion" asp-action="Index">
                                 <i class="bi bi-box-seam fs-5"></i>
                                 <span>Mis Donaciones publicadas</span>
                             </a>
                         }
-                        
-                        @if (User.IsInRole("Institucion")) 
+
+                        @if (User.IsInRole("Institucion"))
                         {
                             <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Institucion" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")"
-                               href="/Institucion/Index">
+                               asp-controller="Institucion" asp-action="Index">
                                 <i class="bi bi-speedometer2 fs-5"></i>
                                 <span>Principal</span>
                             </a>
-                            <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "MisDatos" ? "active" : "")" href="/Institucion/MisDatos">
+
+                            <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "MisDatos" ? "active" : "")"
+                               asp-controller="Institucion" asp-action="MisDatos">
                                 <i class="bi bi-house fs-5"></i>
                                 <span>Mis Datos</span>
                             </a>
+
                             <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Solicitud" && ViewContext.RouteData.Values["Action"]?.ToString() == "Create" ? "active" : "")"
-                               href="/Solicitud/Create">
+                               asp-controller="Solicitud" asp-action="Create">
                                 <i class="bi bi-card-checklist fs-5"></i>
                                 <span>Nueva Solicitud</span>
                             </a>
 
                             <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Solicitud" && (ViewContext.RouteData.Values["Action"]?.ToString() == "Index" || ViewContext.RouteData.Values["Action"]?.ToString() == "Details") ? "active" : "")"
-                               href="/Solicitud/Index">
+                               asp-controller="Solicitud" asp-action="Index">
                                 <i class="bi bi-card-checklist fs-5"></i>
                                 <span>Mis Solicitudes</span>
                             </a>
                         }
-                                               
+
                         @if (User.IsInRole("Administrador"))
-
                         {
-                            <!-- Panel de Control - IMPLEMENTADO -->
                             <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Administrador" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")"
-                               asp-controller="Administrador"
-                               asp-action="Index">
-
+                               asp-controller="Administrador" asp-action="Index">
                                 <i class="bi bi-speedometer2 fs-5"></i>
                                 <span>Panel de Control</span>
-
                             </a>
 
-
-                            <!-- Usuarios - IMPLEMENTADO -->
                             <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Administrador" && ViewContext.RouteData.Values["Action"]?.ToString() == "Usuarios" ? "active" : "")"
-                               asp-controller="Administrador"
-                               asp-action="Usuarios">
-
+                               asp-controller="Administrador" asp-action="Usuarios">
                                 <i class="bi bi-people fs-5"></i>
                                 <span>Usuarios</span>
-
                             </a>
 
-                            <!-- Instituciones - IMPLEMENTADO -->
-                            
                             <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Administrador" && ViewContext.RouteData.Values["Action"]?.ToString() == "Instituciones" ? "active" : "")"
-                               asp-controller="Administrador"
-                               asp-action="Instituciones">
-
+                               asp-controller="Administrador" asp-action="Instituciones">
                                 <i class="bi bi-buildings fs-5"></i>
                                 <span>Instituciones</span>
-
                             </a>
 
-
-                            <!-- Empresas - IMPLEMENTADO -->
                             <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Administrador" && ViewContext.RouteData.Values["Action"]?.ToString() == "Empresas" ? "active" : "")"
-                               asp-controller="Administrador"
-                               asp-action="Empresas">
-
+                               asp-controller="Administrador" asp-action="Empresas">
                                 <i class="bi bi-building fs-5"></i>
                                 <span>Empresas</span>
-
                             </a>
 
-                            <!-- Solicitudes - Implementado -->
                             <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Administrador" && ViewContext.RouteData.Values["Action"]?.ToString() == "Solicitudes" ? "active" : "")"
-                               asp-controller="Administrador"
-                               asp-action="Solicitudes">
-
+                               asp-controller="Administrador" asp-action="Solicitudes">
                                 <i class="bi bi-card-checklist fs-5"></i>
                                 <span>Solicitudes</span>
-
                             </a>
 
-
-                             <!-- Donaciones - Implementado -->
-                            
                             <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Administrador" && ViewContext.RouteData.Values["Action"]?.ToString() == "Donaciones" ? "active" : "")"
-                               asp-controller="Administrador"
-                               asp-action="Donaciones">
-
+                               asp-controller="Administrador" asp-action="Donaciones">
                                 <i class="bi bi-box-seam fs-5"></i>
                                 <span>Donaciones</span>
                             </a>
 
-
-                            <!-- Asignaciones - Implementado -->
                             <a class="nav-sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Administrador" && ViewContext.RouteData.Values["Action"]?.ToString() == "Asignaciones" ? "active" : "")"
-                               asp-controller="Administrador"
-                               asp-action="Asignaciones">                             
-
+                               asp-controller="Administrador" asp-action="Asignaciones">
                                 <i class="bi bi-arrow-left-right fs-5"></i>
                                 <span>Asignaciones</span>
-
                             </a>
-@*
-                            <!-- Logística y Entregas - FALTA IMPLEMENTAR -->
-                            <a class="nav-sidebar-link"
-                               href="#">
-
-                                <i class="bi bi-truck fs-5"></i>
-                                <span>Logística y Entregas</span>
-
-                            </a>
-
-                            
-        Cuando exista la acción:
-
-        <a class="nav-sidebar-link"
-           asp-controller="Administrador"
-           asp-action="Entregas">
-
-            <i class="bi bi-truck fs-5"></i>
-            <span>Logística y Entregas</span>
-
-        </a>
-   
-
-                            <!-- Reportes - FALTA IMPLEMENTAR -->
-                            <a class="nav-sidebar-link"
-                               href="#">
-
-                                <i class="bi bi-bar-chart-line fs-5"></i>
-                                <span>Reportes</span>
-
-                            </a>
-
-                            @*
-        Cuando exista la acción:
-
-        <a class="nav-sidebar-link"
-           asp-controller="Administrador"
-           asp-action="Reportes">
-
-            <i class="bi bi-bar-chart-line fs-5"></i>
-            <span>Reportes</span>
-
-        </a>
-    
-
-
-                            <!-- Configuración - FALTA IMPLEMENTAR -->
-                            <a class="nav-sidebar-link"
-                               href="#">
-
-                                <i class="bi bi-gear fs-5"></i>
-                                <span>Configuración</span>
-
-                            </a>
-
-                            @*
-        Cuando exista la acción:
-
-        <a class="nav-sidebar-link"
-           asp-controller="Administrador"
-           asp-action="Configuracion">
-
-            <i class="bi bi-gear fs-5"></i>
-            <span>Configuración</span>
-
-        </a>
-    *@
                         }
-
                     </nav>
                 </div>
             </aside>
 
-            <!-- Área Dinámica -->
-            <main class="col-12 col-md-9 col-xl-10 p-3 p-lg-4 overflow-auto">
+            <!-- Área dinámica -->
+            <main id="contenidoPrincipal"
+                  tabindex="-1"
+                  class="col-12 col-md-9 col-xl-10 p-3 p-lg-4 overflow-auto">
                 @RenderBody()
             </main>
         </div>
     </div>
 
-    <!-- Pie de Página -->
+    <!-- Pie de página -->
     <footer class="bg-white border-top border-light-subtle py-3 px-4 mt-auto">
         <div class="container-fluid px-0 d-flex flex-column flex-sm-row align-items-center justify-content-between gap-2 small text-secondary">
-            <div>© 2026 Vínculo – Todos los derechos reservados. Infraestructura B2B y Certificación AFIP / RG 2681.</div>
+            <div>
+                © 2026 Vínculo – Todos los derechos reservados.
+                Infraestructura B2B y Certificación AFIP / RG 2681.
+            </div>
+
             <div class="d-flex align-items-center gap-2">
                 <span>Desarrollado por Eisbaer</span>
-                <img alt="Eisbaer Logo" class="img-fluid" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDqTaj6ZMKMa_CQEsM5qfu_IWyhzO0KzcilH-o4_XUBxvVePsjjPsCkQk-zuFlCsRGPhyPFXUd4O4qej2KbMpum6jrb0ifsa-d79f2nFv1FFOTnDWdcanquVW5dmGgSHF8cfhNJRvzTbJfMViJla8s0RXi3BbPy-PwJ9Uu6zKoo6ENbEo38MDhzFK08rTuI-H82TSDTuf8oCLnnZp5ZI20Dg9kiz4XU38RJmdRJjfTENjvKb3kSHYKultYR4cfjfg1kVE" style="height: 20px; width: auto; object-fit: contain;"/>
+                <img alt="Eisbaer Logo"
+                     class="img-fluid"
+                     src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDqTaj6ZMKMa_CQEsM5qfu_IWyhzO0KzcilH-o4_XUBxvVePsjjPsCkQk-zuFlCsRGPhyPFXUd4O4qej2KbMpum6jrb0ifsa-d79f2nFv1FFOTnDWdcanquVW5dmGgSHF8cfhNJRvzTbJfMViJla8s0RXi3BbPy-PwJ9Uu6zKoo6ENbEo38MDhzFK08rTuI-H82TSDTuf8oCLnnZp5ZI20Dg9kiz4XU38RJmdRJjfTENjvKb3kSHYKultYR4cfjfg1kVE"
+                     style="height: 20px; width: auto; object-fit: contain;" />
             </div>
         </div>
     </footer>
 
+    <!-- Botón flotante de accesibilidad: se conserva -->
+    <button type="button"
+            id="btnAccesibilidad"
+            class="btn-accesibilidad"
+            aria-label="Abrir opciones de accesibilidad"
+            aria-expanded="false"
+            aria-controls="panelAccesibilidad">
+        <i class="bi bi-universal-access" aria-hidden="true"></i>
+        <span class="texto-boton-accesibilidad"></span>
+    </button>
+
+    <!-- Panel de accesibilidad: sin opciones de fondo -->
+    <aside id="panelAccesibilidad"
+           class="panel-accesibilidad"
+           aria-label="Opciones de accesibilidad"
+           hidden>
+
+        <div class="panel-accesibilidad-header">
+            <h2>
+                <i class="bi bi-universal-access me-2" aria-hidden="true"></i>
+                Accesibilidad
+            </h2>
+
+            <button type="button"
+                    id="cerrarAccesibilidad"
+                    class="cerrar-accesibilidad"
+                    aria-label="Cerrar opciones de accesibilidad">
+                &times;
+            </button>
+        </div>
+
+        <div class="opcion-accesibilidad">
+            <label for="accesibilidadFuente">Tipo de letra</label>
+            <select id="accesibilidadFuente">
+                <option value="normal">Original</option>
+                <option value="sans">Sans serif</option>
+                <option value="legible">Alta legibilidad</option>
+            </select>
+        </div>
+
+        <div class="opcion-accesibilidad">
+            <label for="accesibilidadTamano">
+                Tamaño de letra
+                <output id="valorTamano">100%</output>
+            </label>
+            <input type="range"
+                   id="accesibilidadTamano"
+                   min="80" max="180" step="10" value="100" />
+        </div>
+
+        <div class="opcion-accesibilidad">
+            <label for="accesibilidadKerning">
+                Espaciado entre caracteres (Font Kerning)
+            </label>
+            <input type="checkbox" id="accesibilidadKerning" />
+        </div>
+
+        <div class="opcion-accesibilidad">
+            <label for="accesibilidadLetras">
+                Espaciado entre letras
+                <output id="valorLetras">0 px</output>
+            </label>
+            <input type="range"
+                   id="accesibilidadLetras"
+                   min="0" max="3" step="0.5" value="0" />
+        </div>
+
+        <div class="opcion-accesibilidad">
+            <label for="accesibilidadLinea">
+                Altura de línea
+                <output id="valorLinea">1.4</output>
+            </label>
+            <input type="range"
+                   id="accesibilidadLinea"
+                   min="1.2" max="2" step="0.1" value="1.4" />
+        </div>
+
+        <div class="opcion-accesibilidad">
+            <label for="accesibilidadImagenes">Visibilidad de imágenes</label>
+            <input type="checkbox" id="accesibilidadImagenes" checked />
+        </div>
+
+        <div class="opcion-accesibilidad">
+            <label for="accesibilidadEnlaces">Resaltado de enlaces</label>
+            <input type="checkbox" id="accesibilidadEnlaces" />
+        </div>
+
+        <div class="opcion-accesibilidad">
+            <label for="accesibilidadAncho">Ancho del párrafo</label>
+            <input type="checkbox" id="accesibilidadAncho" />
+        </div>
+
+        <div class="opcion-accesibilidad">
+            <label for="accesibilidadAlineacion">Alineación del texto</label>
+            <select id="accesibilidadAlineacion">
+                <option value="normal">Original</option>
+                <option value="izquierda">Izquierda</option>
+                <option value="justificado">Justificado</option>
+            </select>
+        </div>
+
+        <div class="opcion-accesibilidad">
+            <label for="accesibilidadColorTexto">Color del texto</label>
+            <select id="accesibilidadColorTexto">
+                <option value="normal">Predeterminado</option>
+                <option value="negro">Negro</option>
+                <option value="azul">Azul oscuro</option>
+            </select>
+        </div>
+
+        <button type="button"
+                id="restablecerAccesibilidad"
+                class="btn-restablecer-accesibilidad">
+            <i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i>
+            Restablecer preferencias
+        </button>
+
+        <span id="estadoAccesibilidad"
+              class="visually-hidden"
+              role="status"
+              aria-live="polite"></span>
+    </aside>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script crossorigin="anonymous" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const raiz = document.documentElement;
+                const boton = document.getElementById("btnAccesibilidad");
+                const panel = document.getElementById("panelAccesibilidad");
+                const cerrar = document.getElementById("cerrarAccesibilidad");
+                const restablecer = document.getElementById("restablecerAccesibilidad");
+                const estado = document.getElementById("estadoAccesibilidad");
+
+                if (!boton || !panel || !cerrar || !restablecer || !estado) {
+                    return;
+                }
+
+                const controles = {
+                    fuente: document.getElementById("accesibilidadFuente"),
+                    tamano: document.getElementById("accesibilidadTamano"),
+                    kerning: document.getElementById("accesibilidadKerning"),
+                    letras: document.getElementById("accesibilidadLetras"),
+                    linea: document.getElementById("accesibilidadLinea"),
+                    imagenes: document.getElementById("accesibilidadImagenes"),
+                    enlaces: document.getElementById("accesibilidadEnlaces"),
+                    ancho: document.getElementById("accesibilidadAncho"),
+                    alineacion: document.getElementById("accesibilidadAlineacion"),
+                    colorTexto: document.getElementById("accesibilidadColorTexto")
+                };
+
+                const clave = "vinculo-preferencias-accesibilidad";
+
+                const valoresPredeterminados = {
+                    fuente: "normal",
+                    tamano: 100,
+                    kerning: false,
+                    letras: 0,
+                    linea: 1.4,
+                    imagenes: true,
+                    enlaces: false,
+                    ancho: false,
+                    alineacion: "normal",
+                    colorTexto: "normal"
+                };
+
+                const clases = [
+                    "accesibilidad-fuente-sans",
+                    "accesibilidad-fuente-legible",
+                    "accesibilidad-kerning",
+                    "accesibilidad-letras",
+                    "accesibilidad-linea",
+                    "accesibilidad-imagenes-ocultas",
+                    "accesibilidad-enlaces",
+                    "accesibilidad-ancho",
+                    "accesibilidad-izquierda",
+                    "accesibilidad-justificado",
+                    "accesibilidad-texto-negro",
+                    "accesibilidad-texto-azul"
+                ];
+
+                function abrirPanel() {
+                    panel.hidden = false;
+                    boton.setAttribute("aria-expanded", "true");
+                    boton.setAttribute("aria-label", "Cerrar opciones de accesibilidad");
+                }
+
+                function cerrarPanel() {
+                    panel.hidden = true;
+                    boton.setAttribute("aria-expanded", "false");
+                    boton.setAttribute("aria-label", "Abrir opciones de accesibilidad");
+                    boton.focus();
+                }
+
+                boton.addEventListener("click", function () {
+                    if (panel.hidden) {
+                        abrirPanel();
+                    } else {
+                        cerrarPanel();
+                    }
+                });
+
+                cerrar.addEventListener("click", cerrarPanel);
+
+                document.addEventListener("keydown", function (evento) {
+                    if (evento.key === "Escape" && !panel.hidden) {
+                        cerrarPanel();
+                    }
+                });
+
+                function leerValores() {
+                    return {
+                        fuente: controles.fuente.value,
+                        tamano: Number(controles.tamano.value),
+                        kerning: controles.kerning.checked,
+                        letras: Number(controles.letras.value),
+                        linea: Number(controles.linea.value),
+                        imagenes: controles.imagenes.checked,
+                        enlaces: controles.enlaces.checked,
+                        ancho: controles.ancho.checked,
+                        alineacion: controles.alineacion.value,
+                        colorTexto: controles.colorTexto.value
+                    };
+                }
+
+                function actualizarInterfaz() {
+                    const valores = leerValores();
+
+                    raiz.classList.remove(...clases);
+
+                    if (valores.fuente === "sans") {
+                        raiz.classList.add("accesibilidad-fuente-sans");
+                    }
+
+                    if (valores.fuente === "legible") {
+                        raiz.classList.add("accesibilidad-fuente-legible");
+                    }
+
+                    if (valores.kerning) {
+                        raiz.classList.add("accesibilidad-kerning");
+                    }
+
+                    if (valores.letras > 0) {
+                        raiz.classList.add("accesibilidad-letras");
+                    }
+
+                    if (valores.linea !== 1.4) {
+                        raiz.classList.add("accesibilidad-linea");
+                    }
+
+                    if (!valores.imagenes) {
+                        raiz.classList.add("accesibilidad-imagenes-ocultas");
+                    }
+
+                    if (valores.enlaces) {
+                        raiz.classList.add("accesibilidad-enlaces");
+                    }
+
+                    if (valores.ancho) {
+                        raiz.classList.add("accesibilidad-ancho");
+                    }
+
+                    if (valores.alineacion === "izquierda") {
+                        raiz.classList.add("accesibilidad-izquierda");
+                    }
+
+                    if (valores.alineacion === "justificado") {
+                        raiz.classList.add("accesibilidad-justificado");
+                    }
+
+                    if (valores.colorTexto === "negro") {
+                        raiz.classList.add("accesibilidad-texto-negro");
+                    }
+
+                    if (valores.colorTexto === "azul") {
+                        raiz.classList.add("accesibilidad-texto-azul");
+                    }
+
+                    raiz.style.fontSize = valores.tamano + "%";
+
+                    raiz.style.setProperty(
+                        "--accesibilidad-letras",
+                        valores.letras + "px"
+                    );
+
+                    raiz.style.setProperty(
+                        "--accesibilidad-linea",
+                        String(valores.linea)
+                    );
+
+                    document.getElementById("valorTamano").textContent =
+                        valores.tamano + "%";
+
+                    document.getElementById("valorLetras").textContent =
+                        valores.letras + " px";
+
+                    document.getElementById("valorLinea").textContent =
+                        valores.linea.toFixed(1);
+                }
+
+                function guardarPreferencias() {
+                    actualizarInterfaz();
+
+                    try {
+                        localStorage.setItem(
+                            clave,
+                            JSON.stringify(leerValores())
+                        );
+                    } catch (error) {
+                        // Los controles siguen funcionando aunque localStorage no esté disponible.
+                    }
+
+                    estado.textContent = "Preferencias de accesibilidad actualizadas.";
+                }
+
+                function aplicarValores(valores) {
+                    controles.fuente.value = valores.fuente;
+                    controles.tamano.value = valores.tamano;
+                    controles.kerning.checked = valores.kerning;
+                    controles.letras.value = valores.letras;
+                    controles.linea.value = valores.linea;
+                    controles.imagenes.checked = valores.imagenes;
+                    controles.enlaces.checked = valores.enlaces;
+                    controles.ancho.checked = valores.ancho;
+                    controles.alineacion.value = valores.alineacion;
+                    controles.colorTexto.value = valores.colorTexto;
+
+                    actualizarInterfaz();
+                }
+
+                function cargarPreferencias() {
+                    try {
+                        const guardadas = localStorage.getItem(clave);
+
+                        if (!guardadas) {
+                            aplicarValores(valoresPredeterminados);
+                            return;
+                        }
+
+                        const valoresGuardados = JSON.parse(guardadas);
+
+                        const valores = {
+                            ...valoresPredeterminados,
+                            ...valoresGuardados
+                        };
+
+                        // Ignora la antigua preferencia de fondo si estaba guardada.
+                        delete valores.fondo;
+
+                        aplicarValores(valores);
+                    } catch (error) {
+                        aplicarValores(valoresPredeterminados);
+                    }
+                }
+
+                Object.values(controles).forEach(function (control) {
+                    control.addEventListener("input", guardarPreferencias);
+                    control.addEventListener("change", guardarPreferencias);
+                });
+
+                restablecer.addEventListener("click", function () {
+                    aplicarValores(valoresPredeterminados);
+
+                    try {
+                        localStorage.removeItem(clave);
+                    } catch (error) {
+                        // No impide restablecer los controles actuales.
+                    }
+
+                    estado.textContent = "Preferencias restablecidas.";
+                });
+
+                cargarPreferencias();
+            });
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
